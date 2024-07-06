@@ -33,8 +33,7 @@ RegisterNetEvent('villamos_aduty:setTag', function(enable)
     if enable == true then
         if admincucc ~= 'user' then
             TriggerClientEvent('chat:addMessage', -1, {
-                template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 410px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;"> <span style="color:red;">LOG » {0}</span> bekapcsolta az Admin Tag et </div>',
-                --template = '<div stlye = "backround-color: rgba(0, 0, 0, 0.6); "class="chat-message"><b> <span stlye = "color: green;">LOG » {0} </span> </b> bekapcsolta az Admin Tag et</div>',
+                template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 410px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » {0} <span style="color:green;">bekapcsolta </span>az Admin Tag et </div>',
                 args = { xPlayer.getName() }
             })
         end
@@ -42,8 +41,8 @@ RegisterNetEvent('villamos_aduty:setTag', function(enable)
     if enable == false then
         if admincucc ~= 'user' then
         TriggerClientEvent('chat:addMessage', -1, {
-            template = '<div class="chat-message"><b>LOG » {0}</b> Kikapcsolta az Admin Tag et</div>',
-            args = { xPlayer.getName() }
+                template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 410px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » {0} <span style="color:red;">kikapcsolta </span> az Admin Tag et </div>',
+                args = { xPlayer.getName() }
         })
     end
     end
