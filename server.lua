@@ -29,10 +29,24 @@ RegisterNetEvent('villamos_aduty:setTag', function(enable)
 
     tags[xPlayer.source] = enable and inDuty[xPlayer.source].tag or nil
     TriggerClientEvent("villamos_aduty:sendData", -1, tags)
-    TriggerClientEvent("chat:addMessage", xPlayer.source, {
-		template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 410px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;"><i class="fas fa-terminal"></i> <span style="color:red;">{1}</span> Ki/Be Kapcsolta az admin tag et</div>',
-		args = { msg, source },
-	})
+    local admincucc = xPlayer.getGroup()
+    if enable == true then
+        if admincucc ~= 'user' then
+            TriggerClientEvent('chat:addMessage', -1, {
+                template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 410px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;"> <span style="color:red;">LOG » {0}</span> bekapcsolta az Admin Tag et </div>',
+                --template = '<div stlye = "backround-color: rgba(0, 0, 0, 0.6); "class="chat-message"><b> <span stlye = "color: green;">LOG » {0} </span> </b> bekapcsolta az Admin Tag et</div>',
+                args = { xPlayer.getName() }
+            })
+        end
+    end
+    if enable == false then
+        if admincucc ~= 'user' then
+        TriggerClientEvent('chat:addMessage', -1, {
+            template = '<div class="chat-message"><b>LOG » {0}</b> Kikapcsolta az Admin Tag et</div>',
+            args = { xPlayer.getName() }
+        })
+    end
+    end
 end)
 
 RegisterNetEvent('villamos_aduty:setDutya', function(enable)
