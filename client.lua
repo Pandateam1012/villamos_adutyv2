@@ -266,10 +266,7 @@ function ToggleTag(state, usenotify)
     if not duty then return Config.Notify(_U("no_perm")) end 
     tag = state
     TriggerServerEvent('villamos_aduty:setTag', tag)
-    TriggerClientEvent("chat:addMessage", xPlayer.source, {
-		template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 410px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;"><i class="fas fa-terminal"></i> <span style="color:red;">{1}</span> Ki/Be Kapcsolta az admin tag et</div>',
-		args = { msg, sourceName },
-	})
+
     if usenotify then 
         Config.Notify(_U("tag", (tag and _U("enabled") or _U("disabled")) ))
         UpdateNui()

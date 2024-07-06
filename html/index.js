@@ -1,7 +1,7 @@
 const App = Vue.createApp({
     data() {
       return {
-        opened : true,
+        opened : false,
         players : [
             {id:1, name:"6osvillamos", group:"admin", job:"Rendőr"},
 
