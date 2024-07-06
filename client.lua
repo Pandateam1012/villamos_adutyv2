@@ -142,10 +142,6 @@ if Config.Commands then
         ToggleTag(not tag, true)
     end)
 
-    RegisterCommand('adlog', function(s, a, r)
-        ToggleLog(not log, true)
-    end)
-
     RegisterCommand('adids', function(s, a, r)
         ToggleIds(not ids, true)
     end)
@@ -260,13 +256,10 @@ function ToggleGod(state, usenotify)
     end)
 end 
 
-local sourceName = source
-
 function ToggleTag(state, usenotify) 
     if not duty then return Config.Notify(_U("no_perm")) end 
     tag = state
     TriggerServerEvent('villamos_aduty:setTag', tag)
-
     if usenotify then 
         Config.Notify(_U("tag", (tag and _U("enabled") or _U("disabled")) ))
         UpdateNui()
