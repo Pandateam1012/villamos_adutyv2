@@ -2,9 +2,9 @@ fx_version 'adamant'
 
 game 'gta5'
 
-description 'admin duty by 6osvillamos'
+description 'admin duty by 6osvillamos Edited by Pandascripts'
 
-version '1.2.2'
+version '1.2.3'
 
 ui_page 'html/index.html'
 

@@ -10,6 +10,7 @@ Optimized Admin Duty with panel, if you like my work, join our [Discord](https:/
 -Easy permission system <br/>
 -Admin tag based on group or on discord roles <br/>
 -Discord log <br/>
+-Command log to In game chat <br/>
 -Count duty time <br/>
 -Server logo over admins head <br/>
 -Clothes or ped on duty <br/>
