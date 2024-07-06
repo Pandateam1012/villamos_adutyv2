@@ -1,10 +1,10 @@
 Config = {}
 
-Config.Locale = "en" -- en, hu
+Config.Locale = "hu" -- en, hu
 
 Config.Commands = true
 
-Config.log = true -- A chatre és discord ra loggolja a parancsokat!
+Config.togglelog = true  -- Ha Discord webhook nál nincs semmi akkor a discord ra nem fogja logolni! de a chatre igen!
 
 Config.Icons = {
     "marvel"

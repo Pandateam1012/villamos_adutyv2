@@ -22,6 +22,140 @@ ESX.RegisterServerCallback("villamos_aduty:openPanel", function(source, cb)
 
     cb(true, xAdmin.getGroup(), players)
 end)
+-------------------------------------------------------------------------------------
+------------------------ LOGOK! -----------------------------------------------------
+RegisterNetEvent('villamos_aduty:togid', function(ids)
+
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local admincucc = xPlayer.getGroup()
+    if ids == false then
+       if admincucc ~= 'user' then
+           TriggerClientEvent('chat:addMessage', -1, {
+                   template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> az ID-ket </div>',
+                   args = { xPlayer.getName(), xPlayer.source }
+           })        logdclog(10616832 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta az ID-ket')
+
+       end
+   end
+    if ids == true then
+       if admincucc ~= 'user' then
+       TriggerClientEvent('chat:addMessage', -1, {
+           template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:green;">bekapcsolta </span>az ID-ket </div>',
+           args = { xPlayer.getName(), xPlayer.source }
+       })    logdclog(27946 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. '  bekapcsolta az ID-ket')
+
+   end
+
+    end
+   end)
+
+   RegisterNetEvent('villamos_aduty:toggod', function(god)
+
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local admincucc = xPlayer.getGroup()
+    if god == false then
+       if admincucc ~= 'user' then
+           TriggerClientEvent('chat:addMessage', -1, {
+                   template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> a halhatatlanságot </div>',
+                   args = { xPlayer.getName(), xPlayer.source }
+           })        logdclog(10616832 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a halhatatlanságot')
+
+       end
+   end
+    if god == true then
+       if admincucc ~= 'user' then
+       TriggerClientEvent('chat:addMessage', -1, {
+           template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:green;">bekapcsolta </span>a halhatatlanságot </div>',
+           args = { xPlayer.getName(), xPlayer.source }
+       })    logdclog(27946 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a halhatatlanságot')
+
+   end
+
+    end
+   end)
+
+   RegisterNetEvent('villamos_aduty:togsped', function(speed)
+
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local admincucc = xPlayer.getGroup()
+    if speed == false then
+       if admincucc ~= 'user' then
+           TriggerClientEvent('chat:addMessage', -1, {
+                   template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> a gyorsaságot </div>',
+                   args = { xPlayer.getName(), xPlayer.source }
+           })        logdclog(10616832 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a gyorsaságot')
+
+       end
+
+   end
+    if speed == true then
+       if admincucc ~= 'user' then
+       TriggerClientEvent('chat:addMessage', -1, {
+           template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:green;">bekapcsolta </span>a gyorsaságot </div>',
+           args = { xPlayer.getName(), xPlayer.source }
+       })
+       logdclog(27946 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a gyorsaságot')
+
+   end
+
+    end
+   end)
+
+   RegisterNetEvent('villamos_aduty:toginvisible', function(invisible)
+
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local admincucc = xPlayer.getGroup()
+    if invisible == false then
+       if admincucc ~= 'user' then
+           TriggerClientEvent('chat:addMessage', -1, {
+                   template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> a láthatatlanságot </div>',
+                   args = { xPlayer.getName(), xPlayer.source }
+           })
+           logdclog(10616832 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a láthatatlanságot')
+
+       end
+
+   end
+    if invisible == true then
+       if admincucc ~= 'user' then
+       TriggerClientEvent('chat:addMessage', -1, {
+           template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:green;">bekapcsolta </span>a láthatatlanságot </div>',
+           args = { xPlayer.getName(), xPlayer.source }
+       })
+       logdclog(27946 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a láthatatlanságot')
+
+   end
+
+    end
+   end)
+
+   RegisterNetEvent('villamos_aduty:tognoragdoll', function(noragdoll)
+
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local admincucc = xPlayer.getGroup()
+    if noragdoll == false then
+       if admincucc ~= 'user' then
+           TriggerClientEvent('chat:addMessage', -1, {
+                   template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> a noragdoll t </div>',
+                   args = { xPlayer.getName(), xPlayer.source }
+           })
+           logdclog(10616832 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a noragdoll-t')
+
+       end
+   end
+    if noragdoll == true then
+       if admincucc ~= 'user' then
+       TriggerClientEvent('chat:addMessage', -1, {
+           template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:green;">bekapcsolta </span>a noragdoll t </div>',
+           args = { xPlayer.getName(), xPlayer.source }
+       })
+       logdclog(27946 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a noragdoll-t')
+
+   end
+    end
+   end)
+
+
 
 RegisterNetEvent('villamos_aduty:setTag', function(enable)
     local xPlayer = ESX.GetPlayerFromId(source)
@@ -33,21 +167,26 @@ RegisterNetEvent('villamos_aduty:setTag', function(enable)
     if enable == true then
         if admincucc ~= 'user' then
             TriggerClientEvent('chat:addMessage', -1, {
-                template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 410px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » {0} <span style="color:green;">bekapcsolta </span>az Admin Tag et </div>',
-                args = { xPlayer.getName() }
+                template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:green;">bekapcsolta </span>az Admin Tag et </div>',
+                args = { xPlayer.getName(), xPlayer.source }
             })
         end
+        logdclog(27946 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta az Admin Tag-et')
     end
     if enable == false then
         if admincucc ~= 'user' then
         TriggerClientEvent('chat:addMessage', -1, {
-                template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 410px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » {0} <span style="color:red;">kikapcsolta </span> az Admin Tag et </div>',
-                args = { xPlayer.getName() }
+                template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> az Admin Tag et </div>',
+                args = { xPlayer.getName(), xPlayer.source }
         })
+        logdclog(10616832 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta az Admin Tag-et')
+
     end
     end
 end)
 
+----------------------------------------------------------------------------------
+-------------------- LOGOK VÉGE --------------------------------------------------
 RegisterNetEvent('villamos_aduty:setDutya', function(enable)
     local xPlayer = ESX.GetPlayerFromId(source)
     if inDuty[xPlayer.source] then 
@@ -126,7 +265,7 @@ function LogToDiscord(name, duty, alltime, time)
             },
             ["author"] = {
                 ["name"] = "Marvel Studios",
-                ["url"] = "https://discord.gg/esnawXn5q5",
+                ["url"] = "https://discord.gg/yKnCYAUcp2",
                 ["icon_url"] = "https://cdn.discordapp.com/attachments/917181033626087454/954753156821188658/marvel1.png"
             },
             ["footer"] = {
@@ -136,6 +275,27 @@ function LogToDiscord(name, duty, alltime, time)
     }
     PerformHttpRequest(Config.Webhook, function(err, text, headers) end, 'POST', json.encode({embeds = connect}), { ['Content-Type'] = 'application/json' })
 end
+
+function logdclog(color, name, message, alltime, time)
+    if not Config.Webhook then return end 
+    local connect = {
+        {
+            ["color"] = color, -- ZÜLD: 27946 PIROS: 10616832
+            ["title"] = "**".. name .."**",
+            ["description"] = message,
+            ["author"] = {
+                ["name"] = "Marvel Studios",
+                ["url"] = "https://discord.gg/yKnCYAUcp2",
+                ["icon_url"] = "https://cdn.discordapp.com/attachments/917181033626087454/954753156821188658/marvel1.png"
+            },
+            ["footer"] = {
+                ["text"] = os.date("%Y-%m-%d %X").." | villamos_aduty :)",
+            },
+        }
+    }
+    PerformHttpRequest(Config.Webhook, function(err, text, headers) end, 'POST', json.encode({embeds = connect}), { ['Content-Type'] = 'application/json' })
+end
+
 
 function FormatMinutes(m)
     local minutes = m % 60

@@ -244,7 +244,9 @@ function ToggleGod(state, usenotify)
     if usenotify then 
         Config.Notify(_U("god", (god and _U("enabled") or _U("disabled")) ))
         UpdateNui()
-    end 
+    end if Config.togglelog == true then
+    TriggerServerEvent('villamos_aduty:toggod', god)
+    end
     CreateThread(function()
         while god do
             Wait(3000)
@@ -278,7 +280,9 @@ function ToggleIds(state, usenotify)
     if usenotify then 
         Config.Notify(_U("ids", (ids and _U("enabled") or _U("disabled")) ))
         UpdateNui()
-    end 
+    end if Config.togglelog == true then
+    TriggerServerEvent('villamos_aduty:togid', ids)
+    end
     CreateThread(function()
         while ids do
             for i = 0, 255 do
@@ -320,6 +324,9 @@ function ToggleSpeed(state, usenotify)
         Config.Notify(_U("speed", (speed and _U("enabled") or _U("disabled")) ))
         UpdateNui()
     end 
+    if Config.togglelog == true then
+    TriggerServerEvent('villamos_aduty:togsped', speed)
+    end
     CreateThread(function()
         while speed do
             Wait(1)
@@ -339,6 +346,9 @@ function ToggleInvisible(state, usenotify)
         Config.Notify(_U("invisible", (invisible and _U("enabled") or _U("disabled")) ))
         UpdateNui()
     end 
+    if Config.togglelog == true then
+    TriggerServerEvent('villamos_aduty:toginvisible', invisible)
+    end
 end 
 
 function ToggleNoragdoll(state, usenotify) 
@@ -349,7 +359,11 @@ function ToggleNoragdoll(state, usenotify)
         Config.Notify(_U("no_ragdoll", (noragdoll and _U("enabled") or _U("disabled")) ))
         UpdateNui()
     end 
+    if Config.togglelog == true then
+    TriggerServerEvent('villamos_aduty:tognoragdoll', noragdoll)
+    end
 end 
+
 
 function ActionCoords(format) 
     if not duty then return Config.Notify(_U("no_perm")) end 
