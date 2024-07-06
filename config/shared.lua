@@ -4,6 +4,8 @@ Config.Locale = "en" -- en, hu
 
 Config.Commands = true
 
+Config.log = true -- A chatre és discord ra loggolja a parancsokat!
+
 Config.Icons = {
     "marvel"
 }
