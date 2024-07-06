@@ -1,9 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap');
 body {
-    background-image: url(/icons/large.GrandTheftAutoVScreenshot2023_04.02-20_47_34_97.png.9d2d15fa12e205c37d5dfd6ec09d482b.png);
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
+    background-color: transparent;
     user-select: none;
 
 }
