@@ -101,6 +101,34 @@ RegisterNetEvent('villamos_aduty:togid', function(ids)
     end
    end)
 
+
+   RegisterNetEvent('villamos_aduty:tognoclip', function(noclip)
+
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local admincucc = xPlayer.getGroup()
+    if noclip == false then
+       if admincucc ~= 'user' then
+           TriggerClientEvent('chat:addMessage', -1, {
+                   template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> a Noclip-et </div>',
+                   args = { xPlayer.getName(), xPlayer.source }
+           })        logdclog(10616832 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a Noclip-et')
+
+       end
+
+   end
+    if noclip == true then
+       if admincucc ~= 'user' then
+       TriggerClientEvent('chat:addMessage', -1, {
+           template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:green;">bekapcsolta </span>a Noclip-et </div>',
+           args = { xPlayer.getName(), xPlayer.source }
+       })
+       logdclog(27946 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a Noclip-et')
+
+   end
+
+    end
+   end)
+
    RegisterNetEvent('villamos_aduty:toginvisible', function(invisible)
 
     local xPlayer = ESX.GetPlayerFromId(source)

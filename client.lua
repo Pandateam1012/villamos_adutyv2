@@ -10,6 +10,7 @@ local tag = false
 local ids = false
 local god = false
 local speed = false
+local noclip = false
 local invisible = false
 local noragdoll = false
 
@@ -92,6 +93,11 @@ RegisterNUICallback('speed', function(data, cb)
     cb('ok')
 end)
 
+RegisterNUICallback('noclip', function(data, cb)
+    ToggleNoclip(data.enable, true)
+    cb('ok')
+end)
+
 RegisterNUICallback('invisible', function(data, cb)
     ToggleInvisible(data.enable, true)
     cb('ok')
@@ -127,6 +133,7 @@ function UpdateNui()
             ids = ids,
             god = god,
             speed = speed,
+            noclip = noclip,
             invisible = invisible,
             noragdoll = noragdoll,
         }
@@ -152,6 +159,10 @@ if Config.Commands then
 
     RegisterCommand('adspeed', function(s, a, r)
         ToggleSpeed(not speed, true)
+    end)
+
+    RegisterCommand('adnoclip', function(s, a, r)
+        ToggleNoclip(not noclip, true)
     end)
 
     RegisterCommand('adinvisible', function(s, a, r)
@@ -228,6 +239,7 @@ RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
         end 
         ToggleIds(false, false)
         ToggleSpeed(false, false)
+        ToggleNoclip(false, false)
         ToggleGod(false, false)
         ToggleInvisible(false, false)
         ToggleNoragdoll(false, false)
@@ -329,6 +341,25 @@ function ToggleSpeed(state, usenotify)
     end
     CreateThread(function()
         while speed do
+            Wait(1)
+            SetSuperJumpThisFrame(PlayerId())
+        end
+    end)
+end 
+
+function ToggleNoclip(state, usenotify) 
+    if not duty then return Config.Notify(_U("no_perm")) end 
+    noclip = state
+    SetRunSprintMultiplierForPlayer(PlayerId(), noclip and 1.4 or 1.0)
+    if usenotify then 
+        Config.Notify(_U("noclip", (noclip and _U("enabled") or _U("disabled")) ))
+        UpdateNui()
+    end 
+    if Config.togglelog == true then
+    TriggerServerEvent('villamos_aduty:togsped', noclip)
+    end
+    CreateThread(function()
+        while noclip do
             Wait(1)
             SetSuperJumpThisFrame(PlayerId())
         end

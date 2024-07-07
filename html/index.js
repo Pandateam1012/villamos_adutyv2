@@ -12,6 +12,7 @@ const App = Vue.createApp({
             ids:false,
             god:false,
             speed:false,
+            noclip:false,
             invisible:false,
             noragdoll:false
         },
@@ -24,6 +25,7 @@ const App = Vue.createApp({
             nui_esp:"Show IDs",
             nui_god:"God mode",
             nui_speed:"Speed",
+            nui_noclip:"noclip",
             nui_invisble:"Invisible",
             nui_noragdoll:"No Ragdoll",
             nui_coords:"Coords",
@@ -134,6 +136,15 @@ const App = Vue.createApp({
                 method: 'POST',
                 body: JSON.stringify({
                     enable : this.state.speed
+                })
+            });
+        },
+        noclip() {
+            this.state.noclip = !this.state.noclip
+            fetch(`https://${GetParentResourceName()}/noclip`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    enable : this.state.noclip
                 })
             });
         },

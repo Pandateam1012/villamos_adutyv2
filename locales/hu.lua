@@ -28,6 +28,7 @@ Locales['hu'] = {
     ["nui_esp"] = "ESP",
     ["nui_god"] = "Halhatatlanság",
     ["nui_speed"] = "Gyorsaság",
+    ["nui_noclip"] = "Noclip",
     ["nui_invisble"] = "Láthatalanság",
     ["nui_noragdoll"] = "No Ragdoll",
     ["nui_coords"] = "Koordináták",
