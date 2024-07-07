@@ -26,7 +26,11 @@ server_scripts {
 }
 
 client_scripts {
-	'client.lua'
+	'client.lua',
+	'freecam/utils.lua',
+    'freecam/config.lua',
+    'freecam/main.lua',
+    'freecam/camera.lua'
 }
 
 dependencies {

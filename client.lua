@@ -350,20 +350,14 @@ end
 function ToggleNoclip(state, usenotify) 
     if not duty then return Config.Notify(_U("no_perm")) end 
     noclip = state
-    SetRunSprintMultiplierForPlayer(PlayerId(), noclip and 1.4 or 1.0)
+    SetFreecamActive(noclip)
     if usenotify then 
         Config.Notify(_U("noclip", (noclip and _U("enabled") or _U("disabled")) ))
         UpdateNui()
     end 
     if Config.togglelog == true then
-    TriggerServerEvent('villamos_aduty:togsped', noclip)
+    TriggerServerEvent('villamos_aduty:tognoclip', noclip)
     end
-    CreateThread(function()
-        while noclip do
-            Wait(1)
-            SetSuperJumpThisFrame(PlayerId())
-        end
-    end)
 end 
 
 function ToggleInvisible(state, usenotify) 
