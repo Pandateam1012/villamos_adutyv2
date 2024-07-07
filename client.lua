@@ -347,6 +347,8 @@ function ToggleSpeed(state, usenotify)
     end)
 end 
 
+local noclip = false
+
 function ToggleNoclip(state, usenotify) 
     if not duty then return Config.Notify(_U("no_perm")) end 
     noclip = state

@@ -139,15 +139,6 @@ const App = Vue.createApp({
                 })
             });
         },
-        noclip() {
-            this.state.noclip = !this.state.noclip
-            fetch(`https://${GetParentResourceName()}/noclip`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    enable : this.state.noclip
-                })
-            });
-        },
         invisible() {
             this.state.invisible = !this.state.invisible
             fetch(`https://${GetParentResourceName()}/invisible`, {

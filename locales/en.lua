@@ -28,7 +28,6 @@ Locales['en'] = {
     ["nui_esp"] = "Show IDs",
     ["nui_god"] = "God mode",
     ["nui_speed"] = "Speed",
-    ["nui_noclip"] = "Noclip",
     ["nui_invisble"] = "Invisible",
     ["nui_noragdoll"] = "No Ragdoll",
     ["nui_coords"] = "Coords",
