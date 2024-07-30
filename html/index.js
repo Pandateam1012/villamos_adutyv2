@@ -1,47 +1,46 @@
 const App = Vue.createApp({
     data() {
-      return {
-        opened : false,
-        players : [
-            {id:1, name:"6osvillamos", group:"admin", job:"Rendőr"},
-        ],
-        state : {
-            group:"user",
-            duty:false,
-            tag:false,
-            ids:false,
-            god:false,
-            speed:false,
-            noclip:false,
-            invisible:false,
-            noragdoll:false
-        },
-        locales: {
-            nui_label:"ADMIN DUTY PANEL",
-            nui_group:"Your group",
-            nui_players:"Players",
-            nui_duty:"Duty",
-            nui_tag:"Admin tag",
-            nui_esp:"Show IDs",
-            nui_god:"God mode",
-            nui_speed:"Speed",
-            nui_noclip:"noclip",
-            nui_invisble:"Invisible",
-            nui_noragdoll:"No Ragdoll",
-            nui_coords:"Coords",
-            nui_health:"Health",
-            nui_marker:"Marker",
-            nui_label_players:"PLAYERS",
-            nui_players_refresh:"Refresh",
-            nui_players_search:"Search for name, group, ID or job",
-            nui_players_id:"ID",
-            nui_players_name:"Name",
-            nui_players_group:"Group",
-            nui_players_job:"Job",
-        },
-
-        search : ""
-      }
+        return {
+            opened: false,
+            players: [
+                { id: 1, name: "6osvillamos", group: "admin", job: "Rendőr" },
+            ],
+            state: {
+                group: "user",
+                duty: false,
+                tag: false,
+                ids: false,
+                god: false,
+                speed: false,
+                invisible: false,
+                noragdoll: false
+            },
+            locales: {
+                nui_label: "ADMIN DUTY PANEL",
+                nui_group: "Your group",
+                nui_players: "Players",
+                nui_duty: "Duty",
+                nui_tag: "Admin tag",
+                nui_esp: "Show IDs",
+                nui_god: "God mode",
+                nui_speed: "Speed",
+                nui_invisble: "Invisible",
+                nui_noragdoll: "No Ragdoll",
+                nui_coords: "Coords",
+                nui_health: "Health",
+                nui_marker: "Marker",
+                nui_label_players: "PLAYERS",
+                nui_players_refresh: "Refresh",
+                nui_players_search: "Search for name, group, ID or job",
+                nui_players_id: "ID",
+                nui_players_name: "Name",
+                nui_players_group: "Group",
+                nui_players_job: "Job",
+                nui_goto: "Goto",
+                nui_bring: 'Bring',
+            },
+            search: ""
+        }
     },
     computed: {
         filteredList() {
@@ -71,7 +70,7 @@ const App = Vue.createApp({
                 }
             } else if (event.data.type == "setplayers") {
                 this.players = event.data.players;
-            } 
+            }
             else if (event.data.type == "setstate") {
                 this.state = event.data.state;
             }
@@ -90,6 +89,7 @@ const App = Vue.createApp({
         },
         close() {
             fetch(`https://${GetParentResourceName()}/exit`);
+            document.getElementById("clothmenu").style.display = 'none';
         },
         update() {
             fetch(`https://${GetParentResourceName()}/update`);
@@ -99,7 +99,7 @@ const App = Vue.createApp({
             fetch(`https://${GetParentResourceName()}/duty`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    enable : this.state.duty
+                    enable: this.state.duty
                 })
             });
         },
@@ -108,7 +108,7 @@ const App = Vue.createApp({
             fetch(`https://${GetParentResourceName()}/tag`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    enable : this.state.tag
+                    enable: this.state.tag
                 })
             });
         },
@@ -117,7 +117,7 @@ const App = Vue.createApp({
             fetch(`https://${GetParentResourceName()}/ids`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    enable : this.state.ids
+                    enable: this.state.ids
                 })
             });
         },
@@ -126,7 +126,7 @@ const App = Vue.createApp({
             fetch(`https://${GetParentResourceName()}/god`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    enable : this.state.god
+                    enable: this.state.god
                 })
             });
         },
@@ -135,7 +135,7 @@ const App = Vue.createApp({
             fetch(`https://${GetParentResourceName()}/speed`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    enable : this.state.speed
+                    enable: this.state.speed
                 })
             });
         },
@@ -144,7 +144,7 @@ const App = Vue.createApp({
             fetch(`https://${GetParentResourceName()}/invisible`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    enable : this.state.invisible
+                    enable: this.state.invisible
                 })
             });
         },
@@ -153,7 +153,7 @@ const App = Vue.createApp({
             fetch(`https://${GetParentResourceName()}/noragdoll`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    enable : this.state.noragdoll
+                    enable: this.state.noragdoll
                 })
             });
         },
@@ -166,7 +166,14 @@ const App = Vue.createApp({
         marker() {
             fetch(`https://${GetParentResourceName()}/marker`);
         },
-    }, 
+        gotoplayer() {
+            fetch(`https://${GetParentResourceName()}/gotoplayer`);
+            
+        },
+        bringplayer() {
+            fetch(`https://${GetParentResourceName()}/bringplayer`);
+        },
+    },
     async mounted() {
         window.addEventListener('message', this.onMessage);
         var response = await fetch(`https://${GetParentResourceName()}/locales`);
@@ -175,36 +182,161 @@ const App = Vue.createApp({
     }
 }).mount('#app');
 
+const Cloth = Vue.createApp({
+    data() {
+        return {
+            opened: false,
+            state: {
+                ruha: false,
+                white: false,
+                orang: false,
+                pink: false,
+                red: false,
+                gren: false,
+                yelw: false
+            },
+            locales: {
+                nui_clothing_menu : "Clothing Menu",
+                nui_whitecloth: "White Cloth",
+                nui_orangcloth: "Orange Cloth",
+                nui_pinkcloth: "Pink Cloth",
+                nui_redcloth: "Red Cloth",
+                nui_grencloth: "Green Cloth",
+                nui_yelkwcloth: "Yellow Cloth",
+                nui_changecloth: "Change Clothing",
+                nui_Admin: "Admin Clothing",
+            },
+        }
+    },
+    methods: {
+        onMessage(event) {
+            if (event.data.type == "show") {
+                const appelement = document.getElementById("clothmenu");
+                if (event.data.enable) {
+                    appelement.style.animation = "hopin 0.7s";
+                    this.opened = true;
+                } else {
+                    this.opened = false;
+                    
+                }
+            }
+        },
+        ruha() {
+            this.state.ruha = !this.state.ruha
+            fetch(`https://${GetParentResourceName()}/ruha`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    enable: this.state.ruha
+                })
+            });
+        },
+        white() {
+            this.state.white = !this.state.white
+            fetch(`https://${GetParentResourceName()}/white`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    enable: this.state.white
+                })
+            });
+        },
+        orang() {
+            this.state.orang = !this.state.orang
+            fetch(`https://${GetParentResourceName()}/orang`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    enable: this.state.orang
+                })
+            });
+        },
+        pink() {
+            this.state.pink = !this.state.pink
+            fetch(`https://${GetParentResourceName()}/pink`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    enable: this.state.pink
+                })
+            });
+        },
+        red() {
+            this.state.red = !this.state.red
+            fetch(`https://${GetParentResourceName()}/red`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    enable: this.state.red
+                })
+            });
+        },
+        gren() {
+            this.state.gren = !this.state.gren
+            fetch(`https://${GetParentResourceName()}/gren`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    enable: this.state.gren
+                })
+            });
+        },
+        yelw() {
+            this.state.yelw = !this.state.yelw
+            fetch(`https://${GetParentResourceName()}/yelw`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    enable: this.state.yelw
+                })
+            });
+        },
+        bezar() {
+            document.getElementById("clothmenu").style.animation = "hopout 1s";
+            setTimeout(() => {
+                document.getElementById("clothmenu").style.display = "none"
+            }, 800);
+            /*document.getElementById("clothmenu").style.display = "none"*/
+        },
+    },
+    async mounted() {
+        window.addEventListener('message', this.onMessage);
+        var response = await fetch(`https://${GetParentResourceName()}/locales`);
+        var locales = await response.json();
+        this.locales = locales;
+    }
+}).mount('#clothmenu');
 
-var elmnt = document.getElementById("app");
-var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-if (document.getElementById("appheader")) {
-    document.getElementById("appheader").onmousedown = dragMouseDown;
-} else {
-    elmnt.onmousedown = dragMouseDown;
+
+function clothing(){
+        document.getElementById("clothmenu").style.display = "block"
 }
 
-function dragMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    document.onmousemove = elementDrag;
+
+// Drag functionality for the app element
+function makeDraggable(element, handle) {
+    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+
+    handle.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        element.style.top = (element.offsetTop - pos2) + "px";
+        element.style.left = (element.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
+    }
 }
 
-function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-}
-
-function closeDragElement() {
-    document.onmouseup = null;
-    document.onmousemove = null;
-}
+makeDraggable(document.getElementById("app"), document.getElementById("appheader"));
+makeDraggable(document.getElementById("clothmenu"), document.getElementById("clothheader"));

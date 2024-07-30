@@ -7,6 +7,7 @@ ESX.RegisterServerCallback("villamos_aduty:openPanel", function(source, cb)
     if not IsAdmin(xAdmin.getGroup()) then return cb(false) end
     local players = {}
     local play = ESX.GetPlayers()
+    local test = xAdmin.source
     for i=1, #play do
         local xPlayer = ESX.GetPlayerFromId(play[i])
         
@@ -22,6 +23,8 @@ ESX.RegisterServerCallback("villamos_aduty:openPanel", function(source, cb)
 
     cb(true, xAdmin.getGroup(), players)
 end)
+
+
 -------------------------------------------------------------------------------------
 ------------------------ LOGOK! -----------------------------------------------------
 RegisterNetEvent('villamos_aduty:togid', function(ids)
@@ -95,34 +98,6 @@ RegisterNetEvent('villamos_aduty:togid', function(ids)
            args = { xPlayer.getName(), xPlayer.source }
        })
        logdclog(27946 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a gyorsaságot')
-
-   end
-
-    end
-   end)
-
-
-   RegisterNetEvent('villamos_aduty:tognoclip', function(noclip)
-
-    local xPlayer = ESX.GetPlayerFromId(source)
-    local admincucc = xPlayer.getGroup()
-    if noclip == false then
-       if admincucc ~= 'user' then
-           TriggerClientEvent('chat:addMessage', -1, {
-                   template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> a Noclip-et </div>',
-                   args = { xPlayer.getName(), xPlayer.source }
-           })        logdclog(10616832 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a Noclip-et')
-
-       end
-
-   end
-    if noclip == true then
-       if admincucc ~= 'user' then
-       TriggerClientEvent('chat:addMessage', -1, {
-           template = '<div style="padding: 0.4vw; margin: 0.4vw; relaitve; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:green;">bekapcsolta </span>a Noclip-et </div>',
-           args = { xPlayer.getName(), xPlayer.source }
-       })
-       logdclog(27946 ,GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a Noclip-et')
 
    end
 

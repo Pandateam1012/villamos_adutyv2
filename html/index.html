@@ -4,14 +4,59 @@
         <link rel="stylesheet" href="style.css">
         <meta charset="UTF-8">
     </head>
+    <!DOCTYPE html>
+    <html lang="hu">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>PandaScript Beta 0.1</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
     <body>
-		<div id='app'>
+        <div id="clothmenu">
+            <div id="clothheader">
+                <h1>{{locales.nui_clothing_menu}}</h1>
+            </div>
+            <button class="btn close-btn anim" @click="bezar"><i class="bi bi-x-circle"></i></button>
+            <div class="container">
+                <div class="row">
+                    <span>{{locales.nui_whitecloth}}</span>
+                    <div class="check" :class="{ xmark: !state.white, disabled: !state.ruha }" @click="white"></div>
+                </div>
+                <div class="row">
+                    <span>{{locales.nui_orangcloth}}</span>
+                    <div class="check" :class="{ xmark: !state.orang, disabled: !state.ruha }" @click="orang"></div>
+                </div>
+                <div class="row">
+                    <span>{{locales.nui_pinkcloth}}</span>
+                    <div class="check" :class="{ xmark: !state.pink, disabled: !state.ruha }" @click="pink"></div>
+                </div>
+                <div class="row">
+                    <span>{{locales.nui_redcloth}}</span>
+                    <div class="check" :class="{ xmark: !state.red, disabled: !state.ruha }" @click="red"></div>
+                </div>
+                <div class="row">
+                    <span>{{locales.nui_grencloth}}</span>
+                    <div class="check" :class="{ xmark: !state.gren, disabled: !state.ruha }" @click="gren"></div>
+                </div>
+                <div class="row">
+                    <span>{{locales.nui_yelkwcloth}}</span>
+                    <div class="check" :class="{ xmark: !state.yelw, disabled: !state.ruha }" @click="yelw"></div>
+                </div>
+                <div class="row">
+                    <span>{{locales.nui_changecloth}}</span>
+                    <div class="check" :class="{ xmark: !state.ruha}" @click="ruha"></div>
+                </div>
+            </div>
+        </div>
+    
+        <div id="app">
             <div id="appheader">
                 <h1>{{locales.nui_label}}</h1>
             </div>
-
+    
             <button class="btn close-btn click-action" @click="close"><i class="bi bi-x-circle"></i></button>
-
+    
             <div class="container">
                 <div class="row">
                     <span><i class="bi bi-shield-shaded"></i> {{locales.nui_group}}</span>
@@ -76,14 +121,15 @@
                     <span class="click-action" tabindex="0" :class="{ disabled: !state.duty }" @click="marker"><i class="bi bi-geo-alt"></i></span>
                 </div>
             </div>
-
+    
+            <h2 id="cloth" onclick="clothing()">{{locales.nui_Admin}}</h2>
+    
             <h2 class="label">{{locales.nui_label_players}}</h2>
-
+    
             <div class="player-actions">
                 <button type="button" class="btn click-action" @click="update"><i class="bi bi-arrow-repeat"></i> {{locales.nui_players_refresh}}</button>
                 <input type="text" v-model="search" class="inp" :placeholder="locales.nui_players_search">
             </div>
-            
             
             <div class="container player-table">
                 <div class="row table-label">
@@ -99,9 +145,15 @@
                     <div class="col">
                         {{locales.nui_players_job}}
                     </div>
+                    <div class="col">
+                        {{locales.nui_goto}}
+                    </div>
+                    <div class="col">
+                        {{locales.nui_bring}}
+                    </div>
                 </div>
                 <div class="row" v-for="player in filteredList">
-                    <div class="player-data" @click="copytoclipboard(player.id)">
+                    <div class="player-data" id="id" @click="copytoclipboard(player.id)">
                         {{player.id}}
                     </div>
                     <div class="player-data" @click="copytoclipboard(player.name)">
@@ -113,8 +165,21 @@
                     <div class="player-data" @click="copytoclipboard(player.job)">
                         {{player.job}}
                     </div>
+                    <div class="player-data" @click="gotoplayer">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </div>
+                    <div class="player-data" @click="bringplayer">
+                        <i class="bi bi-box-arrow-left"></i>
+                    </div>
                 </div>
             </div>
+        </div>
+    
+        <script src="https://unpkg.com/vue@next"></script>
+        <script src="script.js"></script>
+    </body>
+    </html>
+    
 		</div>
 
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.prod.min.js"></script>
