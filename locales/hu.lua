@@ -21,6 +21,8 @@ Locales['hu'] = {
     ["dutytime"] = "Jelenlegi Duty Idő",
 
     ["nui_label"] ="ADMIN MENÜ",
+    ["nui_Admin"] ="ADMIN Ruha",
+    ["nui_spec"] ="Spectate",
     ["nui_group"] ="Rangod",
     ["nui_players"] = "Játékosok",
     ["nui_duty"] = "Duty",

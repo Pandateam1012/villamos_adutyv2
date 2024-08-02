@@ -21,6 +21,8 @@ Locales['en'] = {
     ["dutytime"] = "Duty time",
 
     ["nui_label"] ="ADMIN DUTY PANEL",
+    ["nui_Admin"] ="ADMIN Clothing",
+    ["nui_spec"] ="Spectate",
     ["nui_group"] ="Your group",
     ["nui_players"] = "Players",
     ["nui_duty"] = "Duty",
