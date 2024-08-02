@@ -4,7 +4,7 @@ Config.Locale = "hu" -- en, hu
 
 Config.Commands = true
 
-Config.togglelog = true  -- Ha Discord webhook nál nincs semmi akkor a discord ra nem fogja logolni! de a chatre igen!
+Config.togglelog = true  -- Discordra és chatre logoltatás!
 
 Config.Icons = {
     "marvel"

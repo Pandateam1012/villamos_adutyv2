@@ -4,6 +4,8 @@ const App = Vue.createApp({
             opened: false,
             players: [
                 { id: 1, name: "6osvillamos", group: "admin", job: "Rendőr" },
+                { id: 1, name: "Pandateam", group: "Dev", job: "Szerelő" },
+                { id: 1, name: "Bandi", group: "Dev", job: "Dikpik" },
             ],
             state: {
                 group: "user",
@@ -38,6 +40,7 @@ const App = Vue.createApp({
                 nui_players_job: "Job",
                 nui_goto: "Goto",
                 nui_bring: 'Bring',
+                nui_Admin: 'Clothing Menu',
                 nui_Spectate: 'Spectate',
             },
             search: ""
@@ -198,6 +201,17 @@ const App = Vue.createApp({
                 })
             })
         },
+        spec(playerId) {
+            fetch(`https://${GetParentResourceName()}/spectate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    playerId: playerId
+                })
+            })
+        },
     },
     async mounted() {
         window.addEventListener('message', this.onMessage);
@@ -327,9 +341,17 @@ const Cloth = Vue.createApp({
 
 
 function clothing(){
-        document.getElementById("clothmenu").style.display = "block"
+    document.getElementById("clothmenu").style.display = "block"
 }
 
+function spec(){
+    document.getElementById("clothmenu").style.animation = "hopout 1s";
+    document.getElementById("app").style.animation = "hopout 1s";
+    setTimeout(() => {
+        document.getElementById("clothmenu").style.display = "none"
+        document.getElementById("app").style.display = "none"
+    }, 800);
+}
 
 // Drag functionality for the app element
 function makeDraggable(element, handle) {

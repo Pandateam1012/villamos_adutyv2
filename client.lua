@@ -98,6 +98,10 @@ RegisterNUICallback('tag', function(data, cb)
     ToggleTag(data.enable, true, true)
     cb('ok')
 end)
+RegisterNUICallback('spec', function(data, cb)
+    ToggleSpec(data.enable, true, true)
+    cb('ok')
+end)
 
 RegisterNUICallback('ids', function(data, cb)
     ToggleIds(data.enable, true, true)
@@ -533,6 +537,19 @@ function ToggleSpeed(state, usenotify, toglog)
             SetSuperJumpThisFrame(PlayerId())
         end
     end)
+end 
+
+function ToggleSpec(state, usenotify, toglog) 
+    if not duty then return Config.Notify(_U("no_perm")) end 
+    spec = state
+    print('SPECTATE CUCC')
+    if usenotify then 
+        Config.Notify(_U("speed", (spec and _U("enabled") or _U("disabled")) ))
+        UpdateNui()
+    end 
+    if toglog then if Config.togglelog == true then
+    TriggerServerEvent('villamos_aduty:togspec', spec)
+    end end
 end 
 
 function ToggleInvisible(state, usenotify, toglog) 
