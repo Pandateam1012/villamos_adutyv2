@@ -201,7 +201,7 @@ const App = Vue.createApp({
                 })
             })
         },
-        spec(playerId) {
+        specplayer(playerId) {
             fetch(`https://${GetParentResourceName()}/spectate`, {
                 method: 'POST',
                 headers: {
@@ -348,8 +348,7 @@ function spec(){
     document.getElementById("clothmenu").style.animation = "hopout 1s";
     document.getElementById("app").style.animation = "hopout 1s";
     setTimeout(() => {
-        document.getElementById("clothmenu").style.display = "none"
-        document.getElementById("app").style.display = "none"
+        fetch(`https://${GetParentResourceName()}/exit`);
     }, 800);
 }
 

@@ -190,29 +190,6 @@ RegisterNetEvent('villamos_aduty:togsped', function(speed)
     end
 end)
 
-RegisterNetEvent('villamos_aduty:togspec', function(spec)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    local adminGroup = xPlayer.getGroup()
-
-    local targetPlayer = ESX.GetPlayerFromId(targetId)
-    if targetPlayer then
-
-    if IsAdmin(adminGroup) then
-        local logEnabled = adminLogStatus[source] ~= false
-        exports.fl_spectate:spectatePlayer(targetPlayer)
-    if logEnabled then
-        if spec == false then
-            SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">Befejeszte </span> a Spectatelést </div>', { xPlayer.getName(), xPlayer.source })
-            logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a Spectatelést')
-            
-        elseif spec == true then
-            SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:green;">Elkeszte </span> Spectate elni ({2}) ({3}) játékost</div>', { xPlayer.getName(), xPlayer.source, targetPlayer.getName(), targetPlayer.source })
-            logdclog(27946, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a Spectatelést')
-        end
-    end
-    end
-end
-end)
 
 RegisterNetEvent('villamos_aduty:toginvisible', function(invisible)
     local xPlayer = ESX.GetPlayerFromId(source)
