@@ -22,7 +22,7 @@ Locales['en'] = {
 
     ["nui_label"] ="ADMIN DUTY PANEL",
     ["nui_Admin"] ="ADMIN Clothing",
-    ["nui_spec"] ="Spectate",
+    ["nui_Spectate"] ="Spectate",
     ["nui_goto"] ="Goto",
     ["nui_bring"] ="Bring",
     ["nui_group"] ="Your group",

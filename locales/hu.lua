@@ -22,7 +22,7 @@ Locales['hu'] = {
 
     ["nui_label"] ="ADMIN MENÜ",
     ["nui_Admin"] ="ADMIN Ruha",
-    ["nui_spec"] ="Spectate",
+    ["nui_Spectate"] ="Spectate",
     ["nui_goto"] ="Goto",
     ["nui_bring"] ="Bring",
     ["nui_group"] ="Rangod",
