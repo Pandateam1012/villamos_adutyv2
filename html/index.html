@@ -151,6 +151,9 @@
                     <div class="col">
                         {{locales.nui_bring}}
                     </div>
+                    <div class="col">
+                        {{locales.nui_Spectate}}
+                    </div>
                 </div>
                 <div class="row" v-for="player in filteredList">
                     <div class="player-data" id="id" @click="copytoclipboard(player.id)">
@@ -165,10 +168,13 @@
                     <div class="player-data" @click="copytoclipboard(player.job)">
                         {{player.job}}
                     </div>
-                    <div class="player-data" @click="gotoplayer">
+                    <div class="player-data" @click="gotoplayer(player.id)">
                         <i class="bi bi-box-arrow-right"></i>
                     </div>
-                    <div class="player-data" @click="bringplayer">
+                    <div class="player-data" @click="bringplayer(player.id)">
+                        <i class="bi bi-box-arrow-left"></i>
+                    </div>
+                    <div class="player-data" @click="bringplayer(player.id)">
                         <i class="bi bi-box-arrow-left"></i>
                     </div>
                 </div>

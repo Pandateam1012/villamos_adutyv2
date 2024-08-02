@@ -38,6 +38,7 @@ const App = Vue.createApp({
                 nui_players_job: "Job",
                 nui_goto: "Goto",
                 nui_bring: 'Bring',
+                nui_Spectate: 'Spectate',
             },
             search: ""
         }
@@ -86,6 +87,15 @@ const App = Vue.createApp({
             textArea.select();
             document.execCommand('copy');
             document.body.removeChild(textArea);
+        },
+        playerSelected() {
+            let playerId = document.getElementById('id').value
+            fetch(`https://${GetParentResourceName()}/playerSelected`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    id: playerId
+                })
+            });
         },
         close() {
             fetch(`https://${GetParentResourceName()}/exit`);
@@ -166,12 +176,27 @@ const App = Vue.createApp({
         marker() {
             fetch(`https://${GetParentResourceName()}/marker`);
         },
-        gotoplayer() {
-            fetch(`https://${GetParentResourceName()}/gotoplayer`);
-            
+        gotoplayer(playerId) {
+            fetch(`https://${GetParentResourceName()}/goto`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    playerId: playerId
+                })
+            })
         },
-        bringplayer() {
-            fetch(`https://${GetParentResourceName()}/bringplayer`);
+        bringplayer(playerId) {
+            fetch(`https://${GetParentResourceName()}/bring`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    playerId: playerId
+                })
+            })
         },
     },
     async mounted() {
