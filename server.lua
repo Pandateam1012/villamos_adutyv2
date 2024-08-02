@@ -1,5 +1,7 @@
 local inDuty = {} 
 local tags = {}
+local adminLogStatus = {}
+
 local dutyTimes = json.decode(LoadResourceFile(GetCurrentResourceName(), "data.json")) or {}
 
 ESX.RegisterServerCallback("villamos_aduty:openPanel", function(source, cb)
@@ -26,6 +28,25 @@ end)
 
 ------------------------------------------------------
 ------------#Logok------------------------------------
+
+RegisterCommand('adlog', function(source, args, rawCommand)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local adminGroup = xPlayer.getGroup()
+    
+    if IsAdmin(adminGroup) then
+
+        if adminLogStatus[source] == nil then
+            adminLogStatus[source] = true
+        end
+
+        adminLogStatus[source] = not adminLogStatus[source]
+
+        local status = adminLogStatus[source] and 'bekapcsolva' or 'kikapcsolva'
+        TriggerClientEvent('esx:showNotification', source, 'Admin logok állapota: ' .. status)
+    else
+        TriggerClientEvent('esx:showNotification', source, 'Nincs jogosultságod ehhez a parancshoz.')
+    end
+end, false)
 
 function IsAdmin(playerGroup)
     for _, perm in ipairs(Config.Perms) do
@@ -59,45 +80,86 @@ function SendLogToAdmins(template, args)
     end
 end
 
-RegisterNetEvent('villamos_aduty:goto', function()
+RegisterNetEvent('villamos_aduty:goto', function(targetId)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local admincucc = xPlayer.getGroup()
-    local playerId = data.playerId
-    if admincucc ~= 'user' then
-            SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:lightblue;">Odateleportált </span> ({3}) ({4}) hoz/hez</div>', { xPlayer.getName(), xPlayer.source, playerId.source, playerId.getName() })
-            logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. 'Odateleportált ' .. GetPlayerName(playerId.source), playerId.source .. ' hoz/hez')
+    local adminGroup = xPlayer.getGroup()
+
+    if IsAdmin(adminGroup) then
+        local targetPlayer = ESX.GetPlayerFromId(targetId)
+
+        if targetPlayer then
+            local logEnabled = adminLogStatus[source] ~= false
+
+            if logEnabled then
+                local logMessage = '<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:lightblue;">Odateleportált </span> ({2}) ({3}) hoz/hez</div>'
+                SendLogToAdmins(logMessage, { xPlayer.getName(), xPlayer.source, targetPlayer.getName(), targetPlayer.source })
+            end
+            
+            if Config.togglelog then
+                logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' odateleportált ' .. GetPlayerName(targetPlayer.source) .. ' hoz/hez')
+            end
+        else
+            print("Target player not found.")
+        end
+    else
+        print("You do not have permission to use this command.")
     end
 end)
 
-RegisterNetEvent('villamos_aduty:bring', function()
+
+RegisterNetEvent('villamos_aduty:bring', function(targetId)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local admincucc = xPlayer.getGroup()
-    local playerId = data.playerId
-    if admincucc ~= 'user' then
-            SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:lightred;">Magához hoszta </span> ({3}) ({4}) játékost</div>', { xPlayer.getName(), xPlayer.source, playerId.source, playerId.getName() })
-            logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. 'Magához hoszta ' .. GetPlayerName(playerId.source), playerId.source .. ' játékost')
+    local adminGroup = xPlayer.getGroup()
+
+    if IsAdmin(adminGroup) then
+        local targetPlayer = ESX.GetPlayerFromId(targetId)
+
+        if targetPlayer then
+            local logEnabled = adminLogStatus[source] ~= false
+
+            if logEnabled then
+            local logMessage = '<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:lightblue;">Odavitte </span> ({2}) ({3}) hoz/hez</div>'
+            SendLogToAdmins(logMessage, { xPlayer.getName(), xPlayer.source, targetPlayer.getName(), targetPlayer.source })
+            end
+            -- Discord logolás, ha be van kapcsolva
+            if Config.togglelog then
+                logdclog(11393254, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' odateleportált ' .. GetPlayerName(targetPlayer.source) .. ' hoz/hez')
+            end
+        end
     end
 end)
 
 
 RegisterNetEvent('villamos_aduty:togid', function(ids)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local admincucc = xPlayer.getGroup()
-    if admincucc ~= 'user' then
+    local adminGroup = xPlayer.getGroup()
+
+    if IsAdmin(adminGroup) then
         if ids == false then
+            local logEnabled = adminLogStatus[source] ~= false
+
+            if logEnabled then
             SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> az ID-ket </div>', { xPlayer.getName(), xPlayer.source })
             logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta az ID-ket')
+            end
         elseif ids == true then
+            local logEnabled = adminLogStatus[source] ~= false
+
+            if logEnabled then
             SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:green;">bekapcsolta </span>az ID-ket </div>', { xPlayer.getName(), xPlayer.source })
             logdclog(27946, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta az ID-ket')
+            end
         end
     end
 end)
 
 RegisterNetEvent('villamos_aduty:toggod', function(god)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local admincucc = xPlayer.getGroup()
-    if admincucc ~= 'user' then
+    local adminGroup = xPlayer.getGroup()
+
+    if IsAdmin(adminGroup) then
+        local logEnabled = adminLogStatus[source] ~= false
+        if logEnabled then
         if god == false then
             SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> a halhatatlanságot </div>', { xPlayer.getName(), xPlayer.source })
             logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a halhatatlanságot')
@@ -106,12 +168,17 @@ RegisterNetEvent('villamos_aduty:toggod', function(god)
             logdclog(27946, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a halhatatlanságot')
         end
     end
+    end
 end)
 
 RegisterNetEvent('villamos_aduty:togsped', function(speed)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local admincucc = xPlayer.getGroup()
-    if admincucc ~= 'user' then
+    local adminGroup = xPlayer.getGroup()
+
+    if IsAdmin(adminGroup) then
+        local logEnabled = adminLogStatus[source] ~= false
+
+    if logEnabled then
         if speed == false then
             SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> a gyorsaságot </div>', { xPlayer.getName(), xPlayer.source })
             logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a gyorsaságot')
@@ -120,12 +187,17 @@ RegisterNetEvent('villamos_aduty:togsped', function(speed)
             logdclog(27946, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a gyorsaságot')
         end
     end
+    end
 end)
 
 RegisterNetEvent('villamos_aduty:toginvisible', function(invisible)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local admincucc = xPlayer.getGroup()
-    if admincucc ~= 'user' then
+    local adminGroup = xPlayer.getGroup()
+
+    if IsAdmin(adminGroup) then
+        local logEnabled = adminLogStatus[source] ~= false
+
+        if logEnabled then
         if invisible == false then
             SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> a láthatatlanságot </div>', { xPlayer.getName(), xPlayer.source })
             logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a láthatatlanságot')
@@ -133,20 +205,26 @@ RegisterNetEvent('villamos_aduty:toginvisible', function(invisible)
             SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:green;">bekapcsolta </span>a láthatatlanságot </div>', { xPlayer.getName(), xPlayer.source })
             logdclog(27946, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a láthatatlanságot')
         end
+        end
     end
 end)
 
 RegisterNetEvent('villamos_aduty:tognoragdoll', function(noragdoll)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local admincucc = xPlayer.getGroup()
-    if admincucc ~= 'user' then
+    local adminGroup = xPlayer.getGroup()
+
+    if IsAdmin(adminGroup) then
+        local logEnabled = adminLogStatus[source] ~= false
+
+            if logEnabled then
         if noragdoll == false then
             SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> a noragdoll-t </div>', { xPlayer.getName(), xPlayer.source })
             logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a noragdoll-t')
         elseif noragdoll == true then
             SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:green;">bekapcsolta </span>a noragdoll-t </div>', { xPlayer.getName(), xPlayer.source })
             logdclog(27946, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a noragdoll-t')
-        end
+        end 
+    end
     end
 end)
 
