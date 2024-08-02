@@ -23,7 +23,6 @@ local yelw = false
 RegisterCommand('admenu', function(s, a, r)
     ESX.TriggerServerCallback("villamos_aduty:openPanel", function(allow, _group, players) 
         if not allow then return Config.Notify(_U("no_perm")) end 
-            
         SendNUIMessage({
             type = "setplayers",
             players = players
@@ -44,6 +43,22 @@ function SetNuiState(state)
 		enable = state
 	})
 end
+
+RegisterNUICallback('goto', function(data, cb)
+    if not duty then return Config.Notify(_U("no_perm")) end 
+    local playerId = data.playerId
+    ExecuteCommand('goto ' .. playerId)
+    TriggerServerEvent('villamos_aduty:goto', playerId)
+    cb('ok')
+end)
+
+RegisterNUICallback('bring', function(data, cb)
+    if not duty then return Config.Notify(_U("no_perm")) end 
+    local playerId = data.playerId
+    ExecuteCommand('bring ' .. playerId)
+    TriggerServerEvent('villamos_aduty:bring', playerId)
+    cb('ok')
+end)
 
 RegisterNUICallback('exit', function(data, cb)
     SetNuiState(false)
@@ -230,17 +245,7 @@ function ruha()
     if not duty then return Config.Notify(_U("no_perm")) end
 end
 
-function gotoplayer()
-    if not duty then return Config.Notify(_U("no_perm")) end
 
-    
-    
-end
-
-function bringplayer()
-    if not duty then return Config.Notify(_U("no_perm")) end
-
-end
 
 function white(state)
     if not duty then return Config.Notify(_U("no_perm")) end 
