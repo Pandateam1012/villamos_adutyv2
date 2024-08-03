@@ -233,21 +233,47 @@ RegisterNetEvent('villamos_aduty:tognoragdoll', function(noragdoll)
     if IsAdmin(adminGroup) then
         local logEnabled = adminLogStatus[source] ~= false
 
-            if logEnabled then
+            
         if noragdoll == false then
+            if logEnabled then
             SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> a noragdoll-t </div>', { xPlayer.getName(), xPlayer.source })
+            end
             logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a noragdoll-t')
         elseif noragdoll == true then
+            if logEnabled then
             SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:green;">bekapcsolta </span>a noragdoll-t </div>', { xPlayer.getName(), xPlayer.source })
+            end
             logdclog(27946, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a noragdoll-t')
-        end 
     end
     end
 end)
 
+RegisterNetEvent('villamos_aduty:setTag', function(enable)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local admintag = tags[xPlayer.source]
+    if not inDuty[xPlayer.source] then return end 
+
+    tags[xPlayer.source] = enable and inDuty[xPlayer.source].tag or nil
+
+    if admintag == enable then
+        if logEnabled then
+            SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:green;">bekapcsolta </span>az admin Tag et </div>', { xPlayer.getName(), xPlayer.source })
+        end
+        logdclog(27946, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a noragdoll-t')
+    else
+        if logEnabled then
+            SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span>az admin Tag et </div>', { xPlayer.getName(), xPlayer.source })
+        end
+        logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a noragdoll-t')
+    end
+    TriggerClientEvent("villamos_aduty:sendData", -1, tags)
+end)
 
 ------------------------------------------------------
 ------------#Logok------------------------------------
+
+
+
 RegisterNetEvent('villamos_aduty:setDutya', function(enable)
     local xPlayer = ESX.GetPlayerFromId(source)
     if inDuty[xPlayer.source] then 

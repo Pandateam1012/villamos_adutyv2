@@ -463,12 +463,10 @@ function ToggleGod(state, usenotify, toglog)
     end)
 end 
 
-function ToggleTag(state, usenotify, toglog) 
+function ToggleTag(state, usenotify) 
     if not duty then return Config.Notify(_U("no_perm")) end 
     tag = state
-    if toglog then if Config.togglelog == true then
-        TriggerServerEvent('villamos_aduty:setTag', tag)
-    end end
+    TriggerServerEvent('villamos_aduty:setTag', tag)
     if usenotify then 
         Config.Notify(_U("tag", (tag and _U("enabled") or _U("disabled")) ))
         UpdateNui()
@@ -554,9 +552,9 @@ function ToggleInvisible(state, usenotify, toglog)
         Config.Notify(_U("invisible", (invisible and _U("enabled") or _U("disabled")) ))
         UpdateNui()
     end 
-    if toglog then if Config.togglelog == true then
+    if toglog then
     TriggerServerEvent('villamos_aduty:toginvisible', invisible)
-    end end
+    end
 end 
 
 function ToggleNoragdoll(state, usenotify, toglog) 
