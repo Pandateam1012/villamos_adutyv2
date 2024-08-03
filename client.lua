@@ -98,11 +98,11 @@ RegisterNUICallback('tag', function(data, cb)
     ToggleTag(data.enable, true, true)
     cb('ok')
 end)
-RegisterNUICallback('spectate', function(data, cb)
-    local playerId = data.playerid
-    exports.fl_spectate:spectatePlayer(playerId)
-    cb('ok')
-end)
+--RegisterNUICallback('spectate', function(data, cb)
+    --local playerId = data.playerid
+    --exports.fl_spectate:spectatePlayer(playerId)
+    --cb('ok')
+--end)
 
 RegisterNUICallback('ids', function(data, cb)
     ToggleIds(data.enable, true, true)
