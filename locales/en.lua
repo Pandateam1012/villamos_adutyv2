@@ -20,6 +20,16 @@ Locales['en'] = {
     ["alltime"] = "Alltime duty",
     ["dutytime"] = "Duty time",
 
+
+    ["nui_clothing_menu"] = "Clothing Menu",
+    ["nui_whitecloth"] = "White Cloth",
+    ["nui_orangcloth"] = "Orange Cloth",
+    ["nui_pinkcloth"] = "Pink Cloth",
+    ["nui_redcloth"] = "Red Cloth",
+    ["nui_grencloth"] = "Green Cloth",
+    ["nui_yelkwcloth"] = "Yellow Cloth",
+    ["nui_changecloth"] = "Change Clothing",    
+
     ["nui_label"] ="ADMIN DUTY PANEL",
     ["nui_Admin"] ="ADMIN Clothing",
     ["nui_Spectate"] ="Spectate",

@@ -20,6 +20,17 @@ Locales['hu'] = {
     ["alltime"] = "Összes Duty Idő",
     ["dutytime"] = "Jelenlegi Duty Idő",
 
+    ["nui_clothing_menu"] = "Ruházat Menü",
+    ["nui_whitecloth"] = "Fehér Ruha",
+    ["nui_orangcloth"] = "Narancs Ruha",
+    ["nui_pinkcloth"] = "Rózsaszín Ruha",
+    ["nui_redcloth"] = "Piros Ruha",
+    ["nui_grencloth"] = "Zöld Ruha",
+    ["nui_yelkwcloth"] = "Sárga Ruha",
+    ["nui_changecloth"] = "Ruhacsere",
+    ["nui_Admin"] = "Admin Ruha",
+    
+
     ["nui_label"] ="ADMIN MENÜ",
     ["nui_Admin"] ="ADMIN Ruha",
     ["nui_Spectate"] ="Spectate",
