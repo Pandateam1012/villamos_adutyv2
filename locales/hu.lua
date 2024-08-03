@@ -28,8 +28,6 @@ Locales['hu'] = {
     ["nui_grencloth"] = "Zöld Ruha",
     ["nui_yelkwcloth"] = "Sárga Ruha",
     ["nui_changecloth"] = "Ruhacsere",
-    ["nui_Admin"] = "Admin Ruha",
-    
 
     ["nui_label"] ="ADMIN MENÜ",
     ["nui_Admin"] ="ADMIN Ruha",
