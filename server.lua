@@ -99,10 +99,10 @@ RegisterNetEvent('villamos_aduty:goto', function(targetId)
                 logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' odateleportált ' .. GetPlayerName(targetPlayer.source) .. ' hoz/hez')
             end
         else
-            print("Target player not found.")
+            -- print("Target player not found.")
         end
     else
-        print("You do not have permission to use this command.")
+        -- print("You do not have permission to use this command.")
     end
 end)
 
@@ -187,6 +187,32 @@ RegisterNetEvent('villamos_aduty:togsped', function(speed)
             logdclog(27946, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' bekapcsolta a gyorsaságot')
         end
     end
+    end
+end)
+
+RegisterNetEvent('villamos_aduty:spectate', function(targetId)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    local adminGroup = xPlayer.getGroup()
+
+    if IsAdmin(adminGroup) then
+        local targetPlayer = ESX.GetPlayerFromId(targetId)
+
+        if targetPlayer then
+            local logEnabled = adminLogStatus[source] ~= false
+
+            if logEnabled then
+                local logMessage = '<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:lightblue;">Spectateli </span> ({2}) ({3}) -t</div>'
+                SendLogToAdmins(logMessage, { xPlayer.getName(), xPlayer.source, targetPlayer.getName(), targetPlayer.source })
+            end
+            
+            if Config.togglelog then
+                logdclog(11393254, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' Spectateli ' .. GetPlayerName(targetPlayer.source) .. ' -t')
+            end
+        else
+            -- print("Target player not found.")
+        end
+    else
+        -- print("You do not have permission to use this command.")
     end
 end)
 

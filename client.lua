@@ -98,12 +98,14 @@ RegisterNUICallback('tag', function(data, cb)
     ToggleTag(data.enable, true, true)
     cb('ok')
 end)
---RegisterNUICallback('spectate', function(data, cb)
-    --local playerId = data.playerid
-    --exports.fl_spectate:spectatePlayer(playerId)
-    --cb('ok')
---end)
-
+RegisterNUICallback('spectate', function(data, cb)
+    if not duty then return Config.Notify(_U("no_perm")) end 
+    local playerId = data.playerId
+    exports.fl_spectate:spectatePlayer(playerId)
+    SetNuiState(false)
+    TriggerServerEvent('villamos_aduty:spectate', playerId)
+    cb('ok')
+end)
 RegisterNUICallback('ids', function(data, cb)
     ToggleIds(data.enable, true, true)
     cb('ok')
