@@ -431,27 +431,27 @@ RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
                 TriggerEvent('skinchanger:loadSkin', skin)
             end)
         end 
-        ToggleIds(false, false)
-        ToggleSpeed(false, false)
-        ToggleGod(false, false)
-        ToggleInvisible(false, false)
-        ToggleNoragdoll(false, false)
+        ToggleIds(false, false, false)
+        ToggleSpeed(false, false, false)
+        ToggleGod(false, false, false)
+        ToggleInvisible(false, false, false)
+        ToggleNoragdoll(false, false, false)
         tag = false
         duty = false
     end 
     UpdateNui()
 end)
 
-function ToggleGod(state, usenotify) 
+function ToggleGod(state, usenotify, toglog) 
     if not duty then return Config.Notify(_U("no_perm")) end 
     god = state
     SetPlayerInvincible(PlayerId(), god)
     if usenotify then 
         Config.Notify(_U("god", (god and _U("enabled") or _U("disabled")) ))
         UpdateNui()
-    end 
+    end if toglog then if Config.togglelog == true then
     TriggerServerEvent('villamos_aduty:toggod', god)
-    
+    end end
     CreateThread(function()
         while god do
             Wait(3000)
@@ -473,7 +473,7 @@ function ToggleTag(state, usenotify)
     end 
 end 
 
-function ToggleIds(state, usenotify) 
+function ToggleIds(state, usenotify, toglog) 
     if not duty then return Config.Notify(_U("no_perm")) end 
     ids = state
     if not ids then 
@@ -485,9 +485,9 @@ function ToggleIds(state, usenotify)
     if usenotify then 
         Config.Notify(_U("ids", (ids and _U("enabled") or _U("disabled")) ))
         UpdateNui()
-    end
+    end if toglog then 
     TriggerServerEvent('villamos_aduty:togid', ids)
-
+    end 
     CreateThread(function()
         while ids do
             for i = 0, 255 do
@@ -521,7 +521,7 @@ function ToggleIds(state, usenotify)
     end)
 end 
 
-function ToggleSpeed(state, usenotify) 
+function ToggleSpeed(state, usenotify, toglog) 
     if not duty then return Config.Notify(_U("no_perm")) end 
     speed = state
     SetRunSprintMultiplierForPlayer(PlayerId(), speed and 1.4 or 1.0)
@@ -529,9 +529,9 @@ function ToggleSpeed(state, usenotify)
         Config.Notify(_U("speed", (speed and _U("enabled") or _U("disabled")) ))
         UpdateNui()
     end 
-    
+    if toglog then 
     TriggerServerEvent('villamos_aduty:togsped', speed)
-
+    end 
     CreateThread(function()
         while speed do
             Wait(1)
@@ -541,7 +541,7 @@ function ToggleSpeed(state, usenotify)
 end 
 
 
-function ToggleInvisible(state, usenotify) 
+function ToggleInvisible(state, usenotify, toglog) 
     if not duty then return Config.Notify(_U("no_perm")) end 
     invisible = state
     SetEntityVisible(PlayerPedId(), not invisible)
@@ -552,12 +552,12 @@ function ToggleInvisible(state, usenotify)
         Config.Notify(_U("invisible", (invisible and _U("enabled") or _U("disabled")) ))
         UpdateNui()
     end 
-    
+    if toglog then
     TriggerServerEvent('villamos_aduty:toginvisible', invisible)
-    
+    end
 end 
 
-function ToggleNoragdoll(state, usenotify) 
+function ToggleNoragdoll(state, usenotify, toglog) 
     if not duty then return Config.Notify(_U("no_perm")) end 
     noragdoll = state
     SetPedCanRagdoll(PlayerPedId(), not noragdoll)
@@ -565,8 +565,9 @@ function ToggleNoragdoll(state, usenotify)
         Config.Notify(_U("no_ragdoll", (noragdoll and _U("enabled") or _U("disabled")) ))
         UpdateNui()
     end 
-    
+    if toglog then 
     TriggerServerEvent('villamos_aduty:tognoragdoll', noragdoll)
+    end 
 end 
 
 

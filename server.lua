@@ -248,9 +248,9 @@ RegisterNetEvent('villamos_aduty:tognoragdoll', function(noragdoll)
     end
 end)
 
-RegisterNetEvent('villamos_aduty:setTag', function(enable)
+RegisterNetEvent('villamos_aduty:setTag', function(enable, tag)
     local xPlayer = ESX.GetPlayerFromId(source)
-    local admintag = tags[xPlayer.source]
+    local admintag = tag
     if not inDuty[xPlayer.source] then return end 
 
     tags[xPlayer.source] = enable and inDuty[xPlayer.source].tag or nil
