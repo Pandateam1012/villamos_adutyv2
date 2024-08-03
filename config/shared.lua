@@ -4,8 +4,6 @@ Config.Locale = "hu" -- en, hu
 
 Config.Commands = true
 
-Config.togglelog = true  -- Discordra és chatre logoltatás!
-
 Config.Icons = {
     "marvel"
 }
