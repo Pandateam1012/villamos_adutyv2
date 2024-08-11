@@ -5,6 +5,7 @@ game 'gta5'
 description 'admin duty by 6osvillamos Edited by Pandascripts'
 
 version '1.2.3'
+lua54 'yes'
 
 ui_page 'html/index.html'
 
@@ -18,6 +19,7 @@ shared_scripts {
 	'config/shared.lua',
 	'@es_extended/locale.lua',
 	'locales/*.lua',
+	'@ox_lib/init.lua'
 }
 
 server_scripts {
@@ -30,5 +32,6 @@ client_scripts {
 }
 
 dependencies {
-	'es_extended'
+	'es_extended',
+	'ox_lib'
 }

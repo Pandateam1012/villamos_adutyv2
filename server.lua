@@ -94,7 +94,7 @@ RegisterNetEvent('villamos_aduty:goto', function(targetId)
                 local logMessage = '<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:lightblue;">Odateleportált </span> ({2}) ({3}) hoz/hez</div>'
                 SendLogToAdmins(logMessage, { xPlayer.getName(), xPlayer.source, targetPlayer.getName(), targetPlayer.source })
             end
-                logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' odateleportált ' .. GetPlayerName(targetPlayer.source) .. ' hoz/hez')
+                logdclog(11393254, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' odateleportált ' .. GetPlayerName(targetPlayer.source) .. ' hoz/hez')
         end
     end
 end)
@@ -271,6 +271,27 @@ end)
 ------------------------------------------------------
 ------------#Logok------------------------------------
 
+
+RegisterNetEvent("villamos_aduty:kickplayer", function(playerId, reason)
+    local xAdmin = ESX.GetPlayerFromId(source)
+    local xPlayer = ESX.GetPlayerFromId(playerId)
+    local adminGroup = xAdmin.getGroup()
+
+    if IsAdmin(adminGroup) then
+        local targetPlayer = ESX.GetPlayerFromId(playerId)
+
+        if targetPlayer then
+            local logEnabled = adminLogStatus[source] ~= false
+
+            if logEnabled then
+                local logMessage = '<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:lightblue;">Kickelte </span> ({2}) ({3}) -t, Indok: ({4})</div>'
+                SendLogToAdmins(logMessage, { xPlayer.getName(), xPlayer.source, targetPlayer.getName(), targetPlayer.source, reason })
+            end
+            logdclog(11393254, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' Kickelte ' .. GetPlayerName(targetPlayer.source) .. ' -t, Indok: ' .. reason)
+        end
+    end
+    xPlayer.kick("Ki lettél kickelve a szerverről, indok: " .. reason)
+end)
 
 
 RegisterNetEvent('villamos_aduty:setDutya', function(enable)

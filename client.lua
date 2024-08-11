@@ -52,6 +52,15 @@ RegisterNUICallback('goto', function(data, cb)
     cb('ok')
 end)
 
+RegisterNUICallback('kick', function(data, cb)
+    if not duty then return Config.Notify(_U("no_perm")) end 
+    local playerId = data.playerId
+    local input = lib.inputDialog(_U("kick_reason"), {'Indok'})
+    local reason = input[1]
+    TriggerServerEvent('villamos_aduty:kickplayer', playerId, reason)
+    cb('ok')
+end)
+
 RegisterNUICallback('bring', function(data, cb)
     if not duty then return Config.Notify(_U("no_perm")) end 
     local playerId = data.playerId

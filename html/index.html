@@ -51,7 +51,7 @@
             </div>
         </div>
     
-        <div id="app">
+<div id="app">
             <div id="appheader">
                 <h1>{{locales.nui_label}}</h1>
             </div>
@@ -147,6 +147,9 @@
                         {{locales.nui_players_job}}
                     </div>
                     <div class="col">
+                        {{locales.nui_Kick}}
+                    </div>
+                    <div class="col">
                         {{locales.nui_goto}}
                     </div>
                     <div class="col">
@@ -169,10 +172,14 @@
                     <div class="player-data spec" @click="copytoclipboard(player.job)">
                         {{player.job}}
                     </div>
-                    <div class="player-data spec" @click="gotoplayer(player.id)">
+                    <div class="player-data spec"  :class="{ disabled: !state.duty }" @click="kickplayer(player.id)">
+                        <i class="bi bi-person-x"></i>
+                    </div>
+                    <div class="player-data spec"  :class="{ disabled: !state.duty }" @click="gotoplayer(player.id)">
                         <i class="bi bi-box-arrow-right"></i>
                     </div>
-                    <div class="player-data spec" @click="bringplayer(player.id)">
+                    
+                    <div class="player-data spec"  :class="{ disabled: !state.duty }" @click="bringplayer(player.id)">
                         <i class="bi bi-box-arrow-left"></i>
                     </div>
                     <div id="spectate" class="player-data spec click-action" onclick="spec()" :class="{ disabled: !state.duty }" @click="specplayer(player.id)">

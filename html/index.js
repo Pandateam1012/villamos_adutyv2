@@ -42,6 +42,7 @@ const App = Vue.createApp({
                 nui_bring: 'Bring',
                 nui_Admin: 'Clothing Menu',
                 nui_Spectate: 'Spectate',
+                nui_Kick: 'Kick',
             },
             search: ""
         }
@@ -181,6 +182,17 @@ const App = Vue.createApp({
         },
         gotoplayer(playerId) {
             fetch(`https://${GetParentResourceName()}/goto`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    playerId: playerId
+                })
+            })
+        },
+        kickplayer(playerId) {
+            fetch(`https://${GetParentResourceName()}/kick`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
