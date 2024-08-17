@@ -19,6 +19,7 @@ Locales['hu'] = {
     ["cant_duty"] = "Nincs megfelelő rangod, nem léphesz szolgálatba!",
     ["alltime"] = "Összes Duty Idő",
     ["dutytime"] = "Jelenlegi Duty Idő",
+    ["kick_reason"] = "Kirúgás Indoka",
 
     ["nui_clothing_menu"] = "Ruházat Menü",
     ["nui_whitecloth"] = "Fehér Ruha",
@@ -32,6 +33,7 @@ Locales['hu'] = {
     ["nui_label"] ="ADMIN MENÜ",
     ["nui_Admin"] ="ADMIN Ruha",
     ["nui_Spectate"] ="Spectate",
+    ["nui_Kick"] = 'Kick',
     ["nui_goto"] ="Goto",
     ["nui_bring"] ="Bring",
     ["nui_group"] ="Rangod",

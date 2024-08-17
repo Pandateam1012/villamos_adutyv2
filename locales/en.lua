@@ -19,6 +19,7 @@ Locales['en'] = {
     ["cant_duty"] = "Yo don't have the role or the permission to enter duty!",
     ["alltime"] = "Alltime duty",
     ["dutytime"] = "Duty time",
+    ["kick_reason"] = "Kick Reason",
 
 
     ["nui_clothing_menu"] = "Clothing Menu",
@@ -32,6 +33,7 @@ Locales['en'] = {
 
     ["nui_label"] ="ADMIN DUTY PANEL",
     ["nui_Admin"] ="ADMIN Clothing",
+    ["nui_Kick"] = 'Kick',
     ["nui_Spectate"] ="Spectate",
     ["nui_goto"] ="Goto",
     ["nui_bring"] ="Bring",
