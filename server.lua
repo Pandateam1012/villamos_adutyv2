@@ -457,3 +457,26 @@ end)
 exports('IsInDuty', function(src) 
     return inDuty[src] and true or false
 end)
+
+
+Citizen.CreateThread( function()
+    updatePath = "/Pandateam1012/villamos_adutyv2" 
+    resourceName = ""..GetCurrentResourceName()..""
+    
+    function checkVersion(err,responseText, headers)
+        curVersion = LoadResourceFile(GetCurrentResourceName(), "version")
+    
+        if curVersion ~= responseText and tonumber(curVersion) < tonumber(responseText) then
+            print("^0[^3WARNING^0] " .. resourceName .. " is ^1NOT ^0up to date!")
+            print("^0[^3WARNING^0] Your Version: ^1" .. curVersion .. "^0")
+            print("^0[^3WARNING^0] Latest Version: ^2" .. responseText .. "^0")
+            print("^0[^3WARNING^0] Get the latest Version from: ^2https://github.com" .. updatePath .. "^0")
+        elseif tonumber(curVersion) > tonumber(responseText) then
+            print("You somehow skipped a few versions of "..resourceName.." or the git went offline, if it's still online i advise you to update ( or downgrade? )")
+        else
+            print("^0[^2INFO^0] " .. resourceName .. " is up to date! (^2" .. curVersion .. "^0)")
+        end
+    end
+    
+    PerformHttpRequest("https://raw.githubusercontent.com"..updatePath.."/master/version", checkVersion, "GET")
+    end)
