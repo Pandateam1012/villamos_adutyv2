@@ -31,6 +31,7 @@ Locales['hu'] = {
     ["nui_changecloth"] = "Ruhacsere",
 
     ["nui_label"] ="ADMIN MENÜ",
+    ["nui_anauncement"] = 'Felhívás',
     ["nui_Admin"] ="ADMIN Ruha",
     ["nui_Spectate"] ="Spectate",
     ["nui_Kick"] = 'Kick',

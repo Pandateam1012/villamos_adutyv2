@@ -272,6 +272,12 @@ end)
 ------------#Logok------------------------------------
 
 
+RegisterNetEvent("villamos_aduty:SendAnon", function(message)
+
+local author = GetPlayerName(source)
+TriggerClientEvent('txcl:showAnnouncement', -1, message, author)
+end)
+
 RegisterNetEvent("villamos_aduty:kickplayer", function(playerId, reason)
     local xAdmin = ESX.GetPlayerFromId(source)
     local xPlayer = ESX.GetPlayerFromId(playerId)

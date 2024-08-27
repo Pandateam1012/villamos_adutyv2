@@ -121,6 +121,10 @@
                     <span><i class="bi bi-geo-alt"></i> {{locales.nui_marker}}</span>
                     <span class="click-action" tabindex="0" :class="{ disabled: !state.duty }" @click="marker"><i class="bi bi-geo-alt"></i></span>
                 </div>
+                <div class="row">
+                    <span><i class="bi bi-envelope-check"></i></i> {{locales.nui_anauncement}}</span>
+                    <span class="click-action" tabindex="0" :class="{ disabled: !state.duty }" @click="anon"><i class="bi bi-envelope-check"></i></span>
+                </div>
             </div>
     
             <h2 id="cloth" onclick="clothing()">{{locales.nui_Admin}}</h2>

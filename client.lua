@@ -52,6 +52,14 @@ RegisterNUICallback('goto', function(data, cb)
     cb('ok')
 end)
 
+RegisterNUICallback('sendanon', function(data, cb)
+    if not duty then return Config.Notify(_U("no_perm")) end 
+    local input = lib.inputDialog("Announcement Message", {'message'})
+    local message = input[1]
+    TriggerServerEvent("villamos_aduty:SendAnon", message)
+    cb('ok')
+end)
+
 RegisterNUICallback('kick', function(data, cb)
     if not duty then return Config.Notify(_U("no_perm")) end 
     local playerId = data.playerId

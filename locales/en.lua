@@ -32,6 +32,7 @@ Locales['en'] = {
     ["nui_changecloth"] = "Change Clothing",    
 
     ["nui_label"] ="ADMIN DUTY PANEL",
+    ["nui_anauncement"] = 'Announcement',
     ["nui_Admin"] ="ADMIN Clothing",
     ["nui_Kick"] = 'Kick',
     ["nui_Spectate"] ="Spectate",

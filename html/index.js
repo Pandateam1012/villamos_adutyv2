@@ -43,6 +43,7 @@ const App = Vue.createApp({
                 nui_Admin: 'Clothing Menu',
                 nui_Spectate: 'Spectate',
                 nui_Kick: 'Kick',
+                nui_anauncement: 'Announcement'
             },
             search: ""
         }
@@ -179,6 +180,9 @@ const App = Vue.createApp({
         },
         marker() {
             fetch(`https://${GetParentResourceName()}/marker`);
+        },
+        anon() {
+            fetch(`https://${GetParentResourceName()}/sendanon`);
         },
         gotoplayer(playerId) {
             fetch(`https://${GetParentResourceName()}/goto`, {
