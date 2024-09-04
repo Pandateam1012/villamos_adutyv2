@@ -24,8 +24,8 @@
     padding: 10px 20px;
     margin-bottom: 10px;
     border-radius: 8px;
-    background-color: #2e2f36; /* Egységes háttérszín */
-    color: white; /* Szöveg szín */
+    background-color: #2e2f36;
+    color: white;
 }
 
 #clothmenu .container .row .icon-text {
@@ -33,17 +33,17 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    margin-right: 15px; /* Elválasztás a gombtól */
+    margin-right: 15px; 
 }
 
 #clothmenu .container .row .icon-text i {
-    font-size: 1.5rem; /* Ikon méret */
-    margin-bottom: 5px; /* Ikon és szöveg közti távolság */
+    font-size: 1.5rem; 
+    margin-bottom: 5px;
 }
 
 #clothmenu .container .row .icon-text p {
     margin: 0;
-    font-size: 0.9rem; /* Szöveg méret */
+    font-size: 0.9rem;
 }
 
 #clothmenu .container .row div i {
@@ -54,63 +54,57 @@
     cursor: pointer;
 }
 
-/* White Cloth */
 #clothmenu .container .row:nth-child(1) {
     position: static;
     top: 15%;
-    background-color: #2e2f36; /* Fehér háttérszín */
-    color: #ffffff; /* Fekete szöveg és ikon */
+    background-color: #2e2f36; 
+    color: #ffffff; 
 }
 
-/* Orange Cloth */
+
 #clothmenu .container .row:nth-child(2) {
     position: static;
 
     top: 27%;
-    background-color: #2e2f36; /* Fehér háttérszín */
-    color: #ffa500; /* Narancssárga szöveg és ikon */
+    background-color: #2e2f36;
+    color: #ffa500; 
 }
 
-/* Pink Cloth */
 #clothmenu .container .row:nth-child(3) {
     position: static;
 
     top: 39%;
-    background-color: #2e2f36; /* Fehér háttérszín */
-    color: #ff69b4; /* Pink szöveg és ikon */
+    background-color: #2e2f36;
+    color: #ff69b4;
 }
 
-/* Red Cloth */
 #clothmenu .container .row:nth-child(4) {
     position: static;
 
     top: 51%;
-    background-color: #2e2f36; /* Fehér háttérszín */
-    color: #ff0000; /* Piros szöveg és ikon */
+    background-color: #2e2f36; 
+    color: #ff0000; 
 }
 
-/* Green Cloth */
 #clothmenu .container .row:nth-child(5) {
     position: static;
 
     top: 63%;
-    background-color: #2e2f36; /* Fehér háttérszín */
-    color: #008000; /* Zöld szöveg és ikon */
+    background-color: #2e2f36; 
+    color: #008000;
 }
 
-/* Yellow Cloth */
 #clothmenu .container .row:nth-child(6) {
     position: static;
 
     top: 75%;
-    background-color: #2e2f36; /* Fehér háttérszín */
-    color: #ffff00; /* Sárga szöveg és ikon */
+    background-color: #2e2f36; 
+    color: #ffff00; 
 }
 
-/* Checkbox Icon Styling */
 #clothmenu .container .row div i {
     font-size: 1.5rem;
-    color: inherit; /* Az ikon színe megegyezik a szöveg színével */
+    color: inherit; 
 }
 
 #clothmenu .container .row div {
@@ -148,7 +142,6 @@ body {
 }
 
 #app {
-    display: none;
     position: fixed; 
     top: 50%;
     left: 50%;
