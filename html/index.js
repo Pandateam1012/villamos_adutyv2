@@ -251,9 +251,9 @@ const Cloth = Vue.createApp({
                 yelw: false
             },
             locales: {
-                nui_clothing_menu : "Clothing Menu",
+                nui_clothing_menu: "Clothing Menu",
                 nui_whitecloth: "White Cloth",
-                nui_orangcloth: "Orange Cloth",
+                nui_orangcloth: "Orang Cloth",
                 nui_pinkcloth: "Pink Cloth",
                 nui_redcloth: "Red Cloth",
                 nui_grencloth: "Green Cloth",
@@ -264,29 +264,22 @@ const Cloth = Vue.createApp({
         }
     },
     methods: {
-        onMessage(event) {
-            if (event.data.type == "show") {
-                const appelement = document.getElementById("clothmenu");
-                if (event.data.enable) {
-                    appelement.style.animation = "hopin 0.7s";
-                    this.opened = true;
-                } else {
-                    this.opened = false;
-                    
-                }
-            }
-        },
-        ruha() {
-            this.state.ruha = !this.state.ruha
-            fetch(`https://${GetParentResourceName()}/ruha`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    enable: this.state.ruha
-                })
-            });
+        resetAll() {
+            this.state.ruha = false;
+            this.state.white = false;
+            this.state.orang = false;
+            this.state.pink = false;
+            this.state.red = false;
+            this.state.gren = false;
+            this.state.yelw = false;
         },
         white() {
-            this.state.white = !this.state.white
+            if (!this.state.white) {
+                this.resetAll(); 
+                this.state.white = true;
+            } else {
+                this.state.white = false;
+            }
             fetch(`https://${GetParentResourceName()}/white`, {
                 method: 'POST',
                 body: JSON.stringify({
@@ -295,7 +288,12 @@ const Cloth = Vue.createApp({
             });
         },
         orang() {
-            this.state.orang = !this.state.orang
+            if (!this.state.orang) {
+                this.resetAll(); 
+                this.state.orang = true;
+            } else {
+                this.state.orang = false;
+            }
             fetch(`https://${GetParentResourceName()}/orang`, {
                 method: 'POST',
                 body: JSON.stringify({
@@ -304,7 +302,12 @@ const Cloth = Vue.createApp({
             });
         },
         pink() {
-            this.state.pink = !this.state.pink
+            if (!this.state.pink) {
+                this.resetAll();  
+                this.state.pink = true;
+            } else {
+                this.state.pink = false;
+            }
             fetch(`https://${GetParentResourceName()}/pink`, {
                 method: 'POST',
                 body: JSON.stringify({
@@ -313,7 +316,12 @@ const Cloth = Vue.createApp({
             });
         },
         red() {
-            this.state.red = !this.state.red
+            if (!this.state.red) {
+                this.resetAll();  
+                this.state.red = true;
+            } else {
+                this.state.red = false;
+            }
             fetch(`https://${GetParentResourceName()}/red`, {
                 method: 'POST',
                 body: JSON.stringify({
@@ -322,7 +330,12 @@ const Cloth = Vue.createApp({
             });
         },
         gren() {
-            this.state.gren = !this.state.gren
+            if (!this.state.gren) {
+                this.resetAll();  
+                this.state.gren = true;
+            } else {
+                this.state.gren = false;
+            }
             fetch(`https://${GetParentResourceName()}/gren`, {
                 method: 'POST',
                 body: JSON.stringify({
@@ -331,7 +344,12 @@ const Cloth = Vue.createApp({
             });
         },
         yelw() {
-            this.state.yelw = !this.state.yelw
+            if (!this.state.yelw) {
+                this.resetAll();  
+                this.state.yelw = true;
+            } else {
+                this.state.yelw = false;
+            }
             fetch(`https://${GetParentResourceName()}/yelw`, {
                 method: 'POST',
                 body: JSON.stringify({
@@ -344,7 +362,6 @@ const Cloth = Vue.createApp({
             setTimeout(() => {
                 document.getElementById("clothmenu").style.display = "none"
             }, 800);
-            /*document.getElementById("clothmenu").style.display = "none"*/
         },
     },
     async mounted() {
@@ -355,10 +372,10 @@ const Cloth = Vue.createApp({
     }
 }).mount('#clothmenu');
 
-
-function clothing(){
+function clothing() {
     document.getElementById("clothmenu").style.display = "block"
 }
+
 
 function spec(){
     document.getElementById("clothmenu").style.animation = "hopout 1s";
@@ -368,7 +385,6 @@ function spec(){
     }, 800);
 }
 
-// Drag functionality for the app element
 function makeDraggable(element, handle) {
     var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 

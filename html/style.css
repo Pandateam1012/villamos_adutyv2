@@ -17,6 +17,105 @@
     background-color: #2e2f36;
     border-radius: 10px;
 }
+#clothmenu .container .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    background-color: #2e2f36; /* Egységes háttérszín */
+    color: white; /* Szöveg szín */
+}
+
+#clothmenu .container .row .icon-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-right: 15px; /* Elválasztás a gombtól */
+}
+
+#clothmenu .container .row .icon-text i {
+    font-size: 1.5rem; /* Ikon méret */
+    margin-bottom: 5px; /* Ikon és szöveg közti távolság */
+}
+
+#clothmenu .container .row .icon-text p {
+    margin: 0;
+    font-size: 0.9rem; /* Szöveg méret */
+}
+
+#clothmenu .container .row div i {
+    font-size: 1.5rem;
+}
+
+#clothmenu .container .row div {
+    cursor: pointer;
+}
+
+/* White Cloth */
+#clothmenu .container .row:nth-child(1) {
+    position: static;
+    top: 15%;
+    background-color: #2e2f36; /* Fehér háttérszín */
+    color: #ffffff; /* Fekete szöveg és ikon */
+}
+
+/* Orange Cloth */
+#clothmenu .container .row:nth-child(2) {
+    position: static;
+
+    top: 27%;
+    background-color: #2e2f36; /* Fehér háttérszín */
+    color: #ffa500; /* Narancssárga szöveg és ikon */
+}
+
+/* Pink Cloth */
+#clothmenu .container .row:nth-child(3) {
+    position: static;
+
+    top: 39%;
+    background-color: #2e2f36; /* Fehér háttérszín */
+    color: #ff69b4; /* Pink szöveg és ikon */
+}
+
+/* Red Cloth */
+#clothmenu .container .row:nth-child(4) {
+    position: static;
+
+    top: 51%;
+    background-color: #2e2f36; /* Fehér háttérszín */
+    color: #ff0000; /* Piros szöveg és ikon */
+}
+
+/* Green Cloth */
+#clothmenu .container .row:nth-child(5) {
+    position: static;
+
+    top: 63%;
+    background-color: #2e2f36; /* Fehér háttérszín */
+    color: #008000; /* Zöld szöveg és ikon */
+}
+
+/* Yellow Cloth */
+#clothmenu .container .row:nth-child(6) {
+    position: static;
+
+    top: 75%;
+    background-color: #2e2f36; /* Fehér háttérszín */
+    color: #ffff00; /* Sárga szöveg és ikon */
+}
+
+/* Checkbox Icon Styling */
+#clothmenu .container .row div i {
+    font-size: 1.5rem;
+    color: inherit; /* Az ikon színe megegyezik a szöveg színével */
+}
+
+#clothmenu .container .row div {
+    cursor: pointer;
+}
 
 .disabled {
     opacity: 0.5;
@@ -31,11 +130,11 @@
     left: 27%;
     transform: translateY(-50%);
     width: 20%; 
-    height: 50%; 
+    height: 63%; 
     border-right: #1f5eff 5px solid;
     background-color: #202128;
     border-radius: 20px 0px 0px 20px; 
-    overflow-y: auto;
+    overflow-y: hidden;
     overflow-x: hidden;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     color: rgb(230, 225, 225);

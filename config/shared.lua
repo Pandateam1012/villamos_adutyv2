@@ -4,6 +4,9 @@ Config.Locale = "hu" -- en, hu
 
 Config.Commands = true
 
+Config.NotTypeCl = "ox" -- ox, esx NOTIFICATION TYPE CLIENT
+Config.NotTypeSV = "ox" -- ox, esx NOTIFICATION TYPE SERVER
+
 Config.Icons = {
     "marvel"
 }
@@ -42,6 +45,16 @@ Config.Admins = { --a pedet vagy a logót vagy a ruhát ha nem szeretnéd haszn�
 
 if not IsDuplicityVersion() then 
     Config.Notify = function(msg)
-        TriggerEvent("esx:showNotification", msg)
+        if Config.NotTypeCl == "ox" then
+            Notifyox(src,{title = "Rendzser", description = msg, icon = "info", iconAnimation = "beat", type = "success", duration = 4000})        
+        elseif Config.NotTypeCl == "esx" then
+            TriggerEvent("esx:showNotification", msg)
+        end
     end 
 end 
+
+
+
+function Notifyox(id, data)
+    TriggerClientEvent("ox_lib:notify", id, data)
+end

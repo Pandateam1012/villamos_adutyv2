@@ -32,6 +32,7 @@ client_scripts {
 }
 
 dependencies {
-	'es_extended',
-	'ox_lib'
+	'ox_lib',
+	'fl_spectate',
+	'es_extended'
 }
