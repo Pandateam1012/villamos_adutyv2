@@ -4,10 +4,10 @@ Optimized Admin Duty with panel, if you like my work, join our [Discord](https:/
 [Discord](https://discord.gg/esnawXn5q5) <br/>
 [YouTube](https://www.youtube.com/channel/UCEluDSZ6Y4fBB8OkKzcVx8A)
 # Edited By Pandateam
-SKIN MENU ONLY WORKING WITH ESX_SKIN!
-A ruha menü csak ESX_SKIN el müködik!
+A ruha menü csak SkinChanger el müködik!
 
 Fivem-appearance WIP!
+Illenium-appearance WIP!
 # Preview
 [YouTube](https://youtu.be/bfFSfZORnC8)
 # Features
