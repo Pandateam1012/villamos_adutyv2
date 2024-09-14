@@ -128,7 +128,7 @@ RegisterNetEvent('villamos_aduty:togid', function(ids)
         if ids == false then
             local logEnabled = adminLogStatus[source] ~= false
 
-            if logEnabled then
+            if logEnabled == true then
             SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> az ID-ket </div>', { xPlayer.getName(), xPlayer.source })
             end
             logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta az ID-ket')
@@ -148,11 +148,12 @@ RegisterNetEvent('villamos_aduty:toggod', function(god)
     local adminGroup = xPlayer.getGroup()
 
     if IsAdmin(adminGroup) then
-        local logEnabled = adminLogStatus[source] ~= false
         
         if god == false then
-            if logEnabled then
-            SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> a halhatatlanságot </div>', { xPlayer.getName(), xPlayer.source })
+            local logEnabled = adminLogStatus[source] ~= false
+
+            if logEnabled == true then
+                SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> a halhatatlanságot </div>', { xPlayer.getName(), xPlayer.source })
             end
             logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a halhatatlanságot')
         elseif god == true then
@@ -213,7 +214,7 @@ RegisterNetEvent('villamos_aduty:toginvisible', function(invisible)
     if IsAdmin(adminGroup) then
         local logEnabled = adminLogStatus[source] ~= false
         if invisible == false then
-            if logEnabled then
+            if logEnabled == true then
             SendLogToAdmins('<div style="padding: 0.4vw; margin: 0.4vw; relative; width: 420px; background-color: rgba(10, 10, 10, 0.6); border-radius: 10px;">LOG » ({1}) ({0}) » <span style="color:red;">kikapcsolta </span> a láthatatlanságot </div>', { xPlayer.getName(), xPlayer.source })
             end
             logdclog(10616832, GetPlayerName(xPlayer.source), GetPlayerName(xPlayer.source) .. ' kikapcsolta a láthatatlanságot')
@@ -273,9 +274,13 @@ end)
 
 
 RegisterNetEvent("villamos_aduty:SendAnon", function(message)
+    local adminGroup = xAdmin.getGroup()
+
+    if IsAdmin(adminGroup) then
 
 local author = GetPlayerName(source)
 TriggerClientEvent('txcl:showAnnouncement', -1, message, author)
+    end
 end)
 
 RegisterNetEvent("villamos_aduty:kickplayer", function(playerId, reason)
