@@ -29,6 +29,9 @@ Locales['hu'] = {
     ["nui_grencloth"] = "Zöld Ruha",
     ["nui_yelkwcloth"] = "Sárga Ruha",
     ["nui_changecloth"] = "Ruhacsere",
+    ["nui_noclip"] = "Noclip", 
+    ["nui_specmenu"] = "Spectate Menü",
+    ["nui_punishment"] = "Bűntetések",
 
     ["nui_label"] ="ADMIN MENÜ",
     ["nui_anauncement"] = 'Felhívás',

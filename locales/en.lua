@@ -30,6 +30,9 @@ Locales['en'] = {
     ["nui_grencloth"] = "Green Cloth",
     ["nui_yelkwcloth"] = "Yellow Cloth",
     ["nui_changecloth"] = "Change Clothing",    
+    ["nui_noclip"] = "Noclip",  
+    ["nui_specmenu"] = "Spectate Menu",
+    ["nui_punishment"] = "Punishments",
 
     ["nui_label"] ="ADMIN DUTY PANEL",
     ["nui_anauncement"] = 'Announcement',

@@ -60,6 +60,15 @@ RegisterNUICallback('sendanon', function(data, cb)
     cb('ok')
 end)
 
+RegisterNUICallback('punishment', function(data, cb)
+    if not duty then return Config.Notify(_U("no_perm")) end
+    local input = lib.inputDialog("Punishment", {'ID', 'Indok'})
+    local id = input[1]
+    local reason = input[2]
+    
+    cb('ok')
+end)
+
 RegisterNUICallback('kick', function(data, cb)
     if not duty then return Config.Notify(_U("no_perm")) end 
     local playerId = data.playerId
@@ -111,10 +120,16 @@ RegisterNUICallback('duty', function(data, cb)
     cb('ok')
 end)
 
+RegisterNUICallback('opespec', function(cb)
+    TriggerEvent("openSpectateMenu")
+    cb('ok')
+end)
+
 RegisterNUICallback('tag', function(data, cb)
     ToggleTag(data.enable, true, true)
     cb('ok')
 end)
+
 RegisterNUICallback('spectate', function(data, cb)
     if not duty then return Config.Notify(_U("no_perm")) end 
     local playerId = data.playerId
@@ -146,6 +161,11 @@ end)
 
 RegisterNUICallback('noragdoll', function(data, cb)
     ToggleNoragdoll(data.enable, true, true)
+    cb('ok')
+end)
+
+RegisterNUICallback('noclip', function(data, cb)
+    ToggleNoclip(data.enable, true, true)
     cb('ok')
 end)
 
@@ -247,6 +267,10 @@ if Config.Commands then
 
     RegisterCommand('adnoragdoll', function(s, a, r)
         ToggleNoragdoll(not noragdoll, true, true)
+    end)
+
+    RegisterCommand('adnoclip', function(s, a, r)
+        ToggleNoclip(not noragdoll, true, true)
     end)
 
     RegisterCommand('adcoords', function(s, a, r)
@@ -454,6 +478,7 @@ RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
         ToggleGod(false, false, false)
         ToggleInvisible(false, false, false)
         ToggleNoragdoll(false, false, false)
+        ToggleNoclip(false, false, false)
         tag = false
         duty = false
     end 
@@ -585,6 +610,19 @@ function ToggleNoragdoll(state, usenotify, toglog)
     end 
     if toglog then 
     TriggerServerEvent('villamos_aduty:tognoragdoll', noragdoll)
+    end 
+end 
+
+function ToggleNoclip(state, usenotify, toglog)
+    if not duty then return Config.Notify(_U("no_perm")) end 
+    noclip = state
+    ExecuteCommand("txAdmin:menu:noClipToggle")
+    if usenotify then 
+        Config.Notify(_U("no_ragdoll", (noclip and _U("enabled") or _U("disabled")) ))
+        UpdateNui()
+    end 
+    if toglog then 
+    TriggerServerEvent('villamos_aduty:tognoragdoll', noclip)
     end 
 end 
 

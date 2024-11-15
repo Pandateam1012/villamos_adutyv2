@@ -79,7 +79,7 @@
         </div>
         
     
-<div id="app">
+    <div id="app">
             <div id="appheader">
                 <h1>{{locales.nui_label}}</h1>
             </div>
@@ -150,12 +150,23 @@
                     <span class="click-action" tabindex="0" :class="{ disabled: !state.duty }" @click="marker"><i class="bi bi-geo-alt"></i></span>
                 </div>
                 <div class="row">
-                    <span><i class="bi bi-envelope-check"></i></i> {{locales.nui_anauncement}}</span>
+                    <span><i class="bi bi-envelope-check"></i> {{locales.nui_anauncement}}</span>
                     <span class="click-action" tabindex="0" :class="{ disabled: !state.duty }" @click="anon"><i class="bi bi-envelope-check"></i></span>
+                </div>
+                <div class="row">
+                    <span><i class="bi bi-envelope-check"></i> {{locales.nui_punishment}}</span>
+                    <span class="click-action" tabindex="0" :class="{ disabled: !state.duty }" @click="punishment"><i class="bi bi-envelope-check"></i></span>
+                </div>
+                <div class="row">
+                    <span><i class="bi bi-lightning"></i> {{locales.nui_noclip}}</span>
+                    <div>
+                        <div class="check" :class="{ xmark: !state.noclip, disabled: !state.duty }" @click="noclip"></div>
+                    </div>
                 </div>
             </div>
     
             <h2 id="cloth" onclick="clothing()">{{locales.nui_Admin}}</h2>
+            <h2 id="specop" @click="opespec">{{locales.nui_specmenu}}</h2>
     
             <h2 class="label">{{locales.nui_label_players}}</h2>
     

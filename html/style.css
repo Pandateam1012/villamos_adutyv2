@@ -17,6 +17,18 @@
     background-color: #2e2f36;
     border-radius: 10px;
 }
+
+#specop {
+    transform: rotate(90deg);
+    position: fixed;
+    top: 70%;
+    left: -55px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 35px;
+    background-color: #2e2f36;
+    border-radius: 10px;
+}
+
 #clothmenu .container .row {
     display: flex;
     justify-content: space-between;
@@ -142,7 +154,7 @@ body {
 }
 
 #app {
-    display: none;
+    /*display: none;*/
     position: fixed; 
     top: 50%;
     left: 50%;

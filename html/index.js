@@ -43,7 +43,10 @@ const App = Vue.createApp({
                 nui_Admin: 'Clothing Menu',
                 nui_Spectate: 'Spectate',
                 nui_Kick: 'Kick',
-                nui_anauncement: 'Announcement'
+                nui_anauncement: 'Announcement',
+                nui_noclip: 'Noclip',
+                nui_specmenu: 'Spectate Menu',
+                nui_punishment: 'Punishment'
             },
             search: ""
         }
@@ -172,6 +175,15 @@ const App = Vue.createApp({
                 })
             });
         },
+        noclip() {
+            this.state.noclip = !this.state.noclip
+            fetch(`https://${GetParentResourceName()}/noclip`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    enable: this.state.noclip
+                })
+            });
+        },
         coords() {
             fetch(`https://${GetParentResourceName()}/coords`);
         },
@@ -183,6 +195,12 @@ const App = Vue.createApp({
         },
         anon() {
             fetch(`https://${GetParentResourceName()}/sendanon`);
+        },
+        opespec() {
+            fetch(`https://${GetParentResourceName()}/opespec`);
+        },
+        punishment() {
+            fetch(`https://${GetParentResourceName()}/punishment`);
         },
         gotoplayer(playerId) {
             fetch(`https://${GetParentResourceName()}/goto`, {
