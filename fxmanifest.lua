@@ -2,12 +2,13 @@ fx_version 'adamant'
 
 game 'gta5'
 
-description 'admin duty by 6osvillamos Edited by Pandascripts'
+description 'admin duty by 6osvillamos'
 
-version '1.2.3'
-lua54 'yes'
+version '1.2.2'
 
 ui_page 'html/index.html'
+
+lua54 "yes"
 
 files {
 	"icons/*.png",
@@ -17,9 +18,9 @@ files {
 shared_scripts {
 	'@es_extended/imports.lua',
 	'config/shared.lua',
+	'@ox_lib/init.lua',
 	'@es_extended/locale.lua',
 	'locales/*.lua',
-	'@ox_lib/init.lua'
 }
 
 server_scripts {
@@ -32,7 +33,6 @@ client_scripts {
 }
 
 dependencies {
-	'ox_lib',
-	'fl_spectate',
-	'es_extended'
+	'es_extended',
+	'ox_lib'
 }

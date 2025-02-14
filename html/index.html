@@ -1,92 +1,37 @@
 <html>
     <head>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-        <script src="https://kit.fontawesome.com/6810d3c76f.js" crossorigin="anonymous"></script>
         <link rel="stylesheet" href="style.css">
         <meta charset="UTF-8">
     </head>
-    <!DOCTYPE html>
-    <html lang="hu">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>PandaScript Beta 2.2</title>
-        <link rel="stylesheet" href="styles.css">
-    </head>
     <body>
-        <div id="clothmenu">
-            <div id="clothheader">
-                <h1>{{locales.nui_clothing_menu}}</h1>
+        <div id="Clothingmenu" v-if="clothingMenuVisible" class="clothing-menu">
+            <div id="clothingMenuHeader" class="menu-header">
+                <button class="btn close-btn click-action" @click="closeClothing"><i class="bi bi-x-circle"></i></button>
+                <span>{{locales.nui_clothing_menu}}</span>
+                <button @click="closeClothing">X</button>
             </div>
-            <button class="btn close-btn anim" @click="bezar"><i class="bi bi-x-circle"></i></button>
-            <div class="container">
-                <div class="row">
-                    <div class="icon-text">
-                        <i class="fas fa-tshirt"></i>
-                        {{locales.nui_whitecloth}}
-                    </div>
-                    <div @click="white">
-                        <i :class="state.white ? 'fas fa-check-circle' : 'far fa-circle'"></i>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="icon-text">
-                        <i class="fas fa-tshirt"></i>
-                        {{locales.nui_orangcloth}}
-                    </div>
-                    <div @click="orang">
-                        <i :class="state.orang ? 'fas fa-check-circle' : 'far fa-circle'"></i>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="icon-text">
-                        <i class="fas fa-tshirt"></i>
-                        {{locales.nui_pinkcloth}}
-                    </div>
-                    <div @click="pink">
-                        <i :class="state.pink ? 'fas fa-check-circle' : 'far fa-circle'"></i>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="icon-text">
-                        <i class="fas fa-tshirt"></i>
-                        {{locales.nui_redcloth}}
-                    </div>
-                    <div @click="red">
-                        <i :class="state.red ? 'fas fa-check-circle' : 'far fa-circle'"></i>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="icon-text">
-                        <i class="fas fa-tshirt"></i>
-                        {{locales.nui_grencloth}}
-                    </div>
-                    <div @click="gren">
-                        <i :class="state.gren ? 'fas fa-check-circle' : 'far fa-circle'"></i>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="icon-text">
-                        <i class="fas fa-tshirt"></i>
-                        {{locales.nui_yelkwcloth}}
-                    </div>
-                    <div @click="yelw">
-                        <i :class="state.yelw ? 'fas fa-check-circle' : 'far fa-circle'"></i>
-                    </div>
-                </div>
-            </div>
+            <div id="bacl" @click="back" class="btn" ><i class="bi bi-backspace-reverse-fill"> {{locales.nui_clothing_revert}}</i></div>
+            <div class="menu-content">
+                <button v-for="item in clothingItems" :key="item.id" @click="selectClothing(item)">
+                    {{ item.name }}
+                </button>
+            </div>            
         </div>
-        
-    
-    <div id="app">
+		<div id='app'>
             <div id="appheader">
                 <h1>{{locales.nui_label}}</h1>
             </div>
-    
+
             <button class="btn close-btn click-action" @click="close"><i class="bi bi-x-circle"></i></button>
-    
             <div class="container">
+                <div class="row" >
+                    <span><i  class="bi bi-person-bounding-box"></i> {{locales.nui_clothing}}</span>
+                    <span :disabled="!state.duty" class="click-action" tabindex="0" @click="openclothing" >
+                        <i class="bi bi-person-square" ></i>
+                    </span>
+                </div>
+                
                 <div class="row">
                     <span><i class="bi bi-shield-shaded"></i> {{locales.nui_group}}</span>
                     <span>{{state.group}}</span>
@@ -98,43 +43,50 @@
                 <div class="row">
                     <span><i class="bi bi-award"></i> {{locales.nui_duty}}</span>
                     <div>
-                        <div class="check" :class="{ xmark: !state.duty}" @click="duty"></div>
+                        <input type="checkbox" id="dutyCheckbox" :checked="state.duty" @change="duty">
+                        <label for="dutyCheckbox" class="custom-checkbox"></label>
                     </div>
                 </div>
                 <div class="row">
                     <span><i class="bi bi-balloon"></i> {{locales.nui_tag}}</span>
                     <div>
-                        <div class="check" :class="{ xmark: !state.tag, disabled: !state.duty }" @click="tag"></div>
+                        <input type="checkbox" id="tagCheckbox" :disabled="!state.duty" :checked="state.tag" @change="tag">
+                        <label for="tagCheckbox" class="custom-checkbox"></label>
                     </div>
                 </div>
                 <div class="row">
                     <span><i class="bi bi-fingerprint"></i> {{locales.nui_esp}}</span>
                     <div>
-                        <div class="check" :class="{ xmark: !state.ids, disabled: !state.duty }" @click="ids"></div>
+                        <input type="checkbox" id="idsCheckbox" :disabled="!state.duty" :checked="state.ids" @change="ids">
+                        <label for="idsCheckbox" class="custom-checkbox"></label>
                     </div>
                 </div>
                 <div class="row">
                     <span><i class="bi bi-heart"></i> {{locales.nui_god}}</span>
                     <div>
-                        <div class="check" :class="{ xmark: !state.god, disabled: !state.duty }" @click="god"></div>
+                        <input type="checkbox" id="godCheckbox" :disabled="!state.duty" :checked="state.god" @change="god">
+                        <label for="godCheckbox" class="custom-checkbox"></label>
                     </div>
                 </div>
                 <div class="row">
                     <span><i class="bi bi-capslock"></i> {{locales.nui_speed}}</span>
                     <div>
-                        <div class="check" :class="{ xmark: !state.speed, disabled: !state.duty }" @click="speed"></div>
+                        <input type="checkbox" id="speedCheckbox" :disabled="!state.duty" :checked="state.speed" @change="speed">
+                        <label for="speedCheckbox" class="custom-checkbox"></label>
                     </div>
                 </div>
                 <div class="row">
                     <span><i class="bi bi-binoculars"></i> {{locales.nui_invisble}}</span>
                     <div>
-                        <div class="check" :class="{ xmark: !state.invisible, disabled: !state.duty }" @click="invisible"></div>
+                        <input type="checkbox" id="invisibleCheckbox" :disabled="!state.duty" :checked="state.invisible" @change="invisible">
+                        <label for="invisibleCheckbox" class="custom-checkbox"></label>
                     </div>
-                </div>
+                </div>                              
                 <div class="row">
                     <span><i class="bi bi-cart"></i> {{locales.nui_noragdoll}}</span>
                     <div>
-                        <div class="check" :class="{ xmark: !state.noragdoll, disabled: !state.duty }" @click="noragdoll"></div>
+                        <input type="checkbox" id="noragdollCheckbox" :disabled="!state.duty" :checked="state.noragdoll" @change="noragdoll">
+                        <label for="noragdollCheckbox" class="custom-checkbox"></label>
                     </div>
                 </div>
                 <div class="row">
@@ -147,33 +99,18 @@
                 </div>
                 <div class="row">
                     <span><i class="bi bi-geo-alt"></i> {{locales.nui_marker}}</span>
-                    <span class="click-action" tabindex="0" :class="{ disabled: !state.duty }" @click="marker"><i class="bi bi-geo-alt"></i></span>
-                </div>
-                <div class="row">
-                    <span><i class="bi bi-envelope-check"></i> {{locales.nui_anauncement}}</span>
-                    <span class="click-action" tabindex="0" :class="{ disabled: !state.duty }" @click="anon"><i class="bi bi-envelope-check"></i></span>
-                </div>
-                <div class="row">
-                    <span><i class="bi bi-envelope-check"></i> {{locales.nui_punishment}}</span>
-                    <span class="click-action" tabindex="0" :class="{ disabled: !state.duty }" @click="punishment"><i class="bi bi-envelope-check"></i></span>
-                </div>
-                <div class="row">
-                    <span><i class="bi bi-lightning"></i> {{locales.nui_noclip}}</span>
-                    <div>
-                        <div class="check" :class="{ xmark: !state.noclip, disabled: !state.duty }" @click="noclip"></div>
-                    </div>
+                    <span class="click-action" tabindex="0" :class="{ disabled: !state.duty }" @click="marker"><i class="bi bi-geo-alt" ></i></span>
                 </div>
             </div>
-    
-            <h2 id="cloth" onclick="clothing()">{{locales.nui_Admin}}</h2>
-            <h2 id="specop" @click="opespec">{{locales.nui_specmenu}}</h2>
-    
+            
+
             <h2 class="label">{{locales.nui_label_players}}</h2>
-    
+
             <div class="player-actions">
                 <button type="button" class="btn click-action" @click="update"><i class="bi bi-arrow-repeat"></i> {{locales.nui_players_refresh}}</button>
                 <input type="text" v-model="search" class="inp" :placeholder="locales.nui_players_search">
             </div>
+            
             
             <div class="container player-table">
                 <div class="row table-label">
@@ -190,56 +127,30 @@
                         {{locales.nui_players_job}}
                     </div>
                     <div class="col">
-                        {{locales.nui_Kick}}
-                    </div>
-                    <div class="col">
-                        {{locales.nui_goto}}
-                    </div>
-                    <div class="col">
-                        {{locales.nui_bring}}
-                    </div>
-                    <div class="col">
-                        {{locales.nui_Spectate}}
+                        {{locales.nui_players_spectate}}
                     </div>
                 </div>
                 <div class="row" v-for="player in filteredList">
-                    <div class="player-data spec" id="id" @click="copytoclipboard(player.id)">
+                    <div class="player-data" @click="copytoclipboard(player.id)">
                         {{player.id}}
                     </div>
-                    <div class="player-data spec" @click="copytoclipboard(player.name)">
+                    <div class="player-data" @click="copytoclipboard(player.name)">
                         {{player.name}}
                     </div>
-                    <div class="player-data spec" @click="copytoclipboard(player.group)">
+                    <div class="player-data" @click="copytoclipboard(player.group)">
                         {{player.group}}
                     </div>
-                    <div class="player-data spec" @click="copytoclipboard(player.job)">
+                    <div class="player-data" @click="copytoclipboard(player.job)">
                         {{player.job}}
                     </div>
-                    <div class="player-data spec"  :class="{ disabled: !state.duty }" @click="kickplayer(player.id)">
-                        <span class="fas fa-power-off"></span>
+                    <div class="player-data" @click="spectate(player.id)">
+                        <i class="bi bi-eyeglasses"></i>
                     </div>
-                    <div class="player-data spec"  :class="{ disabled: !state.duty }" @click="gotoplayer(player.id)">
-<span class="fas fa-upload"></span>
-                    </div>
-                    
-                    <div class="player-data spec"  :class="{ disabled: !state.duty }" @click="bringplayer(player.id)">
-<span class="fas fa-download"></span>
-                    </div>
-                    <div id="spectate" class="player-data spec click-action" onclick="spec()" :class="{ disabled: !state.duty }" @click="specplayer(player.id)">
-                        <span class="fas fa-video"></span>
-                    <div>
                 </div>
             </div>
-        </div>
-    
-        <script src="https://unpkg.com/vue@next"></script>
-        <script src="script.js"></script>
-    </body>
-    </html>
-    
 		</div>
 
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.prod.min.js"></script>
+w        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.prod.min.js"></script>
         <script src="index.js"></script>
 
 	</body>

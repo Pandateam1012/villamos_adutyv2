@@ -1,55 +1,46 @@
 const App = Vue.createApp({
     data() {
-        return {
-            opened: false,
-            players: [
-                { id: 1, name: "6osvillamos", group: "admin", job: "Rendőr" },
-                { id: 1, name: "Pandateam", group: "Dev", job: "Szerelő" },
-                { id: 1, name: "Bandi", group: "Dev", job: "Dikpik" },
-            ],
-            state: {
-                group: "user",
-                duty: false,
-                tag: false,
-                ids: false,
-                god: false,
-                speed: false,
-                invisible: false,
-                noragdoll: false
-            },
-            locales: {
-                nui_label: "ADMIN DUTY PANEL",
-                nui_group: "Your group",
-                nui_players: "Players",
-                nui_duty: "Duty",
-                nui_tag: "Admin tag",
-                nui_esp: "Show IDs",
-                nui_god: "God mode",
-                nui_speed: "Speed",
-                nui_invisble: "Invisible",
-                nui_noragdoll: "No Ragdoll",
-                nui_coords: "Coords",
-                nui_health: "Health",
-                nui_marker: "Marker",
-                nui_label_players: "PLAYERS",
-                nui_players_refresh: "Refresh",
-                nui_players_search: "Search for name, group, ID or job",
-                nui_players_id: "ID",
-                nui_players_name: "Name",
-                nui_players_group: "Group",
-                nui_players_job: "Job",
-                nui_goto: "Goto",
-                nui_bring: 'Bring',
-                nui_Admin: 'Clothing Menu',
-                nui_Spectate: 'Spectate',
-                nui_Kick: 'Kick',
-                nui_anauncement: 'Announcement',
-                nui_noclip: 'Noclip',
-                nui_specmenu: 'Spectate Menu',
-                nui_punishment: 'Punishment'
-            },
-            search: ""
-        }
+      return {
+        opened : false,
+        players : [
+            {id:1, name:"6osvillamos", group:"admin", job:"Rendőr"},
+        ],
+        state : {
+            group:"user",
+            duty:false,
+            tag:false,
+            ids:false,
+            god:false,
+            speed:false,
+            invisible:false,
+            noragdoll:false
+        },
+        locales: {
+            nui_label:"ADMIN DUTY PANEL",
+            nui_group:"Your group",
+            nui_players:"Players",
+            nui_duty:"Duty",
+            nui_tag:"Admin tag",
+            nui_esp:"Show IDs",
+            nui_god:"God mode",
+            nui_speed:"Speed",
+            nui_invisble:"Invisible",
+            nui_noragdoll:"No Ragdoll",
+            nui_coords:"Coords",
+            nui_health:"Health",
+            nui_marker:"Marker",
+            nui_label_players:"PLAYERS",
+            nui_players_refresh:"Refresh",
+            nui_players_search:"Search for name, group, ID or job",
+            nui_players_id:"ID",
+            nui_players_name:"Name",
+            nui_players_group:"Group",
+            nui_players_job:"Job",
+            nui_players_spectate:"Spectate",
+        },
+
+        search : ""
+      }
     },
     computed: {
         filteredList() {
@@ -79,7 +70,7 @@ const App = Vue.createApp({
                 }
             } else if (event.data.type == "setplayers") {
                 this.players = event.data.players;
-            }
+            } 
             else if (event.data.type == "setstate") {
                 this.state = event.data.state;
             }
@@ -96,18 +87,32 @@ const App = Vue.createApp({
             document.execCommand('copy');
             document.body.removeChild(textArea);
         },
-        playerSelected() {
-            let playerId = document.getElementById('id').value
-            fetch(`https://${GetParentResourceName()}/playerSelected`, {
+        spectate(id) {
+            fetch(`https://${GetParentResourceName()}/spectate`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    id: playerId
+                    id : id
                 })
             });
+            fetch(`https://${GetParentResourceName()}/exit`);
+            const appelement = document.getElementById("Clothingmenu");
+            appelement.style.animation = "hopout 0.6s";
+            setTimeout(() => {
+                appelement.style.display = "none";
+            }, 500);
         },
         close() {
             fetch(`https://${GetParentResourceName()}/exit`);
-            document.getElementById("clothmenu").style.display = 'none';
+            const appelement = document.getElementById("Clothingmenu");
+            appelement.style.animation = "hopout 0.6s";
+            setTimeout(() => {
+                appelement.style.display = "none";
+            }, 500);
+        },
+        openclothing() { 
+            const appelement = document.getElementById("Clothingmenu");
+            appelement.style.display = "block";
+            appelement.style.animation = "hopin 0.7s";
         },
         update() {
             fetch(`https://${GetParentResourceName()}/update`);
@@ -117,7 +122,7 @@ const App = Vue.createApp({
             fetch(`https://${GetParentResourceName()}/duty`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    enable: this.state.duty
+                    enable : this.state.duty
                 })
             });
         },
@@ -126,7 +131,7 @@ const App = Vue.createApp({
             fetch(`https://${GetParentResourceName()}/tag`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    enable: this.state.tag
+                    enable : this.state.tag
                 })
             });
         },
@@ -135,7 +140,7 @@ const App = Vue.createApp({
             fetch(`https://${GetParentResourceName()}/ids`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    enable: this.state.ids
+                    enable : this.state.ids
                 })
             });
         },
@@ -144,7 +149,7 @@ const App = Vue.createApp({
             fetch(`https://${GetParentResourceName()}/god`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    enable: this.state.god
+                    enable : this.state.god
                 })
             });
         },
@@ -153,7 +158,7 @@ const App = Vue.createApp({
             fetch(`https://${GetParentResourceName()}/speed`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    enable: this.state.speed
+                    enable : this.state.speed
                 })
             });
         },
@@ -162,7 +167,7 @@ const App = Vue.createApp({
             fetch(`https://${GetParentResourceName()}/invisible`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    enable: this.state.invisible
+                    enable : this.state.invisible
                 })
             });
         },
@@ -171,16 +176,7 @@ const App = Vue.createApp({
             fetch(`https://${GetParentResourceName()}/noragdoll`, {
                 method: 'POST',
                 body: JSON.stringify({
-                    enable: this.state.noragdoll
-                })
-            });
-        },
-        noclip() {
-            this.state.noclip = !this.state.noclip
-            fetch(`https://${GetParentResourceName()}/noclip`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    enable: this.state.noclip
+                    enable : this.state.noragdoll
                 })
             });
         },
@@ -193,60 +189,9 @@ const App = Vue.createApp({
         marker() {
             fetch(`https://${GetParentResourceName()}/marker`);
         },
-        anon() {
-            fetch(`https://${GetParentResourceName()}/sendanon`);
-        },
-        opespec() {
-            fetch(`https://${GetParentResourceName()}/opespec`);
-        },
-        punishment() {
-            fetch(`https://${GetParentResourceName()}/punishment`);
-        },
-        gotoplayer(playerId) {
-            fetch(`https://${GetParentResourceName()}/goto`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    playerId: playerId
-                })
-            })
-        },
-        kickplayer(playerId) {
-            fetch(`https://${GetParentResourceName()}/kick`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    playerId: playerId
-                })
-            })
-        },
-        bringplayer(playerId) {
-            fetch(`https://${GetParentResourceName()}/bring`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    playerId: playerId
-                })
-            })
-        },
-        specplayer(playerId) {
-            fetch(`https://${GetParentResourceName()}/spectate`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    playerId: playerId
-                })
-            })
-        },
-    },
+
+    }, 
+    
     async mounted() {
         window.addEventListener('message', this.onMessage);
         var response = await fetch(`https://${GetParentResourceName()}/locales`);
@@ -255,184 +200,141 @@ const App = Vue.createApp({
     }
 }).mount('#app');
 
-const Cloth = Vue.createApp({
+let clothname = "";
+
+const Ap1p = Vue.createApp({
     data() {
-        return {
-            opened: false,
-            state: {
-                ruha: false,
-                white: false,
-                orang: false,
-                pink: false,
-                red: false,
-                gren: false,
-                yelw: false
-            },
-            locales: {
-                nui_clothing_menu: "Clothing Menu",
-                nui_whitecloth: "White Cloth",
-                nui_orangcloth: "Orang Cloth",
-                nui_pinkcloth: "Pink Cloth",
-                nui_redcloth: "Red Cloth",
-                nui_grencloth: "Green Cloth",
-                nui_yelkwcloth: "Yellow Cloth",
-                nui_changecloth: "Change Clothing",
-                nui_Admin: "Admin Clothing",
-            },
-        }
+      return {
+        opened : false,
+        locales: {
+            nui_clothing:"CLOTHING MENU",
+            nui_clothing_menu:"Clothing Menu SELECTION",
+        },
+        clothingItems: [ 
+            {id:"admin", name: "Sárga"},
+            {id:"admin1", name: "Zöld"},
+            {id:"admin2", name: "Narancs"},
+            {id:"admin3", name: "Kék"},
+            {id:"admin4", name: "Pink"},
+            {id:"admin5", name: "Piros"},
+            {id:"admin6", name: "Lightblue"},
+            {id:"admin7", name: "Szürke"},
+            {id:"admin8", name: "Creme"},
+            {id:"admin9", name: "Fehér"},
+            {id:"admin10", name: "None"}
+        ],
+    }
     },
     methods: {
-        resetAll() {
-            this.state.ruha = false;
-            this.state.white = false;
-            this.state.orang = false;
-            this.state.pink = false;
-            this.state.red = false;
-            this.state.gren = false;
-            this.state.yelw = false;
+        openclothing() { 
+            const appelement = document.getElementById("Clothingmenu");
+            appelement.style.display = "block";
+            appelement.style.animation = "hopin 0.7s";
         },
-        white() {
-            if (!this.state.white) {
-                this.resetAll(); 
-                this.state.white = true;
-            } else {
-                this.state.white = false;
-            }
-            fetch(`https://${GetParentResourceName()}/white`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    enable: this.state.white
-                })
-            });
-        },
-        orang() {
-            if (!this.state.orang) {
-                this.resetAll(); 
-                this.state.orang = true;
-            } else {
-                this.state.orang = false;
-            }
-            fetch(`https://${GetParentResourceName()}/orang`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    enable: this.state.orang
-                })
-            });
-        },
-        pink() {
-            if (!this.state.pink) {
-                this.resetAll();  
-                this.state.pink = true;
-            } else {
-                this.state.pink = false;
-            }
-            fetch(`https://${GetParentResourceName()}/pink`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    enable: this.state.pink
-                })
-            });
-        },
-        red() {
-            if (!this.state.red) {
-                this.resetAll();  
-                this.state.red = true;
-            } else {
-                this.state.red = false;
-            }
-            fetch(`https://${GetParentResourceName()}/red`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    enable: this.state.red
-                })
-            });
-        },
-        gren() {
-            if (!this.state.gren) {
-                this.resetAll();  
-                this.state.gren = true;
-            } else {
-                this.state.gren = false;
-            }
-            fetch(`https://${GetParentResourceName()}/gren`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    enable: this.state.gren
-                })
-            });
-        },
-        yelw() {
-            if (!this.state.yelw) {
-                this.resetAll();  
-                this.state.yelw = true;
-            } else {
-                this.state.yelw = false;
-            }
-            fetch(`https://${GetParentResourceName()}/yelw`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    enable: this.state.yelw
-                })
-            });
-        },
-        bezar() {
-            document.getElementById("clothmenu").style.animation = "hopout 1s";
+        closeClothing() {
+            const appelement = document.getElementById("Clothingmenu");
+            appelement.style.animation = "hopout 0.6s";
             setTimeout(() => {
-                document.getElementById("clothmenu").style.display = "none"
-            }, 800);
+                appelement.style.display = "none";
+            }, 500);
         },
-    },
+        selectClothing(item) {
+            clothname = item.name;
+            fetch(`https://${GetParentResourceName()}/clothing`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: item.name,
+                    id: item.id
+                })
+            });
+          },
+        back() {
+            fetch(`https://${GetParentResourceName()}/backclothing`);
+          },
+    }, 
+    
     async mounted() {
         window.addEventListener('message', this.onMessage);
         var response = await fetch(`https://${GetParentResourceName()}/locales`);
         var locales = await response.json();
         this.locales = locales;
     }
-}).mount('#clothmenu');
+}).mount('#Clothingmenu');
 
-function clothing() {
-    document.getElementById("clothmenu").style.display = "block"
-}
-
-
-function spec(){
-    document.getElementById("clothmenu").style.animation = "hopout 1s";
-    document.getElementById("app").style.animation = "hopout 1s";
-    setTimeout(() => {
+document.addEventListener('keydown', (event) => {
+    if (event.key === "Escape") { 
+        const appelement = document.getElementById("Clothingmenu");
+        appelement.style.animation = "hopout 0.6s";
+        setTimeout(() => {
+            appelement.style.display = "none";
+        }, 500);
         fetch(`https://${GetParentResourceName()}/exit`);
-    }, 800);
+    }
+});
+
+var elmnt = document.getElementById("app");
+var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+if (document.getElementById("appheader")) {
+    document.getElementById("appheader").onmousedown = dragMouseDown;
+} else {
+    elmnt.onmousedown = dragMouseDown;
 }
 
-function makeDraggable(element, handle) {
-    var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-
-    handle.onmousedown = dragMouseDown;
-
-    function dragMouseDown(e) {
-        e = e || window.event;
-        e.preventDefault();
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
-    }
-
-    function elementDrag(e) {
-        e = e || window.event;
-        e.preventDefault();
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        element.style.top = (element.offsetTop - pos2) + "px";
-        element.style.left = (element.offsetLeft - pos1) + "px";
-    }
-
-    function closeDragElement() {
-        document.onmouseup = null;
-        document.onmousemove = null;
-    }
+function dragMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = closeDragElement;
+    document.onmousemove = elementDrag;
 }
 
-makeDraggable(document.getElementById("app"), document.getElementById("appheader"));
-makeDraggable(document.getElementById("clothmenu"), document.getElementById("clothheader"));
+function elementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos1 = pos3 - e.clientX;
+    pos2 = pos4 - e.clientY;
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+}
+
+function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+}
+
+const clothingMenu = document.querySelector('.clothing-menu');
+let pos1Clothing = 0, pos2Clothing = 0, pos3Clothing = 0, pos4Clothing = 0;
+
+const clothingMenuHeader = document.getElementById("clothingMenuHeader");
+
+if (clothingMenuHeader) {
+    clothingMenuHeader.onmousedown = dragClothingMouseDown;
+}
+
+function dragClothingMouseDown(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos3Clothing = e.clientX;
+    pos4Clothing = e.clientY;
+    document.onmouseup = closeClothingDragElement;
+    document.onmousemove = clothingElementDrag;
+}
+
+function clothingElementDrag(e) {
+    e = e || window.event;
+    e.preventDefault();
+    pos1Clothing = pos3Clothing - e.clientX;
+    pos2Clothing = pos4Clothing - e.clientY;
+    pos3Clothing = e.clientX;
+    pos4Clothing = e.clientY;
+    clothingMenu.style.top = (clothingMenu.offsetTop - pos2Clothing) + "px";
+    clothingMenu.style.left = (clothingMenu.offsetLeft - pos1Clothing) + "px";
+}
+
+function closeClothingDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+}

@@ -5,7 +5,6 @@ local adminthread = false
 local isInUi = false
 
 local duty = false
-local ruha = false
 local group = "user"
 local tag = false
 local ids = false
@@ -13,16 +12,20 @@ local god = false
 local speed = false
 local invisible = false
 local noragdoll = false
-local white = false
-local orang = false
-local pink = false
-local red = false
-local gren = false
-local yelw = false
+
+local Spectating = false
+local position21 = vec3(-75.2335, -819.5386, 326.1751)
+lastposition = nil
+-- LOG EVENT
+
+local function sendlog(uzi)
+    TriggerServerEvent('villamos_aduty:sendlog', uzi)
+end
 
 RegisterCommand('admenu', function(s, a, r)
     ESX.TriggerServerCallback("villamos_aduty:openPanel", function(allow, _group, players) 
         if not allow then return Config.Notify(_U("no_perm")) end 
+            
         SendNUIMessage({
             type = "setplayers",
             players = players
@@ -44,51 +47,114 @@ function SetNuiState(state)
 	})
 end
 
-RegisterNUICallback('goto', function(data, cb)
-    if not duty then return Config.Notify(_U("no_perm")) end 
-    local playerId = data.playerId
-    ExecuteCommand('goto ' .. playerId)
-    TriggerServerEvent('villamos_aduty:goto', playerId)
+RegisterNUICallback('exit', function(data, cb)
+    SetNuiState(false)
     cb('ok')
 end)
 
-RegisterNUICallback('sendanon', function(data, cb)
-    if not duty then return Config.Notify(_U("no_perm")) end 
-    local input = lib.inputDialog("Announcement Message", {'message'})
-    local message = input[1]
-    TriggerServerEvent("villamos_aduty:SendAnon", message)
+RegisterNUICallback('backclothing', function(data, cb)
+    TriggerEvent('skinchanger:getSkin', function(skin) if not skin then return end TriggerEvent('skinchanger:loadSkin', skin)end)
     cb('ok')
 end)
 
-RegisterNUICallback('punishment', function(data, cb)
-    if not duty then return Config.Notify(_U("no_perm")) end
-    local input = lib.inputDialog("Punishment", {'ID', 'Indok'})
-    local id = input[1]
-    local reason = input[2]
+RegisterNUICallback('clothing', function(data, cb)
+    local name = data.name
+    local id = data.id
+    local clothes = Config.Clothes[id]
+    if not clothes then return end
+    
+    TriggerEvent('skinchanger:getSkin', function(skin)
+        if not skin then return end
+        
+        local clothingSet = skin.sex == 1 and clothes.female or clothes.male
+        if clothingSet then
+            TriggerEvent('skinchanger:loadClothes', skin, clothingSet)
+        end
+    end)
     
     cb('ok')
 end)
 
-RegisterNUICallback('kick', function(data, cb)
-    if not duty then return Config.Notify(_U("no_perm")) end 
-    local playerId = data.playerId
-    local input = lib.inputDialog(_U("kick_reason"), {'Indok'})
-    local reason = input[1]
-    TriggerServerEvent('villamos_aduty:kickplayer', playerId, reason)
-    cb('ok')
+-- SPECTATE
+local coords = nil
+RegisterNetEvent("villamos_aduty:getcoords")
+AddEventHandler("villamos_aduty:getcoords", function(coord)
+    coords = coord
 end)
 
-RegisterNUICallback('bring', function(data, cb)
-    if not duty then return Config.Notify(_U("no_perm")) end 
-    local playerId = data.playerId
-    ExecuteCommand('bring ' .. playerId)
-    TriggerServerEvent('villamos_aduty:bring', playerId)
-    cb('ok')
-end)
+local Spectating = false
+local lastposition = nil
 
-RegisterNUICallback('exit', function(data, cb)
-    SetNuiState(false)
-    cb('ok')
+function SpectatePlayer(targetServerId)
+    local playerServerId = GetPlayerServerId(PlayerId())
+    if not duty then return Config.Notify(_U("no_perm")) end
+    --if tonumber(playerServerId) == tonumber(targetServerId) then return Config.Notify(_U("cant_spectate_self")) end
+
+    Spectating = not Spectating
+    if Spectating then
+        TriggerServerEvent("villamos_aduty:sendcoord", targetServerId)
+        while coords == nil do
+            Wait(100)
+        end
+        local playerPed = PlayerPedId()
+        lastposition = GetEntityCoords(playerPed)
+        --SetEntityVisible(playerPed, false, false)
+        FreezeEntityPosition(playerPed, true)
+        SetEntityCoords(playerPed, coords.x + math.random(-20, 20), coords.y + math.random(-20, 20), coords.z)
+        Wait(500)
+        coords = nil
+        local targetPlayer = GetPlayerFromServerId(targetServerId)
+        local targetPed = GetPlayerPed(targetPlayer)
+        NetworkSetInSpectatorMode(true, targetPed)
+        SetEntityCoords(playerPed, position21)
+    end
+    while Spectating do
+        Citizen.Wait(0)
+        local playerId = GetPlayerFromServerId(targetServerId)
+        local playerPed = GetPlayerPed(playerId)
+        local health = (GetEntityHealth(playerPed)- 100) / 100 * 100
+        local armour = GetPedArmour(playerPed)
+        local text = "~g~HP: "..health.."% |\n ~b~Pajzs: "..armour.."% |"
+        DrawText2D(text)
+    end
+end
+function DrawText2D(text)
+    SetTextFont(4)
+    SetTextProportional(0)
+    SetTextScale(0.45, 0.45)
+    SetTextColour(255, 255, 255, 215)
+    SetTextDropShadow(0, 0, 0, 0, 255)
+    SetTextEdge(1, 0, 0, 0, 255)
+    SetTextDropShadow()
+    SetTextOutline()
+    SetTextCentre(1)
+    SetTextEntry("STRING")
+    AddTextComponentString(text)
+    DrawText(0.5, 0.9) 
+end
+
+function Unspectate()
+    if not Spectating then return end
+    if not lastposition then return end
+    local playerPed = PlayerPedId()
+    NetworkSetInSpectatorMode(false, playerPed)
+    SetEntityVisible(playerPed, true, false)
+    FreezeEntityPosition(playerPed, false)
+    SetEntityCoords(playerPed, lastposition)
+    
+    Spectating = false
+    lastposition = nil
+end
+
+RegisterCommand("unspectate", function ()
+    Unspectate()
+end)
+RegisterKeyMapping('unspectate', 'Unspectate', 'keyboard', 'e')
+
+RegisterNUICallback('spectate', function(id)
+    if not duty then return Config.Notify(_U("no_perm")) end 
+    local un = id.id
+    SpectatePlayer(un)
 end)
 
 RegisterNUICallback('update', function(data, cb)
@@ -120,83 +186,42 @@ RegisterNUICallback('duty', function(data, cb)
     cb('ok')
 end)
 
-RegisterNUICallback('opespec', function(cb)
-    TriggerEvent("openSpectateMenu")
-    cb('ok')
-end)
-
 RegisterNUICallback('tag', function(data, cb)
-    ToggleTag(data.enable, true, true)
+    ToggleTag(data.enable, true)
+    sendlog(_U("taglog", data.enable and _U("enabledlog") or _U("disabledlog")))
     cb('ok')
 end)
 
-RegisterNUICallback('spectate', function(data, cb)
-    if not duty then return Config.Notify(_U("no_perm")) end 
-    local playerId = data.playerId
-    exports.fl_spectate:spectatePlayer(playerId)
-    SetNuiState(false)
-    TriggerServerEvent('villamos_aduty:spectate', playerId)
-    ToggleTag(false, false, false)
-    cb('ok')
-end)
 RegisterNUICallback('ids', function(data, cb)
-    ToggleIds(data.enable, true, true)
+    ToggleIds(data.enable, true)
+    sendlog(_U("idlog", data.enable and _U("enabledlog") or _U("disabledlog")))
     cb('ok')
 end)
 
 RegisterNUICallback('god', function(data, cb)
-    ToggleGod(data.enable, true, true)
+    ToggleGod(data.enable, true)
+    sendlog(_U("godmodelog", data.enable and _U("enabledlog") or _U("disabledlog")))
     cb('ok')
 end)
 
 RegisterNUICallback('speed', function(data, cb)
-    ToggleSpeed(data.enable, true, true)
+    ToggleSpeed(data.enable, true)
+    sendlog(_U("spedlog", data.enable and _U("enabledlog") or _U("disabledlog")))
     cb('ok')
 end)
 
 RegisterNUICallback('invisible', function(data, cb)
-    ToggleInvisible(data.enable, true, true)
+    ToggleInvisible(data.enable, true)
+    sendlog(_U("invisiblelog", data.enable and _U("enabledlog") or _U("disabledlog")))
     cb('ok')
 end)
 
 RegisterNUICallback('noragdoll', function(data, cb)
-    ToggleNoragdoll(data.enable, true, true)
+    ToggleNoragdoll(data.enable, true)
+    sendlog(_U("no_ragdolllog", data.enable and _U("enabledlog") or _U("disabledlog")))
     cb('ok')
 end)
 
-RegisterNUICallback('noclip', function(data, cb)
-    ToggleNoclip(data.enable, true, true)
-    cb('ok')
-end)
-
-RegisterNUICallback('ruha', function(data, cb)
-    ruha(data.enable, true)
-    cb('ok')
-end)
-RegisterNUICallback('white', function(data, cb)
-    white(data.enable, true)
-    cb('ok')
-end)
-RegisterNUICallback('orang', function(data, cb)
-    orang(data.enable, true)
-    cb('ok')
-end)
-RegisterNUICallback('pink', function(data, cb)
-    pink(data.enable, true)
-    cb('ok')
-end)
-RegisterNUICallback('red', function(data, cb)
-    red(data.enable, true)
-    cb('ok')
-end)
-RegisterNUICallback('gren', function(data, cb)
-    gren(data.enable, true)
-    cb('ok')
-end)
-RegisterNUICallback('yelw', function(data, cb)
-    yelw(data.enable, true)
-    cb('ok')
-end)
 
 RegisterNUICallback('coords', function(data, cb)
     ActionCoords()
@@ -210,17 +235,6 @@ end)
 
 RegisterNUICallback('marker', function(data, cb)
     ActionMarker()
-    cb('ok')
-end)
-
-RegisterNUICallback('gotoplayer', function(data, cb)
-    gotoplayer()
-    print(id)
-    cb('ok')
-end)
-
-RegisterNUICallback('bringplayer', function(data, cb)
-    bringplayer()
     cb('ok')
 end)
 
@@ -246,31 +260,27 @@ if Config.Commands then
     end)
 
     RegisterCommand('adtag', function(s, a, r)
-        ToggleTag(not tag, true, true)
+        ToggleTag(not tag, true)
     end)
 
     RegisterCommand('adids', function(s, a, r)
-        ToggleIds(not ids, true, true)
+        ToggleIds(not ids, true)
     end)
 
     RegisterCommand('adgod', function(s, a, r)
-        ToggleGod(not god, true, true)
+        ToggleGod(not god, true)
     end)
 
     RegisterCommand('adspeed', function(s, a, r)
-        ToggleSpeed(not speed, true, true)
+        ToggleSpeed(not speed, true)
     end)
 
     RegisterCommand('adinvisible', function(s, a, r)
-        ToggleInvisible(not invisible, true, true)
+        ToggleInvisible(not invisible, true)
     end)
 
     RegisterCommand('adnoragdoll', function(s, a, r)
-        ToggleNoragdoll(not noragdoll, true, true)
-    end)
-
-    RegisterCommand('adnoclip', function(s, a, r)
-        ToggleNoclip(not noragdoll, true, true)
+        ToggleNoragdoll(not noragdoll, true)
     end)
 
     RegisterCommand('adcoords', function(s, a, r)
@@ -290,155 +300,10 @@ if Config.Commands then
     })
 end 
 
-function ruha()
-    if not duty then return Config.Notify(_U("no_perm")) end
-end
-
-
-
-function white(state)
-    if not duty then return Config.Notify(_U("no_perm")) end 
-    whiteruha = state
-    if whiteruha == true then
-    TriggerEvent('skinchanger:loadClothes', skin, {
-        ['helmet_1'] = 91, ['helmet_2'] = 9, 
-        ['tshirt_1'] = 15, ['tshirt_2'] = 0, 
-        ['torso_1'] = 178, ['torso_2'] = 9,
-        ['decals_1'] = 0, ['decals_2'] = 0,
-        ['arms'] = 1,
-        ['pants_1'] = 77, ['pants_2'] = 9,
-        ['shoes_1'] = 55, ['shoes_2'] = 9
-    })
-    end
-    if whiteruha == false then
-        ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin, jobSkin)
-            if not skin then return end 
-            TriggerEvent('skinchanger:loadSkin', skin)
-            TriggerEvent('esx:restoreLoadout')
-        end)
-    end
-end
-
-function red(state)
-    if not duty then return Config.Notify(_U("no_perm")) end 
-    redruha = state
-    if redruha == true then
-    TriggerEvent('skinchanger:loadClothes', skin, {
-        ['helmet_1'] = 91, ['helmet_2'] = 5, 
-        ['tshirt_1'] = 15, ['tshirt_2'] = 0, 
-        ['torso_1'] = 178, ['torso_2'] = 5,
-        ['decals_1'] = 0, ['decals_2'] = 0,
-        ['arms'] = 1,
-        ['pants_1'] = 77, ['pants_2'] = 5,
-        ['shoes_1'] = 55, ['shoes_2'] = 5
-    })
-    end
-    if redruha == false then
-        ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin, jobSkin)
-            if not skin then return end 
-            TriggerEvent('skinchanger:loadSkin', skin)
-            TriggerEvent('esx:restoreLoadout')
-        end)
-    end
-end
-
-function pink(state)
-    if not duty then return Config.Notify(_U("no_perm")) end 
-    pinkruha = state
-    if pinkruha == true then
-    TriggerEvent('skinchanger:loadClothes', skin, {
-        ['helmet_1'] = 91, ['helmet_2'] = 4, 
-        ['tshirt_1'] = 15, ['tshirt_2'] = 0, 
-        ['torso_1'] = 178, ['torso_2'] = 4,
-        ['decals_1'] = 0, ['decals_2'] = 0,
-        ['arms'] = 1,
-        ['pants_1'] = 77, ['pants_2'] = 4,
-        ['shoes_1'] = 55, ['shoes_2'] = 4
-    })
-    end
-    if pinkruha == false then
-        ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin, jobSkin)
-            if not skin then return end 
-            TriggerEvent('skinchanger:loadSkin', skin)
-            TriggerEvent('esx:restoreLoadout')
-        end)
-    end
-end
-
-function orang(state)
-    if not duty then return Config.Notify(_U("no_perm")) end 
-    orangruha = state
-    if orangruha == true then
-    TriggerEvent('skinchanger:loadClothes', skin, {
-        ['helmet_1'] = 91, ['helmet_2'] = 2, 
-        ['tshirt_1'] = 15, ['tshirt_2'] = 0, 
-        ['torso_1'] = 178, ['torso_2'] = 2,
-        ['decals_1'] = 0, ['decals_2'] = 0,
-        ['arms'] = 1,
-        ['pants_1'] = 77, ['pants_2'] = 2,
-        ['shoes_1'] = 55, ['shoes_2'] = 2
-    })
-    end
-    if orangruha == false then
-        ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin, jobSkin)
-            if not skin then return end 
-            TriggerEvent('skinchanger:loadSkin', skin)
-            TriggerEvent('esx:restoreLoadout')
-        end)
-    end
-end
-
-function gren(state)
-    if not duty then return Config.Notify(_U("no_perm")) end 
-    grenruha = state
-    if grenruha == true then
-    TriggerEvent('skinchanger:loadClothes', skin, {
-        ['helmet_1'] = 91, ['helmet_2'] = 1, 
-        ['tshirt_1'] = 15, ['tshirt_2'] = 0, 
-        ['torso_1'] = 178, ['torso_2'] = 1,
-        ['decals_1'] = 0, ['decals_2'] = 0,
-        ['arms'] = 1,
-        ['pants_1'] = 77, ['pants_2'] = 1,
-        ['shoes_1'] = 55, ['shoes_2'] = 1
-    })
-    end
-    if grenruha == false then
-        ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin, jobSkin)
-            if not skin then return end 
-            TriggerEvent('skinchanger:loadSkin', skin)
-            TriggerEvent('esx:restoreLoadout')
-        end)
-    end
-end
-
-function yelw(state)
-    if not duty then return Config.Notify(_U("no_perm")) end 
-    yelwruha = state
-    if yelwruha == true then
-    TriggerEvent('skinchanger:loadClothes', skin, {
-        ['helmet_1'] = 91, ['helmet_2'] = 0, 
-        ['tshirt_1'] = 15, ['tshirt_2'] = 0, 
-        ['torso_1'] = 178, ['torso_2'] = 0,
-        ['decals_1'] = 0, ['decals_2'] = 0,
-        ['arms'] = 1,
-        ['pants_1'] = 77, ['pants_2'] = 0,
-        ['shoes_1'] = 55, ['shoes_2'] = 0
-    })
-    end
-    if yelwruha == false then
-        ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin, jobSkin)
-            if not skin then return end 
-            TriggerEvent('skinchanger:loadSkin', skin)
-            TriggerEvent('esx:restoreLoadout')
-        end)
-    end
-end
-
 RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
     if not Config.Admins[group] then return end 
     if state then 
         duty = true 
-        tag = true
         if Config.Admins[group].ped then 
             if IsModelInCdimage(Config.Admins[group].ped) and IsModelValid(Config.Admins[group].ped) then
                 RequestModel(Config.Admins[group].ped)
@@ -449,7 +314,15 @@ RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
                 SetModelAsNoLongerNeeded(Config.Admins[group].ped)
             else 
                 print("^1WARNING: Invalid ped in config for group: "..group)
-            end
+            end 
+        elseif Config.Admins[group].cloth then 
+            TriggerEvent('skinchanger:getSkin', function(skin)
+                if not skin then return end 
+                --[[local clothes = (skin.sex == 1 and Config.Admins[group].cloth.female or Config.Admins[group].cloth.male)
+                print(json.encode(clothes))
+                TriggerEvent('skinchanger:loadSkin', clothes)]]
+                TriggerEvent('skinchanger:loadClothes', skin, (skin.sex == 1 and Config.Admins[group].cloth.female or Config.Admins[group].cloth.male))
+            end)
         end 
     else 
         if Config.Admins[group].ped then 
@@ -473,28 +346,25 @@ RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
                 TriggerEvent('skinchanger:loadSkin', skin)
             end)
         end 
-        ToggleIds(false, false, false)
-        ToggleSpeed(false, false, false)
-        ToggleGod(false, false, false)
-        ToggleInvisible(false, false, false)
-        ToggleNoragdoll(false, false, false)
-        ToggleNoclip(false, false, false)
+        ToggleIds(false, false)
+        ToggleSpeed(false, false)
+        ToggleGod(false, false)
+        ToggleInvisible(false, false)
+        ToggleNoragdoll(false, false)
         tag = false
         duty = false
     end 
     UpdateNui()
 end)
 
-function ToggleGod(state, usenotify, toglog) 
+function ToggleGod(state, usenotify) 
     if not duty then return Config.Notify(_U("no_perm")) end 
     god = state
     SetPlayerInvincible(PlayerId(), god)
     if usenotify then 
         Config.Notify(_U("god", (god and _U("enabled") or _U("disabled")) ))
         UpdateNui()
-    end if toglog then if Config.togglelog == true then
-    TriggerServerEvent('villamos_aduty:toggod', god)
-    end end
+    end 
     CreateThread(function()
         while god do
             Wait(3000)
@@ -516,7 +386,7 @@ function ToggleTag(state, usenotify)
     end 
 end 
 
-function ToggleIds(state, usenotify, toglog) 
+function ToggleIds(state, usenotify) 
     if not duty then return Config.Notify(_U("no_perm")) end 
     ids = state
     if not ids then 
@@ -528,8 +398,6 @@ function ToggleIds(state, usenotify, toglog)
     if usenotify then 
         Config.Notify(_U("ids", (ids and _U("enabled") or _U("disabled")) ))
         UpdateNui()
-    end if toglog then 
-    TriggerServerEvent('villamos_aduty:togid', ids)
     end 
     CreateThread(function()
         while ids do
@@ -564,16 +432,13 @@ function ToggleIds(state, usenotify, toglog)
     end)
 end 
 
-function ToggleSpeed(state, usenotify, toglog) 
+function ToggleSpeed(state, usenotify) 
     if not duty then return Config.Notify(_U("no_perm")) end 
     speed = state
     SetRunSprintMultiplierForPlayer(PlayerId(), speed and 1.4 or 1.0)
     if usenotify then 
         Config.Notify(_U("speed", (speed and _U("enabled") or _U("disabled")) ))
         UpdateNui()
-    end 
-    if toglog then 
-    TriggerServerEvent('villamos_aduty:togsped', speed)
     end 
     CreateThread(function()
         while speed do
@@ -583,8 +448,7 @@ function ToggleSpeed(state, usenotify, toglog)
     end)
 end 
 
-
-function ToggleInvisible(state, usenotify, toglog) 
+function ToggleInvisible(state, usenotify) 
     if not duty then return Config.Notify(_U("no_perm")) end 
     invisible = state
     SetEntityVisible(PlayerPedId(), not invisible)
@@ -595,12 +459,9 @@ function ToggleInvisible(state, usenotify, toglog)
         Config.Notify(_U("invisible", (invisible and _U("enabled") or _U("disabled")) ))
         UpdateNui()
     end 
-    if toglog then
-    TriggerServerEvent('villamos_aduty:toginvisible', invisible)
-    end
 end 
 
-function ToggleNoragdoll(state, usenotify, toglog) 
+function ToggleNoragdoll(state, usenotify) 
     if not duty then return Config.Notify(_U("no_perm")) end 
     noragdoll = state
     SetPedCanRagdoll(PlayerPedId(), not noragdoll)
@@ -608,24 +469,7 @@ function ToggleNoragdoll(state, usenotify, toglog)
         Config.Notify(_U("no_ragdoll", (noragdoll and _U("enabled") or _U("disabled")) ))
         UpdateNui()
     end 
-    if toglog then 
-    TriggerServerEvent('villamos_aduty:tognoragdoll', noragdoll)
-    end 
 end 
-
-function ToggleNoclip(state, usenotify, toglog)
-    if not duty then return Config.Notify(_U("no_perm")) end 
-    noclip = state
-    ExecuteCommand("txAdmin:menu:noClipToggle")
-    if usenotify then 
-        Config.Notify(_U("no_ragdoll", (noclip and _U("enabled") or _U("disabled")) ))
-        UpdateNui()
-    end 
-    if toglog then 
-    TriggerServerEvent('villamos_aduty:tognoragdoll', noclip)
-    end 
-end 
-
 
 function ActionCoords(format) 
     if not duty then return Config.Notify(_U("no_perm")) end 

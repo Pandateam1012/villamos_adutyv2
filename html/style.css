@@ -1,177 +1,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&display=swap');
-
-.bezar {
-    position: relative;
-    top: 50%;
-    right: 20px;
-    font-size: 1.4rem;
-}
-
-#cloth {
-    transform: rotate(90deg);
-    position: fixed;
-    top: 30%;
-    left: -40px;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    font-size: 35px;
-    background-color: #2e2f36;
-    border-radius: 10px;
-}
-
-#specop {
-    transform: rotate(90deg);
-    position: fixed;
-    top: 70%;
-    left: -55px;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    font-size: 35px;
-    background-color: #2e2f36;
-    border-radius: 10px;
-}
-
-#clothmenu .container .row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    background-color: #2e2f36;
-    color: white;
-}
-
-#clothmenu .container .row .icon-text {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    margin-right: 15px; 
-}
-
-#clothmenu .container .row .icon-text i {
-    font-size: 1.5rem; 
-    margin-bottom: 5px;
-}
-
-#clothmenu .container .row .icon-text p {
-    margin: 0;
-    font-size: 0.9rem;
-}
-
-#clothmenu .container .row div i {
-    font-size: 1.5rem;
-}
-
-#clothmenu .container .row div {
-    cursor: pointer;
-}
-
-#clothmenu .container .row:nth-child(1) {
-    position: static;
-    top: 15%;
-    background-color: #2e2f36; 
-    color: #ffffff; 
-}
-
-
-#clothmenu .container .row:nth-child(2) {
-    position: static;
-
-    top: 27%;
-    background-color: #2e2f36;
-    color: #ffa500; 
-}
-
-#clothmenu .container .row:nth-child(3) {
-    position: static;
-
-    top: 39%;
-    background-color: #2e2f36;
-    color: #ff69b4;
-}
-
-#clothmenu .container .row:nth-child(4) {
-    position: static;
-
-    top: 51%;
-    background-color: #2e2f36; 
-    color: #ff0000; 
-}
-
-#clothmenu .container .row:nth-child(5) {
-    position: static;
-
-    top: 63%;
-    background-color: #2e2f36; 
-    color: #008000;
-}
-
-#clothmenu .container .row:nth-child(6) {
-    position: static;
-
-    top: 75%;
-    background-color: #2e2f36; 
-    color: #ffff00; 
-}
-
-#clothmenu .container .row div i {
-    font-size: 1.5rem;
-    color: inherit; 
-}
-
-#clothmenu .container .row div {
-    cursor: pointer;
-}
-
-.disabled {
-    opacity: 0.5;
-    pointer-events: none; 
-}
-
-
-#clothmenu {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 27%;
-    transform: translateY(-50%);
-    width: 20%; 
-    height: 63%; 
-    border-right: #1f5eff 5px solid;
-    background-color: #202128;
-    border-radius: 20px 0px 0px 20px; 
-    overflow-y: hidden;
-    overflow-x: hidden;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    color: rgb(230, 225, 225);
-    text-align: center;
-    padding: 10px;
-}
-
 body {
     background-color: transparent;
     user-select: none;
 }
-
 #app {
-    /*display: none;*/
-    position: fixed; 
+    display: none;
+
+    position: absolute;
     top: 50%;
     left: 50%;
-    transform: translateY(-50%); 
+    transform: translate(-50%, -50%);
+
     width: 40%;
     height: 70%;
-    background-color: #202128;
+
+    background-color: #1d1f25;
+
+    border: 3px solid #282a30;
+
     border-radius: 20px;
+    
     overflow-y: auto;
     overflow-x: hidden;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    color: rgb(230, 225, 225);
+    font-family: 'Nunito', sans-serif;
+    color: white;
     text-align: center;
-    padding: 10px;
+
+    padding: 10px 10px 10px 10px;
 }
-
-
 .hopin {
     animation: hopin 1s;
 }
@@ -192,55 +48,51 @@ body {
     align-items: center;
     width: 70%;
     padding: 3px;
-    background-color: #2e2f36;
-    border-radius: 10px;
+    background-color: #282a30;
+    border-radius: 4px;
 }
 .container .row * {
-    width:60%;
+    width:50%;
 }
 
-
-.spec {
-    background-color: #2e2f36;
-    color: white;
-    transition: all 1s;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    border: none;
-    border-radius: 10px;
-    padding: 5px;
-    cursor: pointer;
-}
-
-.spec:hover {
-    background-color: #1f5eff;
-    box-shadow: #1f5eff 0px 0px 9px;
-}
 
 .btn {
-    background-color: #2e2f36;
+    background-color: #282a30;
     color: white;
     transition: all 1s;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'Nunito', sans-serif;
     border: none;
-    border-radius: 10px;
+    border-radius: 5px;
     padding: 5px;
     cursor: pointer;
 }
 .btn:hover {
-    background-color: #191738c7;
+    background-color: #1f5eff;
 }
 
 
 .inp {
-    background-color: #2e2f36;
+    background-color: #282a30;
     color: white;
     border: none;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'Nunito', sans-serif;
     border-radius: 5px;
     padding: 5px;
 }
 .inp:focus {
     outline: none;
+}
+
+.bacl {
+    background-color: #25479c;
+    left: 25%;
+    top: 25%;
+    color: white;
+    border: none;
+    font-family: 'Nunito', sans-serif;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
 }
 
 .player-actions {
@@ -276,82 +128,61 @@ body {
     animation: none;
 }
 
-.anim {
-    cursor: pointer;
-}
-.anim:focus {
-    animation: onclick 0.5s;
-}
-.anim:active {
-    animation: none;
-}
-
 .table-label {
     font-size: 120%;
 }
 .player-data {
     cursor: pointer;
 }
+input[type="checkbox"] {
+    display: none;
+}
 
-/*https://codepen.io/ekeric13/pen/oYoXbK*/
-.check {
-    font-size: 16px;
-    position: relative;
-    color: white;
-    width: 1.1em!important;
-    height: 1em;
-    left: 50%;
-    transform: translateX(-50%);
+.custom-checkbox {
+    width: 16px; 
+    max-width: 15px;
+    height: 16px;
+    border: 2px solid #333;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    background-color: #fff;
+    position: relative;
+    font-size: 12px; 
+    color: transparent; 
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
-.check::before {
-    content: "";
-    height: .2em;
-    width: .7em;
-    border-radius: 3px;
-    background: #1f5eff;
-    position: absolute;
-    top: .65em;
-    left: 0em;
-    transform: rotate(45deg);
-    transition: transform .5s ease-in-out, width .5s ease-in-out, top .5s ease-in-out, left .5s ease-in-out;
+
+input[type="checkbox"]:checked + .custom-checkbox {
+    background-color: #28a745; 
+    border-color: #28a745;
+    color: #fff; 
 }
-.check::after { 
-    content: "";
-    height: .2em;
-    width: 1.2em;
-    border-radius: 3px;
-    background: #1f5eff;
-    position: absolute;
-    top: .4em;
-    left: .25em;
-    transform: rotate(-55deg);
-    transition: transform .5s ease-in-out;
-} 
-.xmark::before {
-    transform: rotate(-45deg);
-    width: 1.2em;
-    top: .4em;
-    left: 0em; 
-    background-color: #14151a;
-} 
-.xmark::after {
-    transform: rotate(45deg);
-    left: 0em; 
-    background-color: #14151a;
+
+input[type="checkbox"]:not(:checked) + .custom-checkbox {
+    background-color: #dc3545; 
+    border-color: #dc3545;
+    color: #fff; 
 }
-.disabled {
-    pointer-events: none;
-    color: rgba(114, 114, 114, 0.911);
-    
+
+input[type="checkbox"]:disabled + .custom-checkbox {
+    background-color: #6c757d; 
+    border-color: #6c757d;
+    cursor: not-allowed;
+    color: #fff; 
 }
-.disabled::before {
-    background: rgb(114, 114, 114, 0.911);
+
+.custom-checkbox::after {
+    content: '✓'; 
 }
-.disabled::after {
-    background: rgb(114, 114, 114, 0.911);
+
+input[type="checkbox"]:not(:checked) + .custom-checkbox::after {
+    content: '✕'; 
 }
-   
+
+
 body::-webkit-scrollbar {
     display: none;
 }
@@ -401,3 +232,44 @@ body::-webkit-scrollbar {
         transform: translate(-50%, -50%) scale(0.1, 0.1);
     }
 }
+
+.clothing-menu {
+    display: none;
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -20%);
+    background-color: #222;
+    padding: 20px;
+    border-radius: 8px;
+    color: white;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    min-width: 300px;
+}
+
+.menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.menu-content button {
+    display: block;
+    width: 100%;
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 5px 0;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.menu-content button:hover {
+    background-color: #0056b3;
+}
+
