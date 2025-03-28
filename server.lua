@@ -32,7 +32,7 @@ local function sendAdminLog(admin, title, message, target)
             TriggerClientEvent('chat:addMessage', adminId, {
                 color = {0, 255, 0},
                 multiline = true,
-                args = {"[Admin Log] " .. title, message}
+                args = {"[Admin Log] " .. title.. " ".. playername, message}
             })
         end
     end
