@@ -12,6 +12,7 @@ local ids = false
 local god = false
 local speed = false
 local invisible = false
+local adminzone = false
 local noragdoll = false
 local idsThread = nil  
 
@@ -239,6 +240,12 @@ RegisterNUICallback('invisible', function(data, cb)
     cb('ok')
 end)
 
+RegisterNUICallback('adminzone', function(data, cb)
+    Toggleadminzone(data.enable, true)
+    sendlog(_U("adminzonelog", data.enable and _U("enabledlog") or _U("disabledlog")))
+    cb('ok')
+end)
+
 RegisterNUICallback('noragdoll', function(data, cb)
     ToggleNoragdoll(data.enable, true)
     sendlog(_U("no_ragdolllog", data.enable and _U("enabledlog") or _U("disabledlog")))
@@ -272,6 +279,7 @@ function UpdateNui()
             god = god,
             speed = speed,
             invisible = invisible,
+            adminzone = adminzone,
             noragdoll = noragdoll,
         }
     })
@@ -302,6 +310,11 @@ if Config.Commands then
         ToggleInvisible(not invisible, true)
     end)
 
+    RegisterCommand('adzone', function(s, a, r)
+        Toggleadminzone(not adminzone, true)
+    end)
+
+
     RegisterCommand('adnoragdoll', function(s, a, r)
         ToggleNoragdoll(not noragdoll, true)
     end)
@@ -327,6 +340,7 @@ RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
     if not Config.Admins[group] then return end 
     if state then 
         duty = true 
+        ToggleTag(true, false)
         if Config.Admins[group].ped then 
             if IsModelInCdimage(Config.Admins[group].ped) and IsModelValid(Config.Admins[group].ped) then
                 RequestModel(Config.Admins[group].ped)
@@ -373,6 +387,7 @@ RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
         ToggleSpeed(false, false)
         ToggleGod(false, false)
         ToggleInvisible(false, false)
+        Toggleadminzone(false, false)
         ToggleNoragdoll(false, false)
         tag = false
         duty = false
@@ -400,6 +415,7 @@ function ToggleTag(state, usenotify)
         Config.Notify(_U("tag", (tag and _U("enabled") or _U("disabled")) ))
         UpdateNui()
     end 
+    UpdateNui()
 end 
 
 
@@ -500,11 +516,20 @@ function ToggleInvisible(state, usenotify)
     if not duty then return Config.Notify(_U("no_perm")) end 
     invisible = state
     SetEntityVisible(PlayerPedId(), not invisible)
-    if not invisible and tag then 
-	ToggleTag(false, true)
-    end 
+	ToggleTag(not invisible, false)
     if usenotify then 
         Config.Notify(_U("invisible", (invisible and _U("enabled") or _U("disabled")) ))
+        UpdateNui()
+    end 
+end 
+
+function Toggleadminzone(state, usenotify) 
+    if not duty then return Config.Notify(_U("no_perm")) end 
+    adminzone = state
+    TriggerServerEvent("villamos_aduty:Adminzone", adminzone, GetEntityCoords(PlayerPedId()))    
+    print(GetEntityCoords(PlayerPedId()))
+    if usenotify then 
+        Config.Notify(_U("adminzone", (adminzone and _U("enabled") or _U("disabled")) ))
         UpdateNui()
     end 
 end 
@@ -631,6 +656,106 @@ end)
 
 RegisterNetEvent('villamos_aduty:sendData', function(data)
     admins = data
+end)
+
+local function HexToBlipColor(hex)
+    hex = hex:gsub("#", "")
+    if #hex == 6 then
+        hex = hex .. "FF"
+    end
+    return tonumber("0x" .. hex)
+end
+
+local function HexToRGB(hex)
+    hex = hex:gsub("#", "")
+    return {
+        r = tonumber("0x" .. hex:sub(1, 2)),
+        g = tonumber("0x" .. hex:sub(3, 4)),
+        b = tonumber("0x" .. hex:sub(5, 6)),
+        a = tonumber("0x" .. hex:sub(7, 8)) or 151
+    }
+end
+
+RegisterNetEvent("villamos_aduty:CreateAdminzone", function(state, coords)
+    if not duty then return Config.Notify(_U("no_perm")) end 
+    if state then
+        AdminZoneRadius = AddBlipForRadius(coords, 100.0)
+        SetBlipAlpha(AdminZoneRadius, 128)
+        SetBlipColour(AdminZoneRadius, HexToBlipColor(Config.AdminZone.Color))
+        AdminZoneBlip = AddBlipForCoord(coords)
+        SetBlipSprite(AdminZoneBlip, Config.AdminZone.blipSprite)
+        SetBlipColour(AdminZoneBlip, HexToBlipColor(Config.AdminZone.Color))
+        BeginTextCommandSetBlipName("STRING")
+        AddTextComponentString(_U("AdminZone_title"))
+        EndTextCommandSetBlipName(AdminZoneBlip)
+        local AdminZoneMarker = lib.marker.new({
+            type = 28,
+            coords = coords,
+            color = HexToRGB(Config.AdminZone.Color),
+            width = 100,
+            height = 100,
+        })
+        local AdminZones = lib.points.new({
+            coords = coords,
+            distance = 100,
+            nearby = function()
+                local playerPed = PlayerPedId()
+                local vehicle = GetVehiclePedIsIn(playerPed, false)
+                SetPlayerCanDoDriveBy(PlayerId(), false)
+                DisableControlAction(0, 140, true) 
+                DisableControlAction(0, 141, true)
+                DisableControlAction(0, 142, true)
+                DisableControlAction(0, 257, true)
+                DisableControlAction(0, 263, true)
+                DisableControlAction(0, 264, true)
+                DisableControlAction(0, 24, true) 
+                DisableControlAction(0, 25, true) 
+                if DoesEntityExist(vehicle) then
+                    for _, player in ipairs(GetActivePlayers()) do
+                        local targetPed = GetPlayerPed(player)
+                        if DoesEntityExist(targetPed) and targetPed ~= playerPed then
+                            SetEntityNoCollisionEntity(vehicle, targetPed, true)
+                        end
+                    end
+                end
+            end
+        })
+        
+        function AdminZones:onEnter()
+            lib.notify({
+                title = _U("AdminZone_title"),
+                description = _U("inAdminzone"),
+                type = "success"
+            })
+        end
+        function AdminZones:onExit()
+            lib.notify({
+                title = _U("AdminZone_title"),
+                description = _U("outAdminzone"),
+                type = "warning"
+            })
+        end
+        local sleep = 500
+        local Adminthread = CreateThread(function()
+            while true do
+                if adminzone then
+                sleep = 0
+                    AdminZoneMarker:draw()
+                else
+                    return
+                end
+                Wait(sleep)
+            end
+        end)
+    else
+        RemoveBlip(AdminZoneRadius)
+        RemoveBlip(AdminZoneBlip)
+        AdminZoneRadius = nil
+        AdminZoneBlip = nil
+        state = false
+        Adminthread = nil
+        adminzone = false
+    end
 end)
 
 function DrawText3D(coords, text, color)

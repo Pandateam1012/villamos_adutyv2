@@ -101,6 +101,12 @@ RegisterNetEvent('villamos_aduty:setTag', function(enable)
     TriggerClientEvent("villamos_aduty:sendData", -1, tags)
 end)
 
+RegisterNetEvent("villamos_aduty:Adminzone", function(state, coords)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    if not inDuty[xPlayer.source] then return end 
+        TriggerClientEvent("villamos_aduty:CreateAdminzone", -1, state, coords)
+end)
+
 RegisterNetEvent('villamos_aduty:setDutya', function(enable)
     local xPlayer = ESX.GetPlayerFromId(source)
     if inDuty[xPlayer.source] then 
