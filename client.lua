@@ -524,10 +524,9 @@ function ToggleInvisible(state, usenotify)
 end 
 
 function Toggleadminzone(state, usenotify) 
-    if not duty then return Config.Notify(_U("no_perm")) end 
     adminzone = state
+    print(adminzone)
     TriggerServerEvent("villamos_aduty:Adminzone", adminzone, GetEntityCoords(PlayerPedId()))    
-    print(GetEntityCoords(PlayerPedId()))
     if usenotify then 
         Config.Notify(_U("adminzone", (adminzone and _U("enabled") or _U("disabled")) ))
         UpdateNui()
@@ -677,9 +676,9 @@ local function HexToRGB(hex)
 end
 
 RegisterNetEvent("villamos_aduty:CreateAdminzone", function(state, coords)
-    if not duty then return Config.Notify(_U("no_perm")) end 
+    print(state)
     if state then
-        AdminZoneRadius = AddBlipForRadius(coords, 100.0)
+        AdminZoneRadius = AddBlipForRadius(coords, 50.0)
         SetBlipAlpha(AdminZoneRadius, 128)
         SetBlipColour(AdminZoneRadius, HexToBlipColor(Config.AdminZone.Color))
         AdminZoneBlip = AddBlipForCoord(coords)
@@ -692,12 +691,12 @@ RegisterNetEvent("villamos_aduty:CreateAdminzone", function(state, coords)
             type = 28,
             coords = coords,
             color = HexToRGB(Config.AdminZone.Color),
-            width = 100,
-            height = 100,
+            width = 50,
+            height = 50,
         })
         local AdminZones = lib.points.new({
             coords = coords,
-            distance = 100,
+            distance = 50,
             nearby = function()
                 local playerPed = PlayerPedId()
                 local vehicle = GetVehiclePedIsIn(playerPed, false)
@@ -720,7 +719,7 @@ RegisterNetEvent("villamos_aduty:CreateAdminzone", function(state, coords)
                 end
             end
         })
-        
+        print(AdminZoneMarker, AdminZones)
         function AdminZones:onEnter()
             lib.notify({
                 title = _U("AdminZone_title"),
@@ -738,7 +737,7 @@ RegisterNetEvent("villamos_aduty:CreateAdminzone", function(state, coords)
         local sleep = 500
         local Adminthread = CreateThread(function()
             while true do
-                if adminzone then
+                if state then
                 sleep = 0
                     AdminZoneMarker:draw()
                 else
