@@ -1,6 +1,6 @@
 Config = {}
 
-Config.Locale = "en" -- en, hu
+Config.Locale = "hu" -- en, hu
 
 Config.Commands = true
 
@@ -9,7 +9,6 @@ Config.ChatLogs = true -- true/false Chatre való logolás (Minden ami a panelhe
 Config.Notifye = "ox" -- esx, ox, okok, codem
 
 Config.AdminZone = {
-    Color = "#dd42f5",
     blipSprite = 487,
 }
 
@@ -23,9 +22,9 @@ Config.Perms = {
 }
 
 Config.Admins = { --a pedet vagy a logót vagy a ruhát ha nem szeretnéd használni állítsd falsera
-["admin"] = { tag = "Adminisztrátor", logo = false, color = "#dd42f5"},
+["admin"] = { tag = "Adminisztrátor", logo = false, color = "#dd42f5"}, -- Hex Kód ot is lehet használni!
 ["admin2"] = { tag = "[ADMIN 2]", logo = false, color = { r = 162, g = 0, b = 0 }},
-["owner"] = { tag = "[ADMIN]", logo = "marvel", color = { r = 162, g = 0, b = 0 }},
+["owner"] = { tag = "[ADMIN]", logo = "marvel", color = "#005cff"},
 }
 
 Config.Peds = {

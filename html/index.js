@@ -158,6 +158,8 @@ const App = Vue.createApp({
             });
         },
         tag() {
+            if (!this.state.duty) return;
+
             this.state.tag = !this.state.tag
             fetch(`https://${GetParentResourceName()}/tag`, {
                 method: 'POST',
@@ -167,6 +169,7 @@ const App = Vue.createApp({
             });
         },
         ids() {
+            if (!this.state.duty) return;
             this.state.ids = !this.state.ids
             fetch(`https://${GetParentResourceName()}/ids`, {
                 method: 'POST',
@@ -176,6 +179,7 @@ const App = Vue.createApp({
             });
         },
         god() {
+            if (!this.state.duty) return;
             this.state.god = !this.state.god
             fetch(`https://${GetParentResourceName()}/god`, {
                 method: 'POST',
@@ -185,6 +189,7 @@ const App = Vue.createApp({
             });
         },
         speed() {
+            if (!this.state.duty) return;
             this.state.speed = !this.state.speed
             fetch(`https://${GetParentResourceName()}/speed`, {
                 method: 'POST',
@@ -194,6 +199,7 @@ const App = Vue.createApp({
             });
         },
         invisible() {
+            if (!this.state.duty) return;
             this.state.invisible = !this.state.invisible
             fetch(`https://${GetParentResourceName()}/invisible`, {
                 method: 'POST',
@@ -203,6 +209,7 @@ const App = Vue.createApp({
             });
         },
         adminzone() {
+            if (!this.state.duty) return;
             this.state.adminzone = !this.state.adminzone
             fetch(`https://${GetParentResourceName()}/adminzone`, {
                 method: 'POST',
@@ -212,6 +219,7 @@ const App = Vue.createApp({
             });
         },
         noragdoll() {
+            if (!this.state.duty) return;
             this.state.noragdoll = !this.state.noragdoll
             fetch(`https://${GetParentResourceName()}/noragdoll`, {
                 method: 'POST',
@@ -221,12 +229,15 @@ const App = Vue.createApp({
             });
         },
         coords() {
+            if (!this.state.duty) return;
             fetch(`https://${GetParentResourceName()}/coords`);
         },
         heal() {
+            if (!this.state.duty) return;
             fetch(`https://${GetParentResourceName()}/heal`);
         },
         marker() {
+            if (!this.state.duty) return;
             fetch(`https://${GetParentResourceName()}/marker`);
         },
 
