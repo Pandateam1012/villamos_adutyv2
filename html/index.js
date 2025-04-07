@@ -7,6 +7,7 @@ const App = Vue.createApp({
         ],
         state : {
             group:"user",
+            timeinduty:"0h 00m",
             duty:false,
             tag:false,
             ids:false,
@@ -20,6 +21,7 @@ const App = Vue.createApp({
             nui_label:"ADMIN DUTY PANEL",
             nui_group:"Your group",
             nui_players:"Players",
+            nui_clockedtime:"Duty Time",
             nui_duty:"Duty",
             nui_tag:"Admin tag",
             nui_esp:"Show IDs",
@@ -46,18 +48,32 @@ const App = Vue.createApp({
             nui_players_spectate:"Spectate",
         },
 
-        search : ""
+        search : "",
+        searchTimeout: null
       }
     },
     computed: {
         filteredList() {
-            if (this.search == "") return this.players;
-
-            const lowsearch = this.search.toLowerCase()
-
-            return this.players.filter((player) => {
-                return player.name.toLowerCase().includes(lowsearch) || player.group.toLowerCase() == lowsearch || player.job.toLowerCase() == lowsearch || player.id.toString() == lowsearch;
-            });
+          if (!this.search.trim()) return this.players;
+      
+          const lowsearch = this.search.toLowerCase();
+      
+          return this.players.filter((player) => {
+            return (
+              player.name.toLowerCase().includes(lowsearch) ||
+              (player.group && player.group.toLowerCase().includes(lowsearch)) ||
+              (player.job && player.job.toLowerCase().includes(lowsearch)) ||
+              player.id.toString().includes(lowsearch)
+            );
+          });
+        }
+    },
+    watch: {
+        search(newVal) {
+          clearTimeout(this.searchTimeout);
+          this.searchTimeout = setTimeout(() => {
+            this.filteredList;
+          }, 300);
         }
     },
     methods: {
@@ -65,15 +81,17 @@ const App = Vue.createApp({
             if (event.data.type == "show") {
                 const appelement = document.getElementById("app");
                 if (event.data.enable) {
-                    appelement.style.display = "block";
-                    appelement.style.animation = "hopin 0.7s";
                     this.opened = true;
+                    appelement.style.animation = "hopin 0.4s";
+                    appelement.style.display = "block";
                 } else {
-                    appelement.style.animation = "hopout 0.6s";
+                    appelement.style.animation = "hopout 0.4s forwards"; 
                     this.opened = false;
                     setTimeout(() => {
-                        if (!this.opened) appelement.style.display = "none";
-                    }, 500);
+                        appelement.style.display = "none";
+                        appelement.style.top = "";
+                        appelement.style.left = "";
+                    }, 400);
                 }
             } else if (event.data.type == "setplayers") {
                 this.players = event.data.players;
@@ -102,11 +120,6 @@ const App = Vue.createApp({
                 })
             });
             fetch(`https://${GetParentResourceName()}/exit`);
-            const appelement = document.getElementById("Clothingmenu");
-            appelement.style.animation = "hopout 0.6s";
-            setTimeout(() => {
-                appelement.style.display = "none";
-            }, 500);
         },
         kick(id) {
             fetch(`https://${GetParentResourceName()}/kick`, {
@@ -134,16 +147,6 @@ const App = Vue.createApp({
         },
         close() {
             fetch(`https://${GetParentResourceName()}/exit`);
-            const appelement = document.getElementById("Clothingmenu");
-            appelement.style.animation = "hopout 0.6s";
-            setTimeout(() => {
-                appelement.style.display = "none";
-            }, 500);
-        },
-        openclothing() { 
-            const appelement = document.getElementById("Clothingmenu");
-            appelement.style.display = "block";
-            appelement.style.animation = "hopin 0.7s";
         },
         update() {
             fetch(`https://${GetParentResourceName()}/update`);
@@ -158,6 +161,8 @@ const App = Vue.createApp({
             });
         },
         tag() {
+            if (!this.state.duty) return;
+
             this.state.tag = !this.state.tag
             fetch(`https://${GetParentResourceName()}/tag`, {
                 method: 'POST',
@@ -167,6 +172,7 @@ const App = Vue.createApp({
             });
         },
         ids() {
+            if (!this.state.duty) return;
             this.state.ids = !this.state.ids
             fetch(`https://${GetParentResourceName()}/ids`, {
                 method: 'POST',
@@ -176,6 +182,7 @@ const App = Vue.createApp({
             });
         },
         god() {
+            if (!this.state.duty) return;
             this.state.god = !this.state.god
             fetch(`https://${GetParentResourceName()}/god`, {
                 method: 'POST',
@@ -185,6 +192,7 @@ const App = Vue.createApp({
             });
         },
         speed() {
+            if (!this.state.duty) return;
             this.state.speed = !this.state.speed
             fetch(`https://${GetParentResourceName()}/speed`, {
                 method: 'POST',
@@ -194,6 +202,7 @@ const App = Vue.createApp({
             });
         },
         invisible() {
+            if (!this.state.duty) return;
             this.state.invisible = !this.state.invisible
             fetch(`https://${GetParentResourceName()}/invisible`, {
                 method: 'POST',
@@ -203,6 +212,7 @@ const App = Vue.createApp({
             });
         },
         adminzone() {
+            if (!this.state.duty) return;
             this.state.adminzone = !this.state.adminzone
             fetch(`https://${GetParentResourceName()}/adminzone`, {
                 method: 'POST',
@@ -212,6 +222,7 @@ const App = Vue.createApp({
             });
         },
         noragdoll() {
+            if (!this.state.duty) return;
             this.state.noragdoll = !this.state.noragdoll
             fetch(`https://${GetParentResourceName()}/noragdoll`, {
                 method: 'POST',
@@ -221,12 +232,15 @@ const App = Vue.createApp({
             });
         },
         coords() {
+            if (!this.state.duty) return;
             fetch(`https://${GetParentResourceName()}/coords`);
         },
         heal() {
+            if (!this.state.duty) return;
             fetch(`https://${GetParentResourceName()}/heal`);
         },
         marker() {
+            if (!this.state.duty) return;
             fetch(`https://${GetParentResourceName()}/marker`);
         },
 
@@ -240,68 +254,8 @@ const App = Vue.createApp({
     }
 }).mount('#app');
 
-let clothname = "";
-
-const Ap1p = Vue.createApp({
-    data() {
-      return {
-        opened : false,
-        locales: {
-            nui_clothing:"CLOTHING MENU",
-            nui_clothing_menu:"Clothing Menu SELECTION",
-        },
-        clothingItems: [ 
-            {id:"admin", name: "Jézus"},
-            {id:"admin1", name: "Lamar"},
-            {id:"admin2", name: "Franklin"},
-            {id:"admin3", name: "Trevor"},
-            {id:"admin4", name: "Michel"}
-        ],
-    }
-    },
-    methods: {
-        openclothing() { 
-            const appelement = document.getElementById("Clothingmenu");
-            appelement.style.display = "block";
-            appelement.style.animation = "hopin 0.7s";
-        },
-        closeClothing() {
-            const appelement = document.getElementById("Clothingmenu");
-            appelement.style.animation = "hopout 0.6s";
-            setTimeout(() => {
-                appelement.style.display = "none";
-            }, 500);
-        },
-        selectClothing(item) {
-            clothname = item.name;
-            fetch(`https://${GetParentResourceName()}/clothing`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    name: item.name,
-                    id: item.id
-                })
-            });
-          },
-        back() {
-            fetch(`https://${GetParentResourceName()}/backclothing`);
-          },
-    }, 
-    
-    async mounted() {
-        window.addEventListener('message', this.onMessage);
-        var response = await fetch(`https://${GetParentResourceName()}/locales`);
-        var locales = await response.json();
-        this.locales = locales;
-    }
-}).mount('#Clothingmenu');
-
 document.addEventListener('keydown', (event) => {
     if (event.key === "Escape") { 
-        const appelement = document.getElementById("Clothingmenu");
-        appelement.style.animation = "hopout 0.6s";
-        setTimeout(() => {
-            appelement.style.display = "none";
-        }, 500);
         fetch(`https://${GetParentResourceName()}/exit`);
     }
 });
@@ -314,8 +268,10 @@ if (document.getElementById("appheader")) {
     elmnt.onmousedown = dragMouseDown;
 }
 
+
 function dragMouseDown(e) {
-    e = e || window.event;
+    if (e.target.id !== "appheader") return;
+    
     e.preventDefault();
     pos3 = e.clientX;
     pos4 = e.clientY;
@@ -335,40 +291,6 @@ function elementDrag(e) {
 }
 
 function closeDragElement() {
-    document.onmouseup = null;
-    document.onmousemove = null;
-}
-
-const clothingMenu = document.querySelector('.clothing-menu');
-let pos1Clothing = 0, pos2Clothing = 0, pos3Clothing = 0, pos4Clothing = 0;
-
-const clothingMenuHeader = document.getElementById("clothingMenuHeader");
-
-if (clothingMenuHeader) {
-    clothingMenuHeader.onmousedown = dragClothingMouseDown;
-}
-
-function dragClothingMouseDown(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos3Clothing = e.clientX;
-    pos4Clothing = e.clientY;
-    document.onmouseup = closeClothingDragElement;
-    document.onmousemove = clothingElementDrag;
-}
-
-function clothingElementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos1Clothing = pos3Clothing - e.clientX;
-    pos2Clothing = pos4Clothing - e.clientY;
-    pos3Clothing = e.clientX;
-    pos4Clothing = e.clientY;
-    clothingMenu.style.top = (clothingMenu.offsetTop - pos2Clothing) + "px";
-    clothingMenu.style.left = (clothingMenu.offsetLeft - pos1Clothing) + "px";
-}
-
-function closeClothingDragElement() {
     document.onmouseup = null;
     document.onmousemove = null;
 }

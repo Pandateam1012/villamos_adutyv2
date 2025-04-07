@@ -1,22 +1,7 @@
-local admins = {}
-local nearadmins = {}
-local playerJobs = {}
-local gamertags = {}
-local adminthread = false
-local isInUi = false
-
-local duty = false
-local group = "user"
-local tag = false
-local ids = false
-local god = false
-local speed = false
-local invisible = false
-local adminzone = false
-local noragdoll = false
-local idsThread = nil  
-
-local Spectating = false
+---@diagnostic disable: missing-parameter
+local admins,nearadmins,playerJobs, gamertags = {}, {}, {}, {}
+local duty, group, tag ,ids, god, speed, invisible, adminzone, noragdoll, idsThread, Spectating, isInUi, adminthread, time = false, "user", false, false, false, false, false, false, false, nil, false, false, false, "0h 00m"
+local AdminZoneRadius, AdminZoneBlip, AdminZoneMarker, AdminZones, Adminthread, currentZoneColor
 local position21 = vec3(-75.2335, -819.5386, 326.1751)
 lastposition = nil
 -- LOG EVENT
@@ -60,21 +45,6 @@ RegisterNUICallback('backclothing', function(data, cb)
         if not skin then return end 
         TriggerEvent('skinchanger:loadSkin', skin)
     end) 
-    cb('ok')
-end)
-
-RegisterNUICallback('clothing', function(data, cb)
-    local name = data.name
-    local id = data.id
-    local model = Config.Peds[id]
-    if IsModelInCdimage(model) and IsModelValid(model) then
-      RequestModel(model)
-      while not HasModelLoaded(model) do
-        Wait(0)
-      end
-      SetPlayerModel(PlayerId(), model)
-      SetModelAsNoLongerNeeded(model)
-    end
     cb('ok')
 end)
 
@@ -269,20 +239,23 @@ RegisterNUICallback('marker', function(data, cb)
 end)
 
 function UpdateNui()
-    SendNUIMessage({
-        type = "setstate",
-        state = {
-            group = group,
-            duty = duty,
-            tag = tag,
-            ids = ids,
-            god = god,
-            speed = speed,
-            invisible = invisible,
-            adminzone = adminzone,
-            noragdoll = noragdoll,
-        }
-    })
+    lib.callback("villamos_adutyv2:gettime", false, function(time)
+        SendNUIMessage({
+            type = "setstate",
+            state = {
+                group = group,
+                duty = duty,
+                tag = tag,
+                ids = ids,
+                god = god,
+                speed = speed,
+                invisible = invisible,
+                adminzone = adminzone,
+                noragdoll = noragdoll,
+                timeinduty = time or "0h 00m"
+            }
+        })
+    end)
 end 
 
 if Config.Commands then 
@@ -340,7 +313,34 @@ RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
     if not Config.Admins[group] then return end 
     if state then 
         duty = true 
-        ToggleTag(true, false)
+        group = group  
+        tag = true
+        TriggerServerEvent('villamos_aduty:setTag', true)
+        lib.callback("villamos_adutyv2:gettime", false, function(time)
+            SendNUIMessage({
+                type = "setstate",
+                state = {
+                    group = group,
+                    duty = true,
+                    tag = true, 
+                    ids = ids,
+                    god = god,
+                    speed = speed,
+                    invisible = invisible,
+                    adminzone = adminzone,
+                    noragdoll = noragdoll,
+                    timeinduty = time or "0h 00m"
+                }
+            })
+        end)
+        if tag then
+            TriggerServerEvent('villamos_aduty:setTag', true)
+        end
+
+        if adminzone then
+            TriggerServerEvent("villamos_aduty:Adminzone", true, GetEntityCoords(PlayerPedId()))
+        end
+
         if Config.Admins[group].ped then 
             if IsModelInCdimage(Config.Admins[group].ped) and IsModelValid(Config.Admins[group].ped) then
                 RequestModel(Config.Admins[group].ped)
@@ -354,12 +354,19 @@ RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
             end 
         elseif Config.Admins[group].cloth then 
             TriggerEvent('skinchanger:getSkin', function(skin)
-                if not skin then return end 
-                local clothes = (skin.sex == 1 and Config.Admins[group].cloth.female or Config.Admins[group].cloth.male)
-                print(json.encode(clothes))
-                TriggerEvent('skinchanger:loadSkin', clothes)
-                TriggerEvent('skinchanger:loadClothes', skin, (skin.sex == 1 and Config.Admins[group].cloth.female or Config.Admins[group].cloth.male))
+                if not skin then 
+                    print("^1ERROR: Failed to retrieve skin. Is the player fully loaded?")
+                    return 
+                end
+            
+                local clothing = (skin.sex == 1 and Config.Admins[group].cloth[group].female or Config.Admins[group].cloth[group].male)
+                if clothing then
+                    TriggerEvent('skinchanger:loadClothes', skin, clothing)
+                else
+                    print("^1ERROR: No clothing config found for group: " .. group)
+                end
             end)
+            
         end 
     else 
         if Config.Admins[group].ped then 
@@ -377,20 +384,24 @@ RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
                     TriggerEvent('esx:restoreLoadout')
                 end
             end)
-        elseif Config.Admins[group].cloth then 
-            ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin, jobSkin)
-                if not skin then return end 
+        elseif Config.Admins[group].cloth[group] then 
+            TriggerEvent('skinchanger:getSkin', function(skin)
                 TriggerEvent('skinchanger:loadSkin', skin)
+                TriggerEvent('esx:restoreLoadout')
             end)
         end 
+
         ToggleIds(false, false)
         ToggleSpeed(false, false)
         ToggleGod(false, false)
         ToggleInvisible(false, false)
+        TriggerServerEvent("villamos_aduty:Adminzone", false, nil)
         Toggleadminzone(false, false)
         ToggleNoragdoll(false, false)
+        ToggleTag(false, false)
         tag = false
         duty = false
+        group = "user"
     end 
     UpdateNui()
 end)
@@ -409,15 +420,17 @@ end
 
 function ToggleTag(state, usenotify) 
     if not duty then return Config.Notify(_U("no_perm")) end 
+    
     tag = state
+    
     TriggerServerEvent('villamos_aduty:setTag', tag)
+    
     if usenotify then 
-        Config.Notify(_U("tag", (tag and _U("enabled") or _U("disabled")) ))
-        UpdateNui()
+        Config.Notify(_U("tag", (tag and _U("enabled") or _U("disabled"))))
     end 
+    
     UpdateNui()
-end 
-
+end
 
 function ToggleIds(state, usenotify)
     if not duty then return Config.Notify(_U("no_perm")) end 
@@ -524,10 +537,9 @@ function ToggleInvisible(state, usenotify)
 end 
 
 function Toggleadminzone(state, usenotify) 
-    if not duty then return Config.Notify(_U("no_perm")) end 
     adminzone = state
+    if not adminzone then TriggerServerEvent("villamos_aduty:Adminzone", false, nil) end
     TriggerServerEvent("villamos_aduty:Adminzone", adminzone, GetEntityCoords(PlayerPedId()))    
-    print(GetEntityCoords(PlayerPedId()))
     if usenotify then 
         Config.Notify(_U("adminzone", (adminzone and _U("enabled") or _U("disabled")) ))
         UpdateNui()
@@ -676,33 +688,69 @@ local function HexToRGB(hex)
     }
 end
 
-RegisterNetEvent("villamos_aduty:CreateAdminzone", function(state, coords)
-    if not duty then return Config.Notify(_U("no_perm")) end 
+local AdminZones = {} 
+local currentZoneColors = {}
+
+RegisterNetEvent("villamos_aduty:CreateAdminzone", function(state, coords, color, zoneId)
+    zoneId = zoneId or 1 
+    
+    if AdminZones[zoneId] then
+        if AdminZones[zoneId].radiusBlip then RemoveBlip(AdminZones[zoneId].radiusBlip) end
+        if AdminZones[zoneId].centerBlip then RemoveBlip(AdminZones[zoneId].centerBlip) end
+        if AdminZones[zoneId].marker then
+            if AdminZones[zoneId].marker.destroy then 
+                AdminZones[zoneId].marker:destroy() 
+            end
+        end
+        if AdminZones[zoneId].thread then
+            TerminateThread(AdminZones[zoneId].thread)
+        end
+        if AdminZones[zoneId].zone then
+            AdminZones[zoneId].zone:remove()
+        end
+        
+        AdminZones[zoneId] = nil
+        currentZoneColors[zoneId] = nil
+    end
+
     if state then
-        AdminZoneRadius = AddBlipForRadius(coords, 100.0)
-        SetBlipAlpha(AdminZoneRadius, 128)
-        SetBlipColour(AdminZoneRadius, HexToBlipColor(Config.AdminZone.Color))
-        AdminZoneBlip = AddBlipForCoord(coords)
-        SetBlipSprite(AdminZoneBlip, Config.AdminZone.blipSprite)
-        SetBlipColour(AdminZoneBlip, HexToBlipColor(Config.AdminZone.Color))
+        currentZoneColors[zoneId] = color
+        
+        AdminZones[zoneId] = {
+            radiusBlip = AddBlipForRadius(coords, 50.0),
+            centerBlip = AddBlipForCoord(coords),
+            marker = lib.marker.new({
+                type = 28,
+                coords = coords,
+                color = {
+                    r = HexToRGB(color).r,
+                    g = HexToRGB(color).g,
+                    b = HexToRGB(color).b,
+                    a = 150 
+                },
+                width = 50,
+                height = 50,
+            }),
+            coords = coords
+        }
+        
+        SetBlipAlpha(AdminZones[zoneId].radiusBlip, 128)
+        SetBlipColour(AdminZones[zoneId].radiusBlip, HexToBlipColor(color))
+        
+        SetBlipSprite(AdminZones[zoneId].centerBlip, Config.AdminZone.blipSprite)
+        SetBlipColour(AdminZones[zoneId].centerBlip, HexToBlipColor(color))
         BeginTextCommandSetBlipName("STRING")
-        AddTextComponentString(_U("AdminZone_title"))
-        EndTextCommandSetBlipName(AdminZoneBlip)
-        local AdminZoneMarker = lib.marker.new({
-            type = 28,
+        AddTextComponentString(_U("AdminZone_title") .. " #" .. zoneId)
+        EndTextCommandSetBlipName(AdminZones[zoneId].centerBlip)
+
+        AdminZones[zoneId].zone = lib.points.new({
             coords = coords,
-            color = HexToRGB(Config.AdminZone.Color),
-            width = 100,
-            height = 100,
-        })
-        local AdminZones = lib.points.new({
-            coords = coords,
-            distance = 100,
+            distance = 50,
             nearby = function()
                 local playerPed = PlayerPedId()
                 local vehicle = GetVehiclePedIsIn(playerPed, false)
                 SetPlayerCanDoDriveBy(PlayerId(), false)
-                DisableControlAction(0, 140, true) 
+                DisableControlAction(0, 140, true)
                 DisableControlAction(0, 141, true)
                 DisableControlAction(0, 142, true)
                 DisableControlAction(0, 257, true)
@@ -718,45 +766,39 @@ RegisterNetEvent("villamos_aduty:CreateAdminzone", function(state, coords)
                         end
                     end
                 end
+            end,
+            onEnter = function()
+                lib.notify({
+                    title = _U("AdminZone_title") .. " #" .. zoneId,
+                    description = _U("inAdminzone"),
+                    type = "success"
+                })
+            end,
+            onExit = function()
+                lib.notify({
+                    title = _U("AdminZone_title") .. " #" .. zoneId,
+                    description = _U("outAdminzone"),
+                    type = "warning"
+                })
+                SetPlayerCanDoDriveBy(PlayerId(), true) 
             end
         })
-        
-        function AdminZones:onEnter()
-            lib.notify({
-                title = _U("AdminZone_title"),
-                description = _U("inAdminzone"),
-                type = "success"
-            })
-        end
-        function AdminZones:onExit()
-            lib.notify({
-                title = _U("AdminZone_title"),
-                description = _U("outAdminzone"),
-                type = "warning"
-            })
-        end
-        local sleep = 500
-        local Adminthread = CreateThread(function()
+
+        AdminZones[zoneId].thread = CreateThread(function()
             while true do
-                if adminzone then
-                sleep = 0
-                    AdminZoneMarker:draw()
-                else
-                    return
-                end
-                Wait(sleep)
+                if not AdminZones[zoneId] or not AdminZones[zoneId].marker then break end
+                AdminZones[zoneId].marker:draw()
+                Wait(0) 
             end
         end)
-    else
-        RemoveBlip(AdminZoneRadius)
-        RemoveBlip(AdminZoneBlip)
-        AdminZoneRadius = nil
-        AdminZoneBlip = nil
-        state = false
-        Adminthread = nil
-        adminzone = false
     end
 end)
+
+function RemoveAllAdminZones()
+    for zoneId, zoneData in pairs(AdminZones) do
+        TriggerEvent("villamos_aduty:CreateAdminzone", false, nil, nil, zoneId)
+    end
+end
 
 function DrawText3D(coords, text, color)
     local r, g, b = 255, 255, 255
