@@ -119,13 +119,11 @@ RegisterNetEvent('villamos_aduty:setTag')
 AddEventHandler('villamos_aduty:setTag', function(enable)
     local xPlayer = ESX.GetPlayerFromId(source)
     if not xPlayer or not inDuty[xPlayer.source] then 
-        print(("[^1ERROR^7] Player not found or not on duty (Source: %s)"):format(source))
         return 
     end
 
     local group = Config.DiscordTags and GetDiscordRole(xPlayer.source) or xPlayer.getGroup()
     if not group or not Config.Admins[group] then
-        print(("[^1ERROR^7] Invalid admin group for player: %s"):format(xPlayer.source))
         return
     end
 
@@ -240,7 +238,6 @@ lib.callback.register("villamos_adutyv2:gettime", function(source)
     for i, v in pairs(json.decode(File)) do
         if i == xPlayer.identifier then
             time = FormatMinutes(v)
-            print(v)
         end
     end
     return time
@@ -381,7 +378,6 @@ AddEventHandler("villamos_aduty:kick", function(targetServerId)
     local xPlayer = ESX.GetPlayerFromId(source)
     if not xPlayer or not inDuty[xPlayer.source] then return Config.Notify(xPlayer.source, _U("no_perm")) end
     DropPlayer(targetServerId, "Egy Adminisztrátor ki kickelt!")
-    --print("kicked" .. targetServerId)
 end)
 
 RegisterNetEvent("villamos_aduty:goto")
