@@ -41,19 +41,24 @@ end
 
 
 local function sendAdminLog(admin, title, message, target)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    if not xPlayer or not inDuty[xPlayer.source] then return end
+    local xPlayer = ESX.GetPlayerFromId(admin) 
+    if not xPlayer or not inDuty[xPlayer.source] then 
+        print(('[villamos_adutyv2] WARNING: sendAdminLog called for player %s who is not on duty or xPlayer is nil.'):format(admin))
+        return 
+    end
+    
     if not isAdminLoggingEnabled then return end
-    local playername = " "..GetPlayerName(admin).. " ["..admin.."]" or " Ismeretlen Admin"
-    local admins = GetAdmins()
+    local playername = " "..GetPlayerName(admin).. " ["..admin.."]" or " Ismeretlen Admin" 
+    local admins = GetAdmins() 
+
     for _, adminId in ipairs(admins) do
         if useOkokChat then
             local background = 'linear-gradient(90deg, rgba(42, 42, 42, 0.9) 0%, rgba(53, 219, 194, 0.9) 100%)'
             local color = '#35dbc2'
             local icon = 'fa-solid fa-hammer'
-            TriggerEvent('okokChat:ServerMessage', background, color, icon, title, playername, message, adminId, " ")
+            TriggerEvent('okokChat:ServerMessage', background, color, icon, title, playername, message, adminId, " ") 
         else
-            TriggerClientEvent("chat:addMessage", target, {
+            TriggerClientEvent("chat:addMessage", adminId, { 
                 template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(0, 0, 0, 0.6); border-radius: 10px; border: 0.0px solid #ff0000"><i class="fas fa-wrench"></i> <span style="color:#99C1DC">[Log] </span>{1}</span> {0}</div>',
                 args = { message, playername },
             })
@@ -338,6 +343,10 @@ end
 
 exports('GetDutys', function()
     return inDuty
+end)
+
+exports('sendAdminLog', function(admin, title, message, target)
+    return sendAdminLog(admin, title, message, target) 
 end)
 
 exports('IsInDuty', function(src) 
