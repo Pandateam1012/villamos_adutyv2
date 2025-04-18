@@ -1,195 +1,157 @@
-<html>
-    <head>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
-        <link rel="stylesheet" href="style.css">
-        <meta charset="UTF-8">
-    </head>
-    <body>
-        <div id="Clothingmenu" v-if="clothingMenuVisible" class="clothing-menu">
-            <div id="clothingMenuHeader" class="menu-header">
-                <button class="btn close-btn click-action" @click="closeClothing"><i class="bi bi-x-circle"></i></button>
-                <span>{{locales.nui_clothing_menu}}</span>
-                <button @click="closeClothing">X</button>
-            </div>
-            <div id="bacl" @click="back" class="btn" ><i class="bi bi-backspace-reverse-fill"> {{locales.nui_clothing_revert}}</i></div>
-            <div class="menu-content">
-                <button v-for="item in clothingItems" :key="item.id" @click="selectClothing(item)">
-                    {{ item.name }}
-                </button>
-            </div>            
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="app-header">
+            <div class="app-title">{{locales.nui_label}}</div>
+            <button class="close-btn" @click="close"><i class="bi bi-x-lg"></i></button>
         </div>
-		<div id='app'>
-            <div id="appheader">
-                <h1>{{locales.nui_label}}</h1>
-            </div>
+        
+        <div class="app-container">
+            <div class="sidebar">
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div>
+                            <i class="bi bi-shield-shaded"></i>
+                            <span>{{locales.nui_group}}</span>
+                        </div>
+                        <span class="stat-value">{{state.group}}</span>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <i class="bi bi-people"></i>
+                            <span>{{locales.nui_players}}</span>
+                        </div>
+                        <span class="stat-value">{{players.length}}</span>
+                    </div>
+                    <div class="stat-card">
+                        <div>
+                            <i class="bi bi-clock-history"></i>
+                            <span>{{locales.nui_clockedtime}}</span>
+                        </div>
+                        <span class="stat-value">{{state.timeinduty}}</span>
+                    </div>
+                </div>
+                
+                <div class="quick-actions">
+                    <button class="action-btn" :class="{active: state.duty}" @click="duty">
+                        <i class="bi bi-award"></i>
+                        <span>{{locales.nui_duty}}</span>
+                    </button>
+                    
+                    <button class="action-btn" :class="{active: state.duty && state.tag}" @click="tag" :disabled="!state.duty">
+                        <i class="bi bi-balloon"></i>
+                        <span>{{locales.nui_tag}}</span>
+                    </button>
+                    
+                    <button class="action-btn" :class="{active: state.duty && state.ids}" @click="ids" :disabled="!state.duty">
+                        <i class="bi bi-fingerprint"></i>
+                        <span>{{locales.nui_esp}}</span>
+                    </button>
+                    
+                    <button class="action-btn" :class="{active: state.duty && state.god}" @click="god" :disabled="!state.duty">
+                        <i class="bi bi-heart"></i>
+                        <span>{{locales.nui_god}}</span>
+                    </button>
+                    
+                    <button class="action-btn" :class="{active: state.duty && state.speed}" @click="speed" :disabled="!state.duty">
+                        <i class="bi bi-capslock"></i>
+                        <span>{{locales.nui_speed}}</span>
+                    </button>
+                    
+                    <button class="action-btn" :class="{active: state.duty && state.invisible}" @click="invisible" :disabled="!state.duty">
+                        <i class="bi bi-binoculars"></i>
+                        <span>{{locales.nui_invisble}}</span>
+                    </button>
+                    
+                    <button class="action-btn" @click="adminzone" :disabled="!state.duty" :class="{active: state.duty && state.adminzone}">
+                        <i class="bi bi-balloon"></i>
+                        <span>{{locales.nui_adminzone}}</span>
+                    </button>
 
-            <button class="btn close-btn click-action" @click="close"><i class="bi bi-x-circle"></i></button>
-        <div class="container">
-                <div class="fons">
-                    <span><i class="bi bi-shield-shaded"></i> {{locales.nui_group}}</span>
-                    <span>{{state.group}}</span>
+                    <button class="action-btn" @click="noragdoll" :disabled="!state.duty" :class="{active: state.duty && state.noragdoll}">
+                        <i class="bi bi-cart"></i>
+                        <span>{{locales.nui_noragdoll}}</span>
+                    </button>
+                    
+                    <button class="action-btn" @click="coords" :disabled="!state.duty" :class="{active: state.duty && state.coords}">
+                        <i class="bi bi-clipboard-minus"></i>
+                        <span>{{locales.nui_coords}}</span>
+                    </button>
+                    
+                    <button class="action-btn" @click="heal" :disabled="!state.duty" :class="{active: state.duty && state.heal}">
+                        <i class="bi bi-heart"></i>
+                        <span>{{locales.nui_health}}</span>
+                    </button>
+                    
+                    <button class="action-btn" @click="marker" :disabled="!state.duty" :class="{active: state.duty && state.marker}">
+                        <i class="bi bi-geo-alt"></i>
+                        <span>{{locales.nui_marker}}</span>
+                    </button>
                 </div>
-                <div class="fons1">
-                    <span><i class="bi bi-people"></i> {{locales.nui_players}}</span>
-                    <span>{{players.length}}</span>
-                </div>
-            <div class="bigrow">
-                <div class="kocka" @click="duty">
-                    <span><i class="bi bi-award"></i> {{locales.nui_duty}}</span>
-                    <div>
-                        <input type="checkbox" id="dutyCheckbox" :checked="state.duty" @change="duty">
-                        <label for="dutyCheckbox" class="custom-checkbox"></label>
+            </div>
+            
+            <div class="main-content">
+                <h2 class="section-title">{{locales.nui_label_players}}</h2>
+                
+                <div class="toolbar">
+                    <div class="search-box">
+                        <i class="bi bi-search"></i>
+                        <input type="text" v-model="search" :placeholder="locales.nui_players_search">
                     </div>
+                    <button class="refresh-btn" @click="update">
+                        <i class="bi bi-arrow-repeat"></i>
+                        <span>{{locales.nui_players_refresh}}</span>
+                    </button>
                 </div>
-                <div class="kocka" @click="tag">
-                    <span><i class="bi bi-balloon"></i> {{locales.nui_tag}}</span>
-                    <div>
-                        <input type="checkbox" id="tagCheckbox" :disabled="!state.duty" :checked="state.tag" @change="tag">
-                        <label for="tagCheckbox" class="custom-checkbox"></label>
+                
+                <div class="players-table">
+                    <div class="table-header">
+                        <div class="player-cell">{{locales.nui_players_id}}</div>
+                        <div class="player-cell">{{locales.nui_players_name}}</div>
+                        <div class="player-cell mobile-hidden">{{locales.nui_players_group}}</div>
+                        <div class="player-cell mobile-hidden">{{locales.nui_players_job}}</div>
+                        <div class="player-cell mobile-hidden">{{locales.nui_players_bank}}</div>
+                        <div class="player-cell mobile-hidden">{{locales.nui_players_Penz}}</div>
+                        <div class="action-cell">{{locales.nui_players_kick}}</div>
+                        <div class="action-cell">{{locales.nui_players_goto}}</div>
+                        <div class="action-cell mobile-hidden">{{locales.nui_players_bring}}</div>
+                        <div class="action-cell mobile-hidden">{{locales.nui_players_spectate}}</div>
                     </div>
-                </div>
-                <div class="kocka" @click="ids">
-                    <span><i class="bi bi-fingerprint"></i> {{locales.nui_esp}}</span>
-                    <div>
-                        <input type="checkbox" id="idsCheckbox" :disabled="!state.duty" :checked="state.ids" @change="ids">
-                        <label for="idsCheckbox" class="custom-checkbox"></label>
+                    
+                    <div class="player-row" v-for="player in filteredList" :key="player.id">
+                        <div class="player-cell" @click="copytoclipboard(player.id)">{{player.id}}</div>
+                        <div class="player-cell" @click="copytoclipboard(player.name)">{{player.name}}</div>
+                        <div class="player-cell mobile-hidden" @click="copytoclipboard(player.group)">{{player.group}}</div>
+                        <div class="player-cell mobile-hidden" @click="copytoclipboard(player.job)">{{player.job}}</div>
+                        <div class="player-cell mobile-hidden" @click="copytoclipboard(player.bank)">{{player.bank}}</div>
+                        <div class="player-cell mobile-hidden" @click="copytoclipboard(player.Penz)">{{player.Penz}}</div>
+                        <div class="action-cell">
+                            <i class="bi bi-door-open-fill action-icon" @click="kick(player.id)"></i>
+                        </div>
+                        <div class="action-cell">
+                            <i class="bi bi-arrow-bar-up action-icon" @click="goto(player.id)"></i>
+                        </div>
+                        <div class="action-cell mobile-hidden">
+                            <i class="bi bi-arrow-bar-down action-icon" @click="bring(player.id)"></i>
+                        </div>
+                        <div class="action-cell mobile-hidden">
+                            <i class="bi bi-eyeglasses action-icon" @click="spectate(player.id)"></i>
+                        </div>
                     </div>
-                </div>
-                <div class="kocka" @click="god">
-                    <span><i class="bi bi-heart"></i> {{locales.nui_god}}</span>
-                    <div>
-                        <input type="checkbox" id="godCheckbox" :disabled="!state.duty" :checked="state.god" @change="god">
-                        <label for="godCheckbox" class="custom-checkbox"></label>
-                    </div>
-                </div>
-                <div class="kocka" @click="speed">
-                    <span><i class="bi bi-capslock"></i> {{locales.nui_speed}}</span>
-                    <div>
-                        <input type="checkbox" id="speedCheckbox" :disabled="!state.duty" :checked="state.speed" @change="speed">
-                        <label for="speedCheckbox" class="custom-checkbox"></label>
-                    </div>
-                </div>
-                <div class="kocka" @click="invisible">
-                    <span><i class="bi bi-binoculars"></i> {{locales.nui_invisble}}</span>
-                    <div>
-                        <input type="checkbox" id="invisibleCheckbox" :disabled="!state.duty" :checked="state.invisible" @change="invisible">
-                        <label for="invisibleCheckbox" class="custom-checkbox"></label>
-                    </div>
-                </div>
-                <div class="kocka" @click="adminzone">
-                    <span><i class="bi bi-balloon"></i> {{locales.nui_adminzone}}</span>
-                    <div>
-                        <input type="checkbox" id="adminzoneCheckbox" :disabled="!state.duty" :checked="state.adminzone" @change="adminzone">
-                        <label for="adminzoneCheckbox" class="custom-checkbox"></label>
-                    </div>
-                </div>
-                <div class="kocka" @click="openclothing">
-                    <span><i  class="bi bi-person-bounding-box"></i> {{locales.nui_clothing}}  </span>
-                    <span :disabled="!state.duty" class="click-action" tabindex="0" @click="openclothing" >
-                        <i class="bi bi-person-square" ></i>
-                    </span>
-                </div>                              
-                <div class="kocka" @click="noragdoll">
-                    <span><i class="bi bi-cart"></i> {{locales.nui_noragdoll}}</span>
-                    <div>
-                        <input type="checkbox" id="noragdollCheckbox" :disabled="!state.duty" :checked="state.noragdoll" @change="noragdoll">
-                        <label for="noragdollCheckbox" class="custom-checkbox"></label>
-                    </div>
-                </div>
-                <div class="kocka" @click="coords">
-                    <span><i class="bi bi-clipboard-minus"></i> {{locales.nui_coords}}</span>
-                    <span class="click-action" tabindex="0" :class="{ disabled: !state.duty }" @click="coords"><i class="bi bi-clipboard-minus"></i></span>
-                </div>
-                <div class="kocka" @click="heal">
-                    <span><i class="bi bi-heart"></i> {{locales.nui_health}}</span>
-                    <span class="click-action" tabindex="0" :class="{ disabled: !state.duty }" @click="heal"><i class="bi bi-heart"></i></span>
-                </div>
-                <div class="kocka" @click="marker">
-                    <span><i class="bi bi-geo-alt"></i> {{locales.nui_marker}}</span>
-                    <span class="click-action" tabindex="0" :class="{ disabled: !state.duty }" @click="marker"><i class="bi bi-geo-alt" ></i></span>
                 </div>
             </div>
         </div>
-            
-
-            <h2 class="label">{{locales.nui_label_players}}</h2>
-
-            <div class="player-actions">
-                <button type="button" class="btn click-action" @click="update"><i class="bi bi-arrow-repeat"></i> {{locales.nui_players_refresh}}</button>
-                <input type="text" v-model="search" class="inp" :placeholder="locales.nui_players_search">
-            </div>
-            
-            
-            <div class="container player-table">
-                <div class="row table-label">
-                    <div class="col-sm">
-                        {{locales.nui_players_id}}
-                    </div>
-                    <div class="col-md">
-                        {{locales.nui_players_name}}
-                    </div>
-                    <div class="col">
-                        {{locales.nui_players_group}}
-                    </div>
-                    <div class="col">
-                        {{locales.nui_players_job}}
-                    </div>
-                    <div class="col">
-                        {{locales.nui_players_bank}}
-                    </div>
-                    <div class="col">
-                        {{locales.nui_players_Penz}}
-                    </div>
-                    <div class="col">
-                        {{locales.nui_players_kick}}
-                    </div>
-                    <div class="col">
-                        {{locales.nui_players_goto}}
-                    </div>
-                    <div class="col">
-                        {{locales.nui_players_bring}}
-                    </div>
-                    <div class="col">
-                        {{locales.nui_players_spectate}}
-                    </div>
-                </div>
-                <div class="row" v-for="player in filteredList">
-                    <div class="player-data" @click="copytoclipboard(player.id)">
-                        {{player.id}}
-                    </div>
-                    <div class="player-data" @click="copytoclipboard(player.name)">
-                        {{player.name}}
-                    </div>
-                    <div class="player-data" @click="copytoclipboard(player.group)">
-                        {{player.group}}
-                    </div>
-                    <div class="player-data" @click="copytoclipboard(player.job)">
-                        {{player.job}}
-                    </div>
-                    <div class="player-data" @click="copytoclipboard(player.bank)">
-                        {{player.bank}}
-                    </div>
-                    <div class="player-data" @click="copytoclipboard(player.Penz)">
-                        {{player.Penz}}
-                    </div>
-                    <div class="player-data" @click="kick(player.id)">
-                        <i class="bi bi-door-open-fill"></i>
-                    </div>
-                    <div class="player-data" @click="goto(player.id)">
-                        <i class="bi bi-arrow-bar-up"></i>
-                    </div>
-                    <div class="player-data" @click="bring(player.id)">
-                        <i class="bi bi-arrow-bar-down"></i>
-                    </div>
-                    <div class="player-data" @click="spectate(player.id)">
-                        <i class="bi bi-eyeglasses"></i>
-                    </div>
-                </div>
-            </div>
-		</div>
-
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.prod.min.js"></script>
-        <script src="index.js"></script>
-
-	</body>
+    </div>
+    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.prod.min.js"></script>
+    <script src="index.js"></script>
+</body>
 </html>

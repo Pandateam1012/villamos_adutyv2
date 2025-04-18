@@ -1,13 +1,8 @@
-fx_version 'adamant'
-
+fx_version 'cerulean'
 game 'gta5'
-
-description 'admin duty by 6osvillamos'
-
-version '1.2.2'
-
+description 'admin duty by 6osvillamos Edited by BP Scripts'
+version '3.3.1'
 ui_page 'html/index.html'
-
 lua54 "yes"
 
 files {
@@ -25,7 +20,7 @@ shared_scripts {
 
 server_scripts {
 	'config/server.lua',
-	'server.lua'
+	'server.lua',
 }
 
 client_scripts {
