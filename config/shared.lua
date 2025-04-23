@@ -74,9 +74,9 @@ local clothes = {
 
 
 Config.Admins = { --a pedet vagy a logót vagy a ruhát ha nem szeretnéd használni állítsd falsera
-["admin"] = { tag = "Adminisztrátor", logo = false, cloth  = clothes, color = "#dd42f5"}, -- Hex Kód ot is lehet használni!
-["admin2"] = { tag = "[ADMIN 2]", logo = false, color = { r = 162, g = 0, b = 0 }},
-["owner"] = { tag = "[ADMIN]", logo = "marvel", cloth  = clothes, color = "#005cff"},
+    ["admin"] = { tag = "Adminisztrátor", logo = false, cloth  = clothes, color = "#dd42f5"}, -- Hex Kód ot is lehet használni!
+    ["admin2"] = { tag = "[ADMIN 2]", logo = false, color = { r = 162, g = 0, b = 0 }},
+    ["owner"] = { tag = "[ADMIN]", logo = "marvel", cloth  = clothes, color = "#005cff"},
 }
 
 
@@ -87,9 +87,38 @@ if not IsDuplicityVersion() then
             TriggerEvent("esx:showNotification", msg)
         elseif Config.Notifye == "ox" then
             lib.notify({
+                id = 'admin_notification',
                 title = 'Admin Rendszer',
                 description = msg,
-                type = 'info'
+                type = 'inform',
+                position = 'top',
+                duration = 5000,
+                style = {
+                    backgroundColor = '#16213e',
+                    color = '#f8f9fa',
+                    borderRadius = '12px',
+                    boxShadow = '0 4px 20px rgba(0, 0, 0, 0.3)',
+                    padding = '18px',
+                    minWidth = '320px',
+                    maxWidth = '420px',
+                    ['.title'] = {
+                        fontSize = '17px',
+                        fontWeight = '600',
+                        marginBottom = '10px',
+                        color = '#4cc9f0',
+                        textShadow = '0 1px 2px rgba(0,0,0,0.3)'
+                    },
+                    ['.description'] = {
+                        fontSize = '14px',
+                        color = 'rgba(248, 249, 250, 0.9)',
+                        lineHeight = '1.5',
+                        textShadow = '0 1px 1px rgba(0,0,0,0.2)'
+                    }
+                },
+                icon = 'shield-halved',
+                iconColor = '#4cc9f0',
+                iconAnimation = 'beatFade',
+                showDuration = false
             })
         elseif Config.Notifye == "codem" then
             TriggerEvent('codem-notification:Create', msg, 'info', 'Admin Rendszer', 5000)

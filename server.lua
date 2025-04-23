@@ -53,13 +53,13 @@ local function sendAdminLog(admin, title, message, target)
 
     for _, adminId in ipairs(admins) do
         if useOkokChat then
-            local background = 'linear-gradient(90deg, rgba(42, 42, 42, 0.9) 0%, rgba(53, 219, 194, 0.9) 100%)'
-            local color = '#35dbc2'
+            local background = 'linear-gradient(90deg, rgba(26, 26, 46, 0.9) 0%, rgba(67, 97, 238, 0.9) 100%)'
+            local color = '#4361ee'
             local icon = 'fa-solid fa-hammer'
             TriggerEvent('okokChat:ServerMessage', background, color, icon, title, playername, message, adminId, " ") 
         else
             TriggerClientEvent("chat:addMessage", adminId, { 
-                template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(0, 0, 0, 0.6); border-radius: 10px; border: 0.0px solid #ff0000"><i class="fas fa-wrench"></i> <span style="color:#99C1DC">[Log] </span>{1}</span> {0}</div>',
+                template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(22, 33, 62, 0.6); border-radius: 8px; border: 0.0px solid #e63946"><i class="fas fa-wrench"></i> <span style="color:#4cc9f0">[Log] </span>{1}</span> {0}</div>',
                 args = { message, playername },
             })
         end
@@ -96,25 +96,67 @@ lib.callback.register('villamos_aduty:getAllJobs', function(source)
 
     return jobs
 end)
+function formatMoney(amount)
+    if type(amount) ~= "number" then return "0" end
+    
+    local negative = amount < 0
+    amount = math.abs(amount)
+    
+    if amount == 0 then return "0" end
+    if amount < 1000 then return tostring(math.floor(amount)) end
+    
+    local exponent = math.min(math.floor(math.log(amount) / math.log(1000)), 30)
+    local divisor = 1000 ^ exponent
+    local value = amount / divisor
+    
+    local formatted
+    if value >= 100 then
+        formatted = string.format("%.0f", value)
+    elseif value >= 10 then
+        formatted = string.format("%.1f", value)
+    else
+        formatted = string.format("%.2f", value)
+    end
+    
+    local suffix = getSuffix(exponent)
+    formatted = formatted .. suffix
+    
+    if negative then
+        formatted = "-" .. formatted
+    end
+    
+    return formatted
+end
+
+function getSuffix(exponent)
+    local suffixes = {"K","M","B","T","Qa","Qi","Sx","Sp","O","N",
+                     "Dc","UDc","DDc","TDc","QaDc","QiDc","SxDc","SpDc","ODc","NDc",
+                     "Vg","UVg","DVg","TVg","QaVg","QiVg","SxVg","SpVg","OVg","NVg"}
+    return exponent <= #suffixes and suffixes[exponent] or "e"..(exponent*3)
+end
 
 ESX.RegisterServerCallback("villamos_aduty:openPanel", function(source, cb)
     local xAdmin = ESX.GetPlayerFromId(source)
-    if not IsAdmin(xAdmin.getGroup()) then return cb(false) end
+    if not xAdmin or not IsAdmin(xAdmin.getGroup()) then return cb(false) end
+    
     local players = {}
     local play = ESX.GetPlayers()
-    for i=1, #play do
+    
+    for i = 1, #play do
         local xPlayer = ESX.GetPlayerFromId(play[i])
-        
-        if xPlayer then 
+        if xPlayer then
+            local cash = tonumber(ESX.Math.Round(xPlayer.getMoney() or 0))
+            local bank = tonumber(ESX.Math.Round(xPlayer.getAccount("bank").money or 0))
+            
             players[#players+1] = {
                 id = xPlayer.source,
-                name = GetPlayerName(xPlayer.source),
-                group = xPlayer.getGroup(),
-                job = xPlayer.getJob().label .. " - " .. xPlayer.getJob().grade_label,
-                Penz = xPlayer.getMoney(),
-                bank = xPlayer.getAccount("bank").money
+                name = GetPlayerName(xPlayer.source) or "Unknown",
+                group = xPlayer.getGroup() or "user",
+                job = (xPlayer.getJob().label or "Unknown") .. " - " .. (xPlayer.getJob().grade_label or "0"),
+                Penz = formatMoney(cash).. " $",
+                bank = formatMoney(bank).. " $"
             }
-        end 
+        end
     end
 
     cb(true, xAdmin.getGroup(), players)

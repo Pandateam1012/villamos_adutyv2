@@ -9,9 +9,20 @@
 </head>
 <body>
     <div id="app">
-        <div class="app-header">
+        <div class="app-header" id="app-header">
+            <div class="color-presets">
+                <button 
+                    v-for="preset in presets" 
+                    :key="preset.name"
+                    class="preset-btn"
+                    :style="{ backgroundColor: preset.colors['--primary'] }"
+                    @click="applyPreset(preset.colors)"
+                    :title="preset.name"
+                ></button>
+            </div>
             <div class="app-title">{{locales.nui_label}}</div>
-            <button class="close-btn" @click="close"><i class="bi bi-x-lg"></i></button>
+
+            <button class="close-btn" @click="close" ><i class="bi bi-x-lg"></i></button>
         </div>
         
         <div class="app-container">
@@ -19,79 +30,79 @@
                 <div class="stats-container">
                     <div class="stat-card">
                         <div>
-                            <i class="bi bi-shield-shaded"></i>
+                            <i class="bi bi-shield-shaded" style="color: var(--icon-color)"></i>
                             <span>{{locales.nui_group}}</span>
                         </div>
-                        <span class="stat-value">{{state.group}}</span>
+                        <span class="stat-value"> {{state.group}}</span>
                     </div>
                     <div class="stat-card">
                         <div>
-                            <i class="bi bi-people"></i>
+                            <i class="bi bi-people" style="color: var(--icon-color)"></i>
                             <span>{{locales.nui_players}}</span>
                         </div>
-                        <span class="stat-value">{{players.length}}</span>
+                        <span class="stat-value"> {{players.length}}</span>
                     </div>
                     <div class="stat-card">
                         <div>
-                            <i class="bi bi-clock-history"></i>
+                            <i class="bi bi-clock-history" style="color: var(--icon-color)"></i>
                             <span>{{locales.nui_clockedtime}}</span>
                         </div>
-                        <span class="stat-value">{{state.timeinduty}}</span>
+                        <span class="stat-value"> {{state.timeinduty}}</span>
                     </div>
                 </div>
                 
                 <div class="quick-actions">
-                    <button class="action-btn" :class="{active: state.duty}" @click="duty">
+                    <button class="action-btn" :class="{active: state.duty}" style="color: var(--icon-color)" @click="duty">
                         <i class="bi bi-award"></i>
                         <span>{{locales.nui_duty}}</span>
                     </button>
                     
-                    <button class="action-btn" :class="{active: state.duty && state.tag}" @click="tag" :disabled="!state.duty">
+                    <button class="action-btn" style="color: var(--icon-color)" :class="{active: state.duty && state.tag}" @click="tag" :disabled="!state.duty">
                         <i class="bi bi-balloon"></i>
                         <span>{{locales.nui_tag}}</span>
                     </button>
                     
-                    <button class="action-btn" :class="{active: state.duty && state.ids}" @click="ids" :disabled="!state.duty">
+                    <button class="action-btn"  style="color: var(--icon-color)" :class="{active: state.duty && state.ids}" @click="ids" :disabled="!state.duty">
                         <i class="bi bi-fingerprint"></i>
                         <span>{{locales.nui_esp}}</span>
                     </button>
                     
-                    <button class="action-btn" :class="{active: state.duty && state.god}" @click="god" :disabled="!state.duty">
+                    <button class="action-btn" style="color: var(--icon-color)" :class="{active: state.duty && state.god}" @click="god" :disabled="!state.duty">
                         <i class="bi bi-heart"></i>
                         <span>{{locales.nui_god}}</span>
                     </button>
                     
-                    <button class="action-btn" :class="{active: state.duty && state.speed}" @click="speed" :disabled="!state.duty">
+                    <button class="action-btn" style="color: var(--icon-color)" :class="{active: state.duty && state.speed}" @click="speed" :disabled="!state.duty">
                         <i class="bi bi-capslock"></i>
                         <span>{{locales.nui_speed}}</span>
                     </button>
                     
-                    <button class="action-btn" :class="{active: state.duty && state.invisible}" @click="invisible" :disabled="!state.duty">
+                    <button class="action-btn" style="color: var(--icon-color)" :class="{active: state.duty && state.invisible}" @click="invisible" :disabled="!state.duty">
                         <i class="bi bi-binoculars"></i>
                         <span>{{locales.nui_invisble}}</span>
                     </button>
                     
-                    <button class="action-btn" @click="adminzone" :disabled="!state.duty" :class="{active: state.duty && state.adminzone}">
+                    <button class="action-btn" style="color: var(--icon-color)" @click="adminzone" :disabled="!state.duty" :class="{active: state.duty && state.adminzone}">
                         <i class="bi bi-balloon"></i>
                         <span>{{locales.nui_adminzone}}</span>
                     </button>
 
-                    <button class="action-btn" @click="noragdoll" :disabled="!state.duty" :class="{active: state.duty && state.noragdoll}">
+                    <button class="action-btn" style="color: var(--icon-color)" @click="noragdoll" :disabled="!state.duty" :class="{active: state.duty && state.noragdoll}">
                         <i class="bi bi-cart"></i>
                         <span>{{locales.nui_noragdoll}}</span>
                     </button>
                     
-                    <button class="action-btn" @click="coords" :disabled="!state.duty" :class="{active: state.duty && state.coords}">
+                    <button class="action-btn" style="color: var(--icon-color)" @click="coords" :disabled="!state.duty" :class="{active: state.duty && state.coords}">
                         <i class="bi bi-clipboard-minus"></i>
                         <span>{{locales.nui_coords}}</span>
                     </button>
                     
-                    <button class="action-btn" @click="heal" :disabled="!state.duty" :class="{active: state.duty && state.heal}">
+                    <button class="action-btn" style="color: var(--icon-color)" @click="heal" :disabled="!state.duty" :class="{active: state.duty && state.heal}">
                         <i class="bi bi-heart"></i>
                         <span>{{locales.nui_health}}</span>
                     </button>
                     
-                    <button class="action-btn" @click="marker" :disabled="!state.duty" :class="{active: state.duty && state.marker}">
+                    <button class="action-btn" style="color: var(--icon-color)" @click="marker" :disabled="!state.duty" :class="{active: state.duty && state.marker}">
                         <i class="bi bi-geo-alt"></i>
                         <span>{{locales.nui_marker}}</span>
                     </button>
@@ -99,15 +110,15 @@
             </div>
             
             <div class="main-content">
-                <h2 class="section-title">{{locales.nui_label_players}}</h2>
+                <h2 class="section-title" style="color: var(--icon-color)">{{locales.nui_label_players}}</h2>
                 
                 <div class="toolbar">
-                    <div class="search-box">
-                        <i class="bi bi-search"></i>
+                    <div class="search-box" style="color: var(--icon-color)">
+                        <i class="bi bi-search" style="color: var(--icon-color)"></i>
                         <input type="text" v-model="search" :placeholder="locales.nui_players_search">
                     </div>
-                    <button class="refresh-btn" @click="update">
-                        <i class="bi bi-arrow-repeat"></i>
+                    <button class="refresh-btn" @click="update" style="color: var(--icon-color)">
+                        <i class="bi bi-arrow-repeat" style="color: var(--icon-color)"></i>
                         <span>{{locales.nui_players_refresh}}</span>
                     </button>
                 </div>
@@ -151,7 +162,7 @@
         </div>
     </div>
     
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.2.47/vue.global.prod.min.js"></script>
+    <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
     <script src="index.js"></script>
 </body>
 </html>

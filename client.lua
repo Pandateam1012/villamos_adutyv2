@@ -161,7 +161,6 @@ RegisterNUICallback('update', function(data, cb)
             players = players
         })
         group = _group 
-        UpdateNui()
     end)
     cb('ok')
 end)
@@ -218,11 +217,6 @@ RegisterNUICallback('adminzone', function(data, cb)
     cb('ok')
 end)
 
-RegisterNUICallback('playerBlips', function(data, cb)
-    ToggleplayerBlips(data.enable, true)
-    sendlog(_U("playerBlipslog", data.enable and _U("enabledlog") or _U("disabledlog")))
-    cb('ok')
-end)
 
 RegisterNUICallback('noragdoll', function(data, cb)
     ToggleNoragdoll(data.enable, true)
@@ -296,11 +290,6 @@ if Config.Commands then
         Toggleadminzone(not adminzone, true)
     end)
 
-    RegisterCommand('adblips', function(s, a, r)
-        ToggleplayerBlips(not playerBlips, true)
-    end)
-
-
     RegisterCommand('adnoragdoll', function(s, a, r)
         ToggleNoragdoll(not noragdoll, true)
     end)
@@ -334,8 +323,8 @@ RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
                 type = "setstate",
                 state = {
                     group = group,
-                    duty = true,
-                    tag = true, 
+                    duty = duty,
+                    tag = tag, 
                     ids = ids,
                     god = god,
                     speed = speed,
@@ -411,7 +400,6 @@ RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
         ToggleInvisible(false, false)
         TriggerServerEvent("villamos_aduty:Adminzone", false, nil)
         Toggleadminzone(false, false)
-        ToggleplayerBlips(false, false)
         ToggleNoragdoll(false, false)
         ToggleTag(false, false)
         tag = false

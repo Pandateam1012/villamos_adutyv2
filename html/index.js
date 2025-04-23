@@ -2,6 +2,20 @@ const App = Vue.createApp({
     data() {
       return {
         opened : false,
+        colorVars: {
+            '--primary': '#4361ee',
+            '--primary-dark': '#3a56d4',
+            '--secondary': '#3f37c9',
+            '--dark': '#1a1a2e',
+            '--darker': '#16213e',
+            '--light': '#f8f9fa',
+            '--danger': '#e63946',
+            '--success': '#2a9d8f',
+            '--warning': '#f4a261',
+            '--info': '#4cc9f0',
+            '--border-radius': '8px',
+            '--transition': 'all 0.2s ease'
+        },
         players : [
             {id:1, name:"6osvillamos", group:"admin", job:"Rendőr - Kadét", bank:1500, Penz:999999},
         ],
@@ -47,7 +61,93 @@ const App = Vue.createApp({
             nui_players_bring:"Bring",
             nui_players_spectate:"Spectate",
         },
-
+        presets: [
+            {
+                name: 'Blue',
+                colors: {
+                    '--primary': '#4361ee',
+                    '--primary-dark': '#3a56d4',
+                    '--secondary': '#3f37c9',
+                    '--dark': '#1a1a2e',
+                    '--darker': '#16213e',
+                    '--light': '#f8f9fa',
+                    '--danger': '#e63946',
+                    '--success': '#2a9d8f',
+                    '--warning': '#f4a261',
+                    '--info': '#4cc9f0',
+                    '--border-radius': '8px',
+                    '--transition': 'all 0.2s ease'
+                }
+            },
+            {
+                name: 'Red',
+                colors: {
+                    '--primary': '#e63946',
+                    '--primary-dark': '#d12d3a',
+                    '--secondary': '#c9182a',
+                    '--dark': '#2a0e11',
+                    '--darker': '#1f0a0d',
+                    '--light': '#f8f9fa',
+                    '--danger': '#e63946',
+                    '--success': '#2a9d8f',
+                    '--warning': '#f4a261',
+                    '--info': '#4cc9f0',
+                    '--border-radius': '8px',
+                    '--transition': 'all 0.2s ease'
+                }
+            },
+            {
+                name: 'Green',
+                colors: {
+                    '--primary': '#2a9d8f',
+                    '--primary-dark': '#248d80',
+                    '--secondary': '#1e7d72',
+                    '--dark': '#0d2a26',
+                    '--darker': '#081f1b',
+                    '--light': '#f8f9fa',
+                    '--danger': '#e63946',
+                    '--success': '#2a9d8f',
+                    '--warning': '#f4a261',
+                    '--info': '#4cc9f0',
+                    '--border-radius': '8px',
+                    '--transition': 'all 0.2s ease'
+                }
+            },
+            {
+                name: 'Purple',
+                colors: {
+                    '--primary': '#7209b7',
+                    '--primary-dark': '#6508a5',
+                    '--secondary': '#5a0793',
+                    '--dark': '#1e0a33',
+                    '--darker': '#140625',
+                    '--light': '#f8f9fa',
+                    '--danger': '#e63946',
+                    '--success': '#2a9d8f',
+                    '--warning': '#f4a261',
+                    '--info': '#4cc9f0',
+                    '--border-radius': '8px',
+                    '--transition': 'all 0.2s ease'
+                }
+            },
+            {
+                name: 'Orange',
+                colors: {
+                    '--primary': '#f4a261',
+                    '--primary-dark': '#e69557',
+                    '--secondary': '#d8884d',
+                    '--dark': '#332011',
+                    '--darker': '#26170b',
+                    '--light': '#f8f9fa',
+                    '--danger': '#e63946',
+                    '--success': '#2a9d8f',
+                    '--warning': '#f4a261',
+                    '--info': '#4cc9f0',
+                    '--border-radius': '8px',
+                    '--transition': 'all 0.2s ease'
+                }
+            }
+        ],
         search : "",
         searchTimeout: null
       }
@@ -243,7 +343,99 @@ const App = Vue.createApp({
             if (!this.state.duty) return;
             fetch(`https://${GetParentResourceName()}/marker`);
         },
-
+        updateColor(varName, value) {
+            document.documentElement.style.setProperty(varName, value);
+            this.colorVars[varName] = value;
+        },
+        applyPreset(colors) {
+            const elementsWithStyles = [
+              { element: document.querySelector('.app-header'), style: 'all' },
+            ];
+            
+            const glowColor = colors['--primary'] || '#646cff';
+            document.documentElement.style.setProperty('--glow-color', glowColor);
+            
+            elementsWithStyles.forEach(item => {
+              if (item.element) {
+                item.element.dataset.originalBorder = item.element.style.border;
+                
+                if (item.style === 'right') {
+                  item.element.style.borderRight = `1px solid ${glowColor}`;
+                  item.element.classList.add('border-glow-right-transition');
+                } else {
+                  item.element.classList.add('border-glow-transition');
+                }
+              }
+            });
+            
+            setTimeout(() => {
+              Object.keys(colors).forEach(key => {
+                this.colorVars[key] = colors[key];
+                this.updateColor(key, colors[key]);
+              });
+              
+              setTimeout(() => {
+                elementsWithStyles.forEach(item => {
+                  if (item.element) {
+                    if (item.style === 'right') {
+                      item.element.classList.remove('border-glow-right-transition');
+                      item.element.style.borderRight = '';
+                    } else {
+                      item.element.classList.remove('border-glow-transition');
+                      item.element.style.border = '';
+                    }
+                  }
+                });
+              }, 2000);
+            }, 100);
+          },
+        loadColors() {
+            const savedColors = localStorage.getItem('themeColors');
+            if (savedColors) {
+                try {
+                    const parsedColors = JSON.parse(savedColors);
+                    this.applyPreset(parsedColors);
+                } catch (e) {
+                    console.error('Error parsing saved colors:', e);
+                    this.applyPreset(this.presets[0].colors);
+                }
+            } else {
+                this.applyPreset(this.presets[0].colors);
+            }
+        },
+        dragElement(elmnt) {
+            var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            if (document.getElementById(elmnt.id + "-header")) {
+              document.getElementById(elmnt.id + "-header").onmousedown = dragMouseDown;
+            } else {
+              elmnt.onmousedown = dragMouseDown;
+            }
+          
+            function dragMouseDown(e) {
+              e = e || window.event;
+              e.preventDefault();
+              pos3 = e.clientX;
+              pos4 = e.clientY;
+              document.onmouseup = closeDragElement;
+              document.onmousemove = elementDrag;
+            }
+          
+            function elementDrag(e) {
+              e = e || window.event;
+              e.preventDefault();
+              pos1 = pos3 - e.clientX;
+              pos2 = pos4 - e.clientY;
+              pos3 = e.clientX;
+              pos4 = e.clientY;
+              elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+              elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            }
+          
+            function closeDragElement() {
+              document.onmouseup = null;
+              document.onmousemove = null;
+            }
+          },
     }, 
     
     async mounted() {
@@ -251,6 +443,7 @@ const App = Vue.createApp({
         var response = await fetch(`https://${GetParentResourceName()}/locales`);
         var locales = await response.json();
         this.locales = locales;
+        this.dragElement(document.getElementById("app"));
     }
 }).mount('#app');
 
@@ -260,37 +453,3 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-var elmnt = document.getElementById("app");
-var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-if (document.getElementById("appheader")) {
-    document.getElementById("appheader").onmousedown = dragMouseDown;
-} else {
-    elmnt.onmousedown = dragMouseDown;
-}
-
-
-function dragMouseDown(e) {
-    if (e.target.id !== "appheader") return;
-    
-    e.preventDefault();
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    document.onmouseup = closeDragElement;
-    document.onmousemove = elementDrag;
-}
-
-function elementDrag(e) {
-    e = e || window.event;
-    e.preventDefault();
-    pos1 = pos3 - e.clientX;
-    pos2 = pos4 - e.clientY;
-    pos3 = e.clientX;
-    pos4 = e.clientY;
-    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-}
-
-function closeDragElement() {
-    document.onmouseup = null;
-    document.onmousemove = null;
-}
