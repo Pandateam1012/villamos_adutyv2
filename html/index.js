@@ -17,7 +17,7 @@ const App = Vue.createApp({
             '--transition': 'all 0.2s ease'
         },
         players : [
-            {id:1, name:"6osvillamos", group:"admin", job:"Rendőr - Kadét", bank:1500, Penz:999999},
+            {id:1, name:"6osvillamos", group:"admin", job:"Rendőr - Kadét", bank:1500, Penz:999999, duty:false},
         ],
         state : {
             group:"user",
@@ -177,6 +177,11 @@ const App = Vue.createApp({
         }
     },
     methods: {
+        truncate(text, maxLength = 14) {
+            if (!text) return '';
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        },
         onMessage(event) {
             if (event.data.type == "show") {
                 const appelement = document.getElementById("app");
@@ -259,6 +264,7 @@ const App = Vue.createApp({
                     enable : this.state.duty
                 })
             });
+            this.update()
         },
         tag() {
             if (!this.state.duty) return;
@@ -270,6 +276,7 @@ const App = Vue.createApp({
                     enable : this.state.tag
                 })
             });
+            this.update()
         },
         ids() {
             if (!this.state.duty) return;
@@ -280,6 +287,7 @@ const App = Vue.createApp({
                     enable : this.state.ids
                 })
             });
+            this.update()
         },
         god() {
             if (!this.state.duty) return;
@@ -290,6 +298,7 @@ const App = Vue.createApp({
                     enable : this.state.god
                 })
             });
+            this.update()
         },
         speed() {
             if (!this.state.duty) return;
@@ -300,6 +309,7 @@ const App = Vue.createApp({
                     enable : this.state.speed
                 })
             });
+            this.update()
         },
         invisible() {
             if (!this.state.duty) return;
@@ -310,6 +320,7 @@ const App = Vue.createApp({
                     enable : this.state.invisible
                 })
             });
+            this.update()
         },
         adminzone() {
             if (!this.state.duty) return;
@@ -320,6 +331,7 @@ const App = Vue.createApp({
                     enable : this.state.adminzone
                 })
             });
+            this.update()
         },
         noragdoll() {
             if (!this.state.duty) return;
@@ -330,22 +342,27 @@ const App = Vue.createApp({
                     enable : this.state.noragdoll
                 })
             });
+            this.update()
         },
         coords() {
             if (!this.state.duty) return;
             fetch(`https://${GetParentResourceName()}/coords`);
+            this.update()
         },
         heal() {
             if (!this.state.duty) return;
             fetch(`https://${GetParentResourceName()}/heal`);
+            this.update()
         },
         marker() {
             if (!this.state.duty) return;
             fetch(`https://${GetParentResourceName()}/marker`);
+            this.update()
         },
         updateColor(varName, value) {
             document.documentElement.style.setProperty(varName, value);
             this.colorVars[varName] = value;
+            this.update()
         },
         applyPreset(colors) {
             const elementsWithStyles = [
@@ -388,6 +405,7 @@ const App = Vue.createApp({
                 });
               }, 2000);
             }, 100);
+            this.update()
           },
         loadColors() {
             const savedColors = localStorage.getItem('themeColors');
@@ -402,6 +420,7 @@ const App = Vue.createApp({
             } else {
                 this.applyPreset(this.presets[0].colors);
             }
+            this.update()
         },
         dragElement(elmnt) {
             var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -435,6 +454,7 @@ const App = Vue.createApp({
               document.onmouseup = null;
               document.onmousemove = null;
             }
+            this.update()
           },
     }, 
     

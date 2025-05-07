@@ -138,10 +138,13 @@
                     </div>
                     
                     <div class="player-row" v-for="player in filteredList" :key="player.id">
-                        <div class="player-cell" @click="copytoclipboard(player.id)">{{player.id}}</div>
-                        <div class="player-cell" @click="copytoclipboard(player.name)">{{player.name}}</div>
+                        <div class="player-cell" @click="copytoclipboard(player.id)">
+                            <span v-if="player.duty" class="duty-badge">DUTY</span>
+                            {{player.id}}
+                        </div>
+                        <div class="player-cell" @click="copytoclipboard(player.name)">{{truncate(player.name)}}</div>
                         <div class="player-cell mobile-hidden" @click="copytoclipboard(player.group)">{{player.group}}</div>
-                        <div class="player-cell mobile-hidden" @click="copytoclipboard(player.job)">{{player.job}}</div>
+                        <div class="player-cell mobile-hidden" @click="copytoclipboard(player.job)">{{truncate(player.job)}}</div>
                         <div class="player-cell mobile-hidden" @click="copytoclipboard(player.bank)">{{player.bank}}</div>
                         <div class="player-cell mobile-hidden" @click="copytoclipboard(player.Penz)">{{player.Penz}}</div>
                         <div class="action-cell">
@@ -162,7 +165,7 @@
         </div>
     </div>
     
-    <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js"></script>
     <script src="index.js"></script>
 </body>
 </html>
