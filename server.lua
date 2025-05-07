@@ -1,8 +1,24 @@
 local inDuty = {} 
 local tags = {}
 local dutyTimes = json.decode(LoadResourceFile(GetCurrentResourceName(), "data.json")) or {}
-local useOkokChat = GetResourceState('okokChat') == 'started'
+local useOkokChat = GetResourceState('okokChat') == 'started' or GetResourceState('okokChatV2') == 'started'
 local isAdminLoggingEnabled = Config.ChatLogs
+
+function NormalizePlayerName(playerName)
+    if not playerName then return "Unknown" end
+    
+    local normalizedName = string.gsub(playerName, "[^%w%s_-]", "")
+    
+    if normalizedName == "" then
+        normalizedName = "Player"
+    end
+    
+    if string.len(normalizedName) > 14 then
+        normalizedName = string.sub(normalizedName, 1, 20) .. "..."
+    end
+    
+    return normalizedName
+end
 
 RegisterServerEvent('esx:setGroup')
 AddEventHandler('esx:setGroup', function(source, group)
@@ -12,8 +28,9 @@ AddEventHandler('esx:setGroup', function(source, group)
         if tags[source] then
             local adminConfig = Config.Admins[group]
             if adminConfig then
+                local normalizedName = NormalizePlayerName(GetPlayerName(source))
                 tags[source] = {
-                    label = adminConfig.tag .. "~w~ | " .. GetPlayerName(source),
+                    label = adminConfig.tag .. "~w~ | " .. normalizedName,
                     color = adminConfig.color,
                     logo = adminConfig.logo
                 }
@@ -26,7 +43,30 @@ AddEventHandler('esx:setGroup', function(source, group)
         TriggerClientEvent("villamos_aduty:setDuty", source, true, group)
     end
 end)
-
+if Config.Tips then
+    local tips = {
+        "Használd a /adlog parancsot az admin log kikapcsolásához!",
+        "Jelentések megtekintése: /reports",
+        "Használd a /admenu parancsot az admin menü megnyitásához!",
+    }
+    
+    local function BroadcastTip()
+        local tip = tips[math.random(#tips)]
+        for _, playerId in ipairs(GetAdmins()) do
+            TriggerClientEvent("chat:addMessage", playerId, { 
+                template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(214, 74, 74, 0.6); border-radius: 8px; border: 0.0px solid #e63946"><i class="fas fa-wrench"></i> <span style="color:#f04d9f">[Tip] </span>{0}</span></div>',
+                args = { tip },
+            })
+        end
+    end
+    
+    Citizen.CreateThread(function()
+        while true do
+            Wait(15 * 60 * 1000)
+            BroadcastTip()
+        end
+    end)
+end
 
 function GetAdmins()
     local admins = {}
@@ -39,7 +79,6 @@ function GetAdmins()
     return admins
 end
 
-
 local function sendAdminLog(admin, title, message, target)
     local xPlayer = ESX.GetPlayerFromId(admin) 
     if not xPlayer or not inDuty[xPlayer.source] then 
@@ -48,7 +87,8 @@ local function sendAdminLog(admin, title, message, target)
     end
     
     if not isAdminLoggingEnabled then return end
-    local playername = " "..GetPlayerName(admin).. " ["..admin.."]" or " Ismeretlen Admin" 
+    local normalizedName = NormalizePlayerName(GetPlayerName(admin))
+    local playername = " "..normalizedName.. " ["..admin.."]" or " Ismeretlen Admin" 
     local admins = GetAdmins() 
 
     for _, adminId in ipairs(admins) do
@@ -135,9 +175,9 @@ function getSuffix(exponent)
     return exponent <= #suffixes and suffixes[exponent] or "e"..(exponent*3)
 end
 
-ESX.RegisterServerCallback("villamos_aduty:openPanel", function(source, cb)
+lib.callback.register("villamos_aduty:openPanel", function(source)
     local xAdmin = ESX.GetPlayerFromId(source)
-    if not xAdmin or not IsAdmin(xAdmin.getGroup()) then return cb(false) end
+    if not xAdmin or not IsAdmin(xAdmin.getGroup()) then return false end
     
     local players = {}
     local play = ESX.GetPlayers()
@@ -147,19 +187,21 @@ ESX.RegisterServerCallback("villamos_aduty:openPanel", function(source, cb)
         if xPlayer then
             local cash = tonumber(ESX.Math.Round(xPlayer.getMoney() or 0))
             local bank = tonumber(ESX.Math.Round(xPlayer.getAccount("bank").money or 0))
+            local normalizedName = NormalizePlayerName(GetPlayerName(xPlayer.source))
             
             players[#players+1] = {
                 id = xPlayer.source,
-                name = GetPlayerName(xPlayer.source) or "Unknown",
+                name = normalizedName or "Unknown",
                 group = xPlayer.getGroup() or "user",
                 job = (xPlayer.getJob().label or "Unknown") .. " - " .. (xPlayer.getJob().grade_label or "0"),
                 Penz = formatMoney(cash).. " $",
-                bank = formatMoney(bank).. " $"
+                bank = formatMoney(bank).. " $",
+                duty = inDuty[xPlayer.source]
             }
         end
     end
 
-    cb(true, xAdmin.getGroup(), players)
+    return true, xAdmin.getGroup(), players
 end)
 
 RegisterNetEvent('villamos_aduty:setTag')
@@ -175,8 +217,9 @@ AddEventHandler('villamos_aduty:setTag', function(enable)
     end
 
     if enable then
+        local normalizedName = NormalizePlayerName(GetPlayerName(source))
         tags[source] = {
-            label = Config.Admins[group].tag .. "~w~ | " .. GetPlayerName(source),
+            label = Config.Admins[group].tag .. "~w~ | " .. normalizedName,
             color = Config.Admins[group].color,
             logo = Config.Admins[group].logo
         }
@@ -233,31 +276,33 @@ RegisterNetEvent('villamos_aduty:setDutya', function(enable)
         end 
         local dutyMinutes = math.floor((os.time() - inDuty[xPlayer.source].start) / 60)
         inDuty[xPlayer.source] = nil
-        TriggerEvent("villamos_aduty:sendlog", Config.Admins[group].tag .." ".._U("went_offduty", GetPlayerName(xPlayer.source)))
-        Config.Notify(-1, Config.Admins[group].tag .." ".._U("went_offduty", GetPlayerName(xPlayer.source)))
+        local normalizedName = NormalizePlayerName(GetPlayerName(xPlayer.source))
+        TriggerEvent("villamos_aduty:sendlog", Config.Admins[group].tag .." ".._U("went_offduty", normalizedName))
+        Config.Notify(-1, Config.Admins[group].tag .." ".._U("went_offduty", normalizedName))
 
         dutyTimes[xPlayer.identifier] = (dutyTimes[xPlayer.identifier] or 0) + dutyMinutes
         SaveResourceFile(GetCurrentResourceName(), "data.json", json.encode(dutyTimes), -1)
-        LogToDiscord(GetPlayerName(xPlayer.source), false, FormatMinutes(dutyTimes[xPlayer.identifier] or 0), FormatMinutes(dutyMinutes))
+        LogToDiscord(normalizedName, false, FormatMinutes(dutyTimes[xPlayer.identifier] or 0), FormatMinutes(dutyMinutes))
     else 
         local group = Config.DiscordTags and GetDiscordRole(xPlayer.source) or xPlayer.getGroup()
 
         if not group or not Config.Admins[group] then return Config.Notify(xPlayer.source, _U("cant_duty")) end 
 
+        local normalizedName = NormalizePlayerName(GetPlayerName(xPlayer.source))
         inDuty[xPlayer.source] = {
             ped = Config.Admins[group].ped,
-            tag = { label = Config.Admins[group].tag .. "~w~ | " .. GetPlayerName(xPlayer.source), color = Config.Admins[group].color, logo = Config.Admins[group].logo },
+            tag = { label = Config.Admins[group].tag .. "~w~ | " .. normalizedName, color = Config.Admins[group].color, logo = Config.Admins[group].logo },
             group = group,
             start = os.time()
         }
         TriggerClientEvent("villamos_aduty:setDuty", xPlayer.source, true, group)
-        Config.Notify(-1, Config.Admins[group].tag .." ".._U("went_onduty", GetPlayerName(xPlayer.source)))
-        TriggerEvent("villamos_aduty:sendlog", Config.Admins[group].tag .." ".._U("went_onduty", GetPlayerName(xPlayer.source)))
+        Config.Notify(-1, Config.Admins[group].tag .." ".._U("went_onduty", normalizedName))
+        TriggerEvent("villamos_aduty:sendlog", Config.Admins[group].tag .." ".._U("went_onduty", normalizedName))
 
 
         tags[xPlayer.source] = inDuty[xPlayer.source].tag
         TriggerClientEvent("villamos_aduty:sendData", -1, tags)
-        LogToDiscord(GetPlayerName(xPlayer.source), true, FormatMinutes((dutyTimes[xPlayer.identifier] or 0))) 
+        LogToDiscord(normalizedName, true, FormatMinutes((dutyTimes[xPlayer.identifier] or 0))) 
     end 
 end)
 
@@ -270,11 +315,12 @@ AddEventHandler('playerDropped', function(reason)
     end 
     local dutyMinutes = math.floor((os.time() - inDuty[xPlayer.source].start) / 60)
     inDuty[xPlayer.source] = nil
-    Config.Notify(-1, _U("went_offduty", GetPlayerName(xPlayer.source)))
+    local normalizedName = NormalizePlayerName(GetPlayerName(xPlayer.source))
+    Config.Notify(-1, _U("went_offduty", normalizedName))
 
     dutyTimes[xPlayer.identifier] = (dutyTimes[xPlayer.identifier] or 0) + dutyMinutes
     SaveResourceFile(GetCurrentResourceName(), "data.json", json.encode(dutyTimes), -1)
-    LogToDiscord(GetPlayerName(xPlayer.source), false, FormatMinutes(dutyTimes[xPlayer.identifier] or 0), FormatMinutes(dutyMinutes))
+    LogToDiscord(normalizedName, false, FormatMinutes(dutyTimes[xPlayer.identifier] or 0), FormatMinutes(dutyMinutes))
 end)
 
 lib.callback.register("villamos_adutyv2:gettime", function(source)
@@ -387,8 +433,8 @@ exports('GetDutys', function()
     return inDuty
 end)
 
-exports('sendAdminLog', function(admin, title, message, target)
-    return sendAdminLog(admin, title, message, target) 
+exports('sendAdminLog', function(source, title, message)
+    return sendAdminLog(source, title, message) 
 end)
 
 exports('IsInDuty', function(src) 
@@ -399,10 +445,10 @@ RegisterCommand('adlog', function(source)
     local xPlayer = ESX.GetPlayerFromId(source)
     if xPlayer then 
         local group = Config.DiscordTags and GetDiscordRole(xPlayer.source) or xPlayer.getGroup()
-
         if not group or not Config.Admins[group] then return Config.Notify(xPlayer.source, _U("cant_duty")) end 
     
         isAdminLoggingEnabled = not isAdminLoggingEnabled
+        Notify(xPlayer.source, isAdminLoggingEnabled and "Admin log bekapcsolva" or "Admin log kikapcsolva")
     end
 end, false)
 
@@ -424,27 +470,39 @@ AddEventHandler('villamos_aduty:sendcoord', function(targetServerId)
     end
 end)
 
-RegisterNetEvent("villamos_aduty:kick")
-AddEventHandler("villamos_aduty:kick", function(targetServerId)
+lib.callback.register("villamos_aduty:kickPlayer", function(source, targetId)
     local xPlayer = ESX.GetPlayerFromId(source)
-    if not xPlayer or not inDuty[xPlayer.source] then return Config.Notify(xPlayer.source, _U("no_perm")) end
-    DropPlayer(targetServerId, "Egy Adminisztrátor ki kickelt!")
+    if not IsAdmin(xPlayer.getGroup()) then return false end
+    DropPlayer(targetId, _U("kicked_message"))
+    return true
 end)
 
-RegisterNetEvent("villamos_aduty:goto")
-AddEventHandler("villamos_aduty:goto", function(targetServerId)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    local xTarget = ESX.GetPlayerFromId(targetServerId)
-    if not xPlayer or not xTarget or not inDuty[xPlayer.source] then return Config.Notify(xPlayer.source, _U("no_perm")) end
-    local coords = xTarget.getCoords(true)
-    xPlayer.setCoords(coords)
+lib.callback.register("villamos_aduty:gotoPlayer", function(source, targetId)
+    local xTarget = ESX.GetPlayerFromId(targetId)
+    local xAdmin = ESX.GetPlayerFromId(source)
+
+    if not xAdmin or not xTarget then return false end
+    if not inDuty[xAdmin.source] then return false end
+    if xTarget then 
+        xAdmin.setCoords(xTarget.getCoords(true))
+        return true 
+    end
+    return false
 end)
 
-RegisterNetEvent("villamos_aduty:bring")
-AddEventHandler("villamos_aduty:bring", function(targetServerId)
-    local xPlayer = ESX.GetPlayerFromId(source)
-    local xTarget = ESX.GetPlayerFromId(targetServerId)
-    if not xPlayer or not xTarget or not inDuty[xPlayer.source] then return Config.Notify(xPlayer.source, _U("no_perm")) end
-    local coords = xPlayer.getCoords(true)
-    xTarget.setCoords(coords)
+lib.callback.register("villamos_aduty:getPlayerCoords", function(source, targetId)
+    local xTarget = ESX.GetPlayerFromId(targetId)
+    return xTarget and true, xTarget.getCoords(true)
+end)
+
+lib.callback.register("villamos_aduty:bring", function(source, targetId)
+    local xAdmin = ESX.GetPlayerFromId(source)
+    local xTarget = ESX.GetPlayerFromId(targetId)
+    
+    if not xAdmin or not xTarget then return false end
+    if not inDuty[xAdmin.source] then return false end
+    
+    local adminCoords = xAdmin.getCoords(true)
+    xTarget.setCoords(adminCoords)
+    return true
 end)

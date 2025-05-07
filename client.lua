@@ -1,10 +1,8 @@
 ---@diagnostic disable: missing-parameter
 local admins,nearadmins,playerJobs, gamertags = {}, {}, {}, {}
 local duty, group, tag ,ids, god, speed, invisible, adminzone, noragdoll, idsThread, Spectating, isInUi, adminthread, time = false, "user", false, false, false, false, false, false, false, nil, false, false, false, "0h 00m"
-local AdminZoneRadius, AdminZoneBlip, AdminZoneMarker, AdminZones, Adminthread, currentZoneColor
+local AdminZones, Adminthread, currentZoneColor
 local playerBlips = false
-local position21 = vec3(-75.2335, -819.5386, 326.1751)
-local currentBlips = {}
 lastposition = nil
 -- LOG EVENT
 
@@ -13,7 +11,7 @@ local function sendlog(uzi)
 end
 
 RegisterCommand('admenu', function(s, a, r)
-    ESX.TriggerServerCallback("villamos_aduty:openPanel", function(allow, _group, players) 
+    lib.callback("villamos_aduty:openPanel", false, function(allow, _group, players)
         if not allow then return Config.Notify(_U("no_perm")) end 
             
         SendNUIMessage({
@@ -37,125 +35,135 @@ function SetNuiState(state)
 	})
 end
 
-RegisterNUICallback('exit', function(data, cb)
-    SetNuiState(false)
-    cb('ok')
-end)
-
-RegisterNUICallback('backclothing', function(data, cb)
-    ESX.TriggerServerCallback('esx_skin:getPlayerSkin', function(skin)
-        if not skin then return end 
-        TriggerEvent('skinchanger:loadSkin', skin)
-    end) 
-    cb('ok')
-end)
-
--- SPECTATE
--- Többi
-RegisterNuiCallback("kick", function(data, cb)
-    local id = data.id
-    if id then
-        TriggerServerEvent("villamos_aduty:kick", id)
-    end
-end)
-RegisterNuiCallback("goto", function(data)
-    local id = data.id
-    if id then
-        TriggerServerEvent("villamos_aduty:goto", id)
-    end
-end)
-RegisterNuiCallback("bring", function(data)
-    local id = data.id
-    if id then
-        TriggerServerEvent("villamos_aduty:bring", id)
-    end
-end)
--- Többi
-
 local coords = nil
 RegisterNetEvent("villamos_aduty:getcoords")
 AddEventHandler("villamos_aduty:getcoords", function(coord)
     coords = coord
 end)
 
-local Spectating = false
-local lastposition = nil
-
 function SpectatePlayer(targetServerId)
     local playerServerId = GetPlayerServerId(PlayerId())
-    if not duty then return Config.Notify(_U("no_perm")) end
-    if tonumber(playerServerId) == tonumber(targetServerId) then return Config.Notify(_U("cant_spectate_self")) end
+    
+    if not duty then 
+        Config.Notify(_U("no_perm"))
+        return 
+    end
+    
+     if tonumber(playerServerId) == tonumber(targetServerId) then 
+         Config.Notify(_U("cant_spectate_self"))
+         return 
+     end
 
     Spectating = not Spectating
+    
     if Spectating then
-        TriggerServerEvent("villamos_aduty:sendcoord", targetServerId)
-        while coords == nil do
-            Wait(100)
-        end
+        local success, coords = lib.callback.await("villamos_aduty:getPlayerCoords", false, targetServerId)
+        if not success then return Config.Notify(_U("spectate_failed")) end
         local playerPed = PlayerPedId()
         lastposition = GetEntityCoords(playerPed)
-        --SetEntityVisible(playerPed, false, false)
-        FreezeEntityPosition(playerPed, true)
-        SetEntityCoords(playerPed, coords.x + math.random(-20, 20), coords.y + math.random(-20, 20), coords.z)
-        Wait(500)
-        coords = nil
-        local targetPlayer = GetPlayerFromServerId(targetServerId)
-        local targetPed = GetPlayerPed(targetPlayer)
-        NetworkSetInSpectatorMode(true, targetPed)
-        SetEntityCoords(playerPed, position21)
+        
+        if lib.progressBar({
+            duration = 500,
+            label = 'Betöltés...',
+            useWhileDead = false,
+            canCancel = true,
+            disable = {
+                car = true,
+                move = true,
+                combat = true
+            },
+        }) then
+            TriggerServerEvent("villamos_aduty:sendcoord", targetServerId)
+            
+            if not lib.waitFor(function()
+                return coords ~= nil
+            end, 5000) then
+                Config.Notify('Nem sikerült lekérni a koordinátákat')
+                Spectating = false
+                return
+            end
+            
+            FreezeEntityPosition(playerPed, true)
+            SetEntityCoords(playerPed, coords.x + math.random(-20, 20), coords.y + math.random(-40, -20), coords.z + math.random(-40, -20))
+            Wait(100)
+            
+            local targetPlayer = GetPlayerFromServerId(targetServerId)
+            local targetPed = GetPlayerPed(targetPlayer)
+            NetworkSetInSpectatorMode(true, targetPed)
+            
+            coords = nil
+        else
+            Spectating = false
+            return
+        end
     end
-    while Spectating do
-        Citizen.Wait(0)
-        local playerId = GetPlayerFromServerId(targetServerId)
-        local playerPed = GetPlayerPed(playerId)
-        local health = (GetEntityHealth(playerPed)- 100) / 100 * 100
-        local armour = GetPedArmour(playerPed)
-        local text = "~g~HP: "..health.."% |\n ~b~Pajzs: "..armour.."% |"
-        DrawText2D(text)
-    end
-end
-function DrawText2D(text)
-    SetTextFont(4)
-    SetTextProportional(0)
-    SetTextScale(0.45, 0.45)
-    SetTextColour(255, 255, 255, 215)
-    SetTextDropShadow(0, 0, 0, 0, 255)
-    SetTextEdge(1, 0, 0, 0, 255)
-    SetTextDropShadow()
-    SetTextOutline()
-    SetTextCentre(1)
-    SetTextEntry("STRING")
-    AddTextComponentString(text)
-    DrawText(0.5, 0.9) 
+    
+    CreateThread(function()
+        while Spectating do
+            Wait(0)
+            local playerId = GetPlayerFromServerId(targetServerId)
+            local playerPed = GetPlayerPed(playerId)
+            
+            if DoesEntityExist(playerPed) then
+                local health = (GetEntityHealth(playerPed) - 100) / 100 * 100
+                local armour = GetPedArmour(playerPed)
+                
+                lib.showTextUI(string.format('HP: %d%% | Pajzs: %d%%', health, armour), {
+                    position = 'top-center',
+                    icon = 'eye',
+                    style = {
+                        borderRadius = 4,
+                        backgroundColor = '#141517',
+                        color = 'white'
+                    }
+                })
+            else
+                Unspectate()
+                Config.Notify('A megfigyelt játékos nem elérhető')
+            end
+            
+            Wait(200) 
+        end
+        lib.hideTextUI()
+    end)
 end
 
 function Unspectate()
     if not Spectating then return end
     if not lastposition then return end
+    
     local playerPed = PlayerPedId()
     NetworkSetInSpectatorMode(false, playerPed)
     SetEntityVisible(playerPed, true, false)
     FreezeEntityPosition(playerPed, false)
     SetEntityCoords(playerPed, lastposition)
     
+    lib.hideTextUI()
+    Config.Notify('Megfigyelés vége')
+    
     Spectating = false
     lastposition = nil
 end
 
-RegisterCommand("unspectate", function ()
+RegisterCommand("unspectate", function()
     Unspectate()
 end)
+
 RegisterKeyMapping('unspectate', 'Unspectate', 'keyboard', 'e')
 
-RegisterNUICallback('spectate', function(id)
-    if not duty then return Config.Notify(_U("no_perm")) end 
-    local un = id.id
-    SpectatePlayer(un)
+RegisterNUICallback('spectate', function(data)
+    if not duty then 
+        Config.Notify(_U("no_perm"))
+        return 
+    end
+    
+    SpectatePlayer(data.id)
 end)
 
 RegisterNUICallback('update', function(data, cb)
-    ESX.TriggerServerCallback("villamos_aduty:openPanel", function(allow, _group, players) 
+    lib.callback("villamos_aduty:openPanel", false, function(allow, _group, players)
         if not allow then return SetNuiState(false) end 
+            
         SendNUIMessage({
             type = "setplayers",
             players = players
@@ -163,6 +171,39 @@ RegisterNUICallback('update', function(data, cb)
         group = _group 
     end)
     cb('ok')
+end)
+
+RegisterNUICallback('exit', function(data, cb)
+    SetNuiState(false)
+    cb('ok')
+end)
+
+RegisterNUICallback('kick', function(data, cb)
+    lib.callback("villamos_aduty:kickPlayer", false, function(success)
+        if success then cb('ok') end
+    end, data.id)
+end)
+
+RegisterNUICallback('goto', function(data, cb)
+    lib.callback("villamos_aduty:gotoPlayer", false, function(success)
+        if success then
+            Config.Notify(_U("player_brought"))
+        else
+            Config.Notify(_U("no_perm"))
+        end
+        cb('ok')
+    end, data.id)
+end)
+
+RegisterNUICallback('bring', function(data, cb)
+    lib.callback("villamos_aduty:bring", false, function(success)
+        if success then
+            Config.Notify(_U("player_brought"))
+        else
+            Config.Notify(_U("no_perm"))
+        end
+        cb('ok')
+    end, data.id)
 end)
 
 RegisterNUICallback('locales', function(data, cb)
@@ -223,7 +264,6 @@ RegisterNUICallback('noragdoll', function(data, cb)
     sendlog(_U("no_ragdolllog", data.enable and _U("enabledlog") or _U("disabledlog")))
     cb('ok')
 end)
-
 
 RegisterNUICallback('coords', function(data, cb)
     ActionCoords()
@@ -621,51 +661,198 @@ function ActionMarker()
     Config.Notify(_U("teleported"))
 end 
 
+local text_scale = 0.35
+local text_font = 6
+local color_white = {255, 255, 255, 255}
+local _color = {r = 255, g = 255, b = 255, a = 255}
+local colorCache = {}
+
+local function GetColor(color)
+    if colorCache[color] then
+        return colorCache[color]
+    end
+    
+    _color.r, _color.g, _color.b = 255, 255, 255
+    
+    if type(color) == "string" and color:sub(1, 1) == "#" then
+        local hex = color:sub(2)
+        if #hex == 6 then
+            _color.r = tonumber(hex:sub(1, 2), 16) or 255
+            _color.g = tonumber(hex:sub(3, 4), 16) or 255
+            _color.b = tonumber(hex:sub(5, 6), 16) or 255
+            
+            if _color.r > 255 then _color.r = 255 elseif _color.r < 0 then _color.r = 0 end
+            if _color.g > 255 then _color.g = 255 elseif _color.g < 0 then _color.g = 0 end
+            if _color.b > 255 then _color.b = 255 elseif _color.b < 0 then _color.b = 0 end
+            
+            colorCache[color] = {r = _color.r, g = _color.g, b = _color.b}
+        end
+    elseif type(color) == "table" then
+        if color.r and color.g and color.b then
+            _color.r, _color.g, _color.b = color.r, color.g, color.b
+            
+            if _color.r > 255 then _color.r = 255 elseif _color.r < 0 then _color.r = 0 end
+            if _color.g > 255 then _color.g = 255 elseif _color.g < 0 then _color.g = 0 end
+            if _color.b > 255 then _color.b = 255 elseif _color.b < 0 then _color.b = 0 end
+        elseif #color >= 3 then
+            _color.r, _color.g, _color.b = color[1], color[2], color[3]
+            
+            if _color.r > 255 then _color.r = 255 elseif _color.r < 0 then _color.r = 0 end
+            if _color.g > 255 then _color.g = 255 elseif _color.g < 0 then _color.g = 0 end
+            if _color.b > 255 then _color.b = 255 elseif _color.b < 0 then _color.b = 0 end
+        end
+    end
+    
+    return _color
+end
+
+local function DrawText3D(coords, text, color)
+    local col = GetColor(color)
+    
+    SetDrawOrigin(coords.x, coords.y, coords.z)
+    SetTextScale(text_scale, text_scale)
+    SetTextFont(text_font)
+    SetTextColour(col.r, col.g, col.b, 255)
+    SetTextCentre(1)
+    SetTextOutline()
+    BeginTextCommandDisplayText("STRING")
+    AddTextComponentString(text)
+    EndTextCommandDisplayText(0, 0)
+    ClearDrawOrigin()
+end
+
+local adminData = {}
+local activeAdmins = {}
+local adminCount = 0
+
 CreateThread(function()
+    local config_height = Config.Admintext.height
+    local config_logo_height = Config.Admintext.height + 0.4
+    local config_bobupandown = Config.Admintext.bobupandown
+    local config_facecamera = Config.Admintext.facecamera
+    local config_spin = Config.Admintext.spin
+    
     local txd = CreateRuntimeTxd("duty")
     if not HasStreamedTextureDictLoaded("duty") then
         return print("^1SCRIPT ERROR: Can't create texture dict 'duty'")
-    end 
+    end
+    
     for i=1, #Config.Icons do
-		CreateRuntimeTextureFromImage(txd, Config.Icons[i], "icons/"..Config.Icons[i]..".png")
-	end
+        CreateRuntimeTextureFromImage(txd, Config.Icons[i], "icons/"..Config.Icons[i]..".png")
+    end
+    
     for k, v in pairs(Config.Admins) do 
         if v.logo and not GetTextureResolution("duty", v.logo) then 
-            return print("^1SCRIPT ERROR: A texture ("..v.logo..") is missing for group: "..k)
+            print("^1SCRIPT ERROR: A texture ("..v.logo..") is missing for group: "..k)
         end 
-    end 
+    end
+    
+    local heightOffset = vector3(0.0, 0.0, config_height)
+    local iconOffset = vector3(0.0, 0.0, config_logo_height)
+    
+    local renderActive = false
+    
     while true do 
-        local coords = GetEntityCoords(PlayerPedId())
-        nearadmins = {}
+        local playerPed = PlayerPedId()
+        local coords = GetEntityCoords(playerPed)
+        
+        for i=1, adminCount do
+            activeAdmins[i] = nil
+        end
+        adminCount = 0
+        
         for id, data in pairs(admins) do
             local player = GetPlayerFromServerId(id)
             local ped = GetPlayerPed(player)
-            if player ~= -1 and ped ~= 0 and #(coords - GetEntityCoords(ped)) < 30 then 
-                nearadmins[id] = data
-                nearadmins[id].ped = ped
+            
+            if player ~= -1 and ped ~= 0 then
+                local pedCoords = GetEntityCoords(ped)
+                local distance = #(coords - pedCoords)
+                
+                if distance < 30 then
+                    if not adminData[id] then
+                        adminData[id] = {
+                            label = data.label,
+                            color = data.color,
+                            logo = data.logo,
+                            ped = ped,
+                            boneIndex = GetPedBoneIndex(ped, 31086)
+                        }
+                    else
+                        if adminData[id].ped ~= ped then
+                            adminData[id].ped = ped
+                            adminData[id].boneIndex = GetPedBoneIndex(ped, 31086)
+                        end
+                    end
+                    
+                    adminCount = adminCount + 1
+                    activeAdmins[adminCount] = adminData[id]
+                end
             end
         end
-
-        if next(nearadmins) and not adminthread then 
-            CreateThread(function()
-                adminthread = true 
-                while next(nearadmins) do 
-                    for _, data in pairs(nearadmins) do 
-                        local headcoords = GetWorldPositionOfEntityBone(data.ped, GetPedBoneIndex(data.ped, 31086))
-                        DrawText3D(headcoords+vector3(0.0, 0.0, Config.Admintext.height), data.label, data.color)
-                        if data.logo then 
-                            DrawMarker(9, headcoords+vector3(0.0, 0.0, Config.Admintext.height + 0.4), 0.0, 0.0, 0.0, 90.0, 90.0, 0.0, 1.0, 1.0, 1.0, 255, 255, 255, 255, Config.Admintext.bobupandown, Config.Admintext.facecamera, 2, Config.Admintext.spin, "duty", data.logo, false)
-                        end 
-                    end 
-                    Wait(3)
-                end 
-                adminthread = false 
-            end)
-        end 
         
+        if adminCount > 0 and not renderActive then
+            CreateThread(function()
+                renderActive = true
+                
+                local markerType = 9
+                local dirX, dirY, dirZ = 0.0, 0.0, 0.0
+                local rotX, rotY, rotZ = 90.0, 90.0, 0.0
+                local scaleX, scaleY, scaleZ = 1.0, 1.0, 1.0
+                local r, g, b, a = 255, 255, 255, 255
+                local bobUpAndDown = config_bobupandown
+                local faceCamera = config_facecamera
+                local p19 = 2
+                local rotate = config_spin
+                local textureDict = "duty"
+                local p22 = false
+                
+                while adminCount > 0 do
+                    for i=1, adminCount do
+                        local admin = activeAdmins[i]
+                        local headCoords = GetWorldPositionOfEntityBone(admin.ped, admin.boneIndex)
+                        
+                        if headCoords then
+                            local textPos = vector3(
+                                headCoords.x,
+                                headCoords.y,
+                                headCoords.z + config_height
+                            )
+                            DrawText3D(textPos, admin.label, admin.color)
+                            
+                            if admin.logo then
+                                local iconPos = vector3(
+                                    headCoords.x,
+                                    headCoords.y,
+                                    headCoords.z + config_logo_height
+                                )
+                                DrawMarker(
+                                    markerType,
+                                    iconPos.x, iconPos.y, iconPos.z,
+                                    dirX, dirY, dirZ,
+                                    rotX, rotY, rotZ,
+                                    scaleX, scaleY, scaleZ,
+                                    r, g, b, a,
+                                    bobUpAndDown, faceCamera,
+                                    p19, rotate, textureDict, admin.logo, p22
+                                )
+                            end
+                        end
+                    end
+                    Wait(0)
+                end
+                
+                renderActive = false
+            end)
+        end
         Wait(1000)
-    end 
+    end
 end)
+
+
+
+
+
 
 RegisterNetEvent('villamos_aduty:sendData', function(data)
     admins = data
@@ -689,86 +876,69 @@ local function HexToRGB(hex)
     }
 end
 
-local AdminZones = {} 
-local currentZoneColors = {}
+local AdminZones, currentZoneColors = {}, {}
 
 RegisterNetEvent("villamos_aduty:CreateAdminzone", function(state, coords, color, zoneId)
-    zoneId = zoneId or 1 
-    
+    zoneId = zoneId or 1
+
     if AdminZones[zoneId] then
-        if AdminZones[zoneId].radiusBlip then RemoveBlip(AdminZones[zoneId].radiusBlip) end
-        if AdminZones[zoneId].centerBlip then RemoveBlip(AdminZones[zoneId].centerBlip) end
-        if AdminZones[zoneId].marker then
-            if AdminZones[zoneId].marker.destroy then 
-                AdminZones[zoneId].marker:destroy() 
-            end
-        end
-        if AdminZones[zoneId].thread then
-            TerminateThread(AdminZones[zoneId].thread)
-        end
-        if AdminZones[zoneId].zone then
-            AdminZones[zoneId].zone:remove()
-        end
-        
+        local zone = AdminZones[zoneId]
+        if zone.radiusBlip then RemoveBlip(zone.radiusBlip) end
+        if zone.centerBlip then RemoveBlip(zone.centerBlip) end
+        if zone.marker and zone.marker.destroy then zone.marker:destroy() end
+        if zone.zone then zone.zone:remove() end
         AdminZones[zoneId] = nil
         currentZoneColors[zoneId] = nil
     end
 
     if state then
+        local rgb = HexToRGB(color)
         currentZoneColors[zoneId] = color
-        
+
         AdminZones[zoneId] = {
-            radiusBlip = AddBlipForRadius(coords, 50.0),
+            radiusBlip = AddBlipForRadius(coords, Config.AdminZone.radius),
             centerBlip = AddBlipForCoord(coords),
             marker = lib.marker.new({
                 type = 28,
                 coords = coords,
-                color = {
-                    r = HexToRGB(color).r,
-                    g = HexToRGB(color).g,
-                    b = HexToRGB(color).b,
-                    a = 150 
-                },
-                width = 50,
-                height = 50,
+                color = { r = rgb.r, g = rgb.g, b = rgb.b, a = 150 },
+                width = Config.AdminZone.radius,
+                height = Config.AdminZone.radius
             }),
             coords = coords
         }
-        
+
+        local blipColor = HexToBlipColor(color)
         SetBlipAlpha(AdminZones[zoneId].radiusBlip, 128)
-        SetBlipColour(AdminZones[zoneId].radiusBlip, HexToBlipColor(color))
-        
+        SetBlipColour(AdminZones[zoneId].radiusBlip, blipColor)
         SetBlipSprite(AdminZones[zoneId].centerBlip, Config.AdminZone.blipSprite)
-        SetBlipColour(AdminZones[zoneId].centerBlip, HexToBlipColor(color))
+        SetBlipColour(AdminZones[zoneId].centerBlip, blipColor)
         BeginTextCommandSetBlipName("STRING")
         AddTextComponentString(_U("AdminZone_title") .. " #" .. zoneId)
         EndTextCommandSetBlipName(AdminZones[zoneId].centerBlip)
 
         AdminZones[zoneId].zone = lib.points.new({
             coords = coords,
-            distance = 50,
+            distance = Config.AdminZone.radius,
             nearby = function()
-                local playerPed = PlayerPedId()
-                local vehicle = GetVehiclePedIsIn(playerPed, false)
-                SetPlayerCanDoDriveBy(PlayerId(), false)
-                DisableControlAction(0, 140, true)
-                DisableControlAction(0, 141, true)
-                DisableControlAction(0, 142, true)
-                DisableControlAction(0, 257, true)
-                DisableControlAction(0, 263, true)
-                DisableControlAction(0, 264, true)
-                DisableControlAction(0, 24, true) 
-                DisableControlAction(0, 25, true) 
-                if DoesEntityExist(vehicle) then
-                    for _, player in ipairs(GetActivePlayers()) do
-                        local targetPed = GetPlayerPed(player)
-                        if DoesEntityExist(targetPed) and targetPed ~= playerPed then
-                            SetEntityNoCollisionEntity(vehicle, targetPed, true)
-                        end
-                    end
+                DisablePlayerFiring(PlayerId(), true)
+                local controls = {106, 24, 69, 70, 92, 114,257, 331,68,257,263,264}
+                for _, control in ipairs(controls) do
+                    DisableControlAction(0, control, true)
                 end
             end,
             onEnter = function()
+                local playerPed = PlayerPedId()
+                local vehicle = GetVehiclePedIsIn(playerPed, false)
+                NetworkSetFriendlyFireOption(false)
+				SetEntityCanBeDamaged(vehicle, false)
+				SetEntityCanBeDamaged(playerPed, false)
+				ClearPlayerWantedLevel(PlayerId())
+				SetCurrentPedWeapon(playerPed,GetHashKey("WEAPON_UNARMED"),true)
+                SetEveryoneIgnorePlayer(playerPed, true)
+                SetPoliceIgnorePlayer(playerPed, true)
+                SetLocalPlayerAsGhost(true)
+                NetworkSetPlayerIsPassive(true)
                 lib.notify({
                     title = _U("AdminZone_title") .. " #" .. zoneId,
                     description = _U("inAdminzone"),
@@ -776,59 +946,46 @@ RegisterNetEvent("villamos_aduty:CreateAdminzone", function(state, coords, color
                 })
             end,
             onExit = function()
+                local playerPed = PlayerPedId()
+                local vehicle = GetVehiclePedIsIn(playerPed, false)
+                SetEveryoneIgnorePlayer(playerPed, false)
+                SetPoliceIgnorePlayer(playerPed, false)
+                SetLocalPlayerAsGhost(false)
+                NetworkSetPlayerIsPassive(false)
+                NetworkSetFriendlyFireOption(true)
+				SetEntityCanBeDamaged(playerPed, false)
+                SetPlayerCanDoDriveBy(PlayerId(), true)
+                SetPlayerInvincible(PlayerId(), false)
+                SetEntityProofs(playerPed, false, false, false, false, false, false, false, false)
+                SetEntityVisible(playerPed, true)
+                SetEntityAlpha(playerPed, 255, false)
+                SetPlayerInvincible(PlayerId(), false)
+                SetEntityCollision(playerPed, true, true)
+				SetEntityCanBeDamaged(vehicle, true)
+                SetEntityCollision(playerPed, true, true)
+                if DoesEntityExist(vehicle) then
+                    SetEntityCollision(vehicle, true, true)
+                end
+                
                 lib.notify({
                     title = _U("AdminZone_title") .. " #" .. zoneId,
                     description = _U("outAdminzone"),
                     type = "warning"
                 })
-                SetPlayerCanDoDriveBy(PlayerId(), true) 
             end
         })
 
-        AdminZones[zoneId].thread = CreateThread(function()
-            while true do
-                if not AdminZones[zoneId] or not AdminZones[zoneId].marker then break end
+        CreateThread(function()
+            while AdminZones[zoneId] and AdminZones[zoneId].marker do
                 AdminZones[zoneId].marker:draw()
-                Wait(0) 
+                Wait(0)
             end
         end)
     end
 end)
 
 function RemoveAllAdminZones()
-    for zoneId, zoneData in pairs(AdminZones) do
-        TriggerEvent("villamos_aduty:CreateAdminzone", false, nil, nil, zoneId)
+    for id in pairs(AdminZones) do
+        TriggerEvent("villamos_aduty:CreateAdminzone", false, nil, nil, id)
     end
-end
-
-function DrawText3D(coords, text, color)
-    local r, g, b = 255, 255, 255
-    
-    if type(color) == "string" then
-        local hex = color:gsub("#", "")
-        if #hex == 6 then
-            r = tonumber(hex:sub(1, 2), 16) or 255
-            g = tonumber(hex:sub(3, 4), 16) or 255
-            b = tonumber(hex:sub(5, 6), 16) or 255
-        end
-    elseif type(color) == "table" and color.r and color.g and color.b then
-        r, g, b = color.r, color.g, color.b
-    elseif type(color) == "table" and #color >= 3 then
-        r, g, b = color[1], color[2], color[3]
-    end
-    
-    r = math.max(0, math.min(255, r))
-    g = math.max(0, math.min(255, g))
-    b = math.max(0, math.min(255, b))
-    
-    SetDrawOrigin(coords.x, coords.y, coords.z)
-    SetTextScale(0.35, 0.35)
-    SetTextFont(6)
-    SetTextColour(r, g, b, 255) 
-    SetTextCentre(1)
-    SetTextOutline()
-    BeginTextCommandDisplayText("STRING")
-    AddTextComponentString(text)
-    EndTextCommandDisplayText(0, 0)
-    ClearDrawOrigin()
 end
