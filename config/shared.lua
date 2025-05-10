@@ -121,7 +121,7 @@ if not IsDuplicityVersion() then
                 showDuration = false
             })
         elseif Config.Notifye == "codem" then
-            TriggerEvent('codem-notification:Create', msg, 'info', 'Admin Rendszer', 5000)
+            TriggerEvent("codem-notification", msg, 5000, "info)
         elseif Config.Notifye == "okok" then
             exports['okokNotify']:Alert('Admin Rendszer', msg, 5000, 'info', false)
         end
