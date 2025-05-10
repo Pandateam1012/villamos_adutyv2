@@ -44,7 +44,7 @@ Config.Notify = function(src, msg)
             showDuration = false
         })
     elseif Config.Notifye == "codem" then
-        TriggerClientEvent('codem-notification:Create', src, msg, 'info', 'Admin Rendszer', 5000)
+        TriggerClientEvent("codem-notification", src, msg, 5000, "info)
     elseif Config.Notifye == "okok" then
         TriggerClientEvent('okokNotify:Alert', src, 'Admin Rendszer', msg, 5000, 'info', false)
     end
