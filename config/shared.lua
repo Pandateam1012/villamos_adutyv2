@@ -10,6 +10,7 @@ Config.Notifye = "ox" -- esx, ox, okok, codem
 
 Config.AdminZone = {
     blipSprite = 487,
+    radius = 50
 }
 
 Config.Admintext = {
