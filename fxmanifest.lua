@@ -1,7 +1,7 @@
 fx_version 'cerulean'
 game 'gta5'
 description 'admin duty by 6osvillamos Edited by BP Scripts'
-version '3.6.6'
+version '3.6.7'
 ui_page 'html/index.html'
 lua54 "yes"
 
