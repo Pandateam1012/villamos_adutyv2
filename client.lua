@@ -1,4 +1,6 @@
 ---@diagnostic disable: missing-parameter
+if not lib.checkDependency('ox_lib', '3.30') then error() end
+
 local admins,nearadmins,playerJobs, gamertags = {}, {}, {}, {}
 local duty, group, tag ,ids, god, speed, invisible, adminzone, noragdoll, idsThread, Spectating, isInUi, adminthread, time = false, "user", false, false, false, false, false, false, false, nil, false, false, false, "0h 00m"
 local AdminZones, Adminthread, currentZoneColor
