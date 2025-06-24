@@ -2,7 +2,20 @@ local inDuty = {}
 local tags = {}
 local dutyTimes = json.decode(LoadResourceFile(GetCurrentResourceName(), "data.json")) or {}
 local useOkokChat = GetResourceState('okokChat') == 'started' or GetResourceState('okokChatV2') == 'started'
-local isAdminLoggingEnabled = Config.ChatLogs
+local adminLoggingStates = {}
+
+local function DebugPrint(msg)
+    if Config.debug then
+        print("[DEBUG] " .. msg)
+    end
+end
+
+function IsAdminLoggingEnabled(source)
+    if adminLoggingStates[source] == nil then
+        adminLoggingStates[source] = Config.ChatLogs
+    end
+    return adminLoggingStates[source]
+end
 
 function NormalizePlayerName(playerName)
     if not playerName then return "Unknown" end
@@ -41,8 +54,10 @@ AddEventHandler('esx:setGroup', function(source, group)
         end
         
         TriggerClientEvent("villamos_aduty:setDuty", source, true, group)
+        DebugPrint("Admin csoport beállítva: " .. GetPlayerName(source) .. " - " .. group)
     end
 end)
+
 if Config.Tips then
     local tips = {
         "Használd a /adlog parancsot az admin log kikapcsolásához!",
@@ -64,6 +79,7 @@ if Config.Tips then
         while true do
             Wait(15 * 60 * 1000)
             BroadcastTip()
+            DebugPrint("Tipp elküldve az adminoknak")
         end
     end)
 end
@@ -79,37 +95,36 @@ function GetAdmins()
     return admins
 end
 
-local function sendAdminLog(admin, title, message, target)
+local function sendAdminLog(admin, title, message)
     local xPlayer = ESX.GetPlayerFromId(admin) 
     if not xPlayer or not inDuty[xPlayer.source] then 
         print(('[villamos_adutyv2] WARNING: sendAdminLog called for player %s who is not on duty or xPlayer is nil.'):format(admin))
         return 
     end
     
-    if not isAdminLoggingEnabled then return end
     local normalizedName = NormalizePlayerName(GetPlayerName(admin))
     local playername = " "..normalizedName.. " ["..admin.."]" or " Ismeretlen Admin" 
     local admins = GetAdmins() 
 
     for _, adminId in ipairs(admins) do
-        if useOkokChat then
-            local background = 'linear-gradient(90deg, rgba(26, 26, 46, 0.9) 0%, rgba(67, 97, 238, 0.9) 100%)'
-            local color = '#4361ee'
-            local icon = 'fa-solid fa-hammer'
-            TriggerEvent('okokChat:ServerMessage', background, color, icon, title, playername, message, adminId, " ") 
-        else
-            TriggerClientEvent("chat:addMessage", adminId, { 
-                template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(22, 33, 62, 0.6); border-radius: 8px; border: 0.0px solid #e63946"><i class="fas fa-wrench"></i> <span style="color:#4cc9f0">[Log] </span>{1}</span> {0}</div>',
-                args = { message, playername },
-            })
+        if IsAdminLoggingEnabled(adminId) then
+            if useOkokChat then
+                local background = 'linear-gradient(90deg, rgba(26, 26, 46, 0.9) 0%, rgba(67, 97, 238, 0.9) 100%)'
+                local color = '#4361ee'
+                local icon = 'fa-solid fa-hammer'
+                TriggerEvent('okokChat:ServerMessage', background, color, icon, title, playername, message, adminId, " ") 
+            else
+                TriggerClientEvent("chat:addMessage", adminId, { 
+                    template = '<div style="padding: 0.5vw; margin: 0.5vw; background-color: rgba(22, 33, 62, 0.6); border-radius: 8px; border: 0.0px solid #e63946"><i class="fas fa-wrench"></i> <span style="color:#4cc9f0">[Log] </span>{1}</span> {0}</div>',
+                    args = { message, playername },
+                })
+            end
         end
     end
 end
 
 RegisterNetEvent('villamos_aduty:sendlog')
 AddEventHandler('villamos_aduty:sendlog', function(uzi)
-    if not isAdminLoggingEnabled then return end
-
     local xPlayer = ESX.GetPlayerFromId(source)
     if xPlayer then
         local group = Config.DiscordTags and GetDiscordRole(xPlayer.source) or xPlayer.getGroup()
@@ -118,7 +133,8 @@ AddEventHandler('villamos_aduty:sendlog', function(uzi)
             return Config.Notify(xPlayer.source, "Nincs jogosultságod ehhez a logoláshoz!")
         end 
 
-        sendAdminLog(source, "Admin Log", uzi, -1) 
+        sendAdminLog(source, "Admin Log", uzi) 
+        DebugPrint("Admin log üzenet elküldve: " .. uzi)
     end
 end)
 
@@ -134,8 +150,10 @@ lib.callback.register('villamos_aduty:getAllJobs', function(source)
         end
     end
 
+    DebugPrint("Munkák lekérdezve: " .. GetPlayerName(source))
     return jobs
 end)
+
 function formatMoney(amount)
     if type(amount) ~= "number" then return "0" end
     
@@ -201,6 +219,7 @@ lib.callback.register("villamos_aduty:openPanel", function(source)
         end
     end
 
+    DebugPrint("Admin panel megnyitva: " .. GetPlayerName(source))
     return true, xAdmin.getGroup(), players
 end)
 
@@ -228,6 +247,7 @@ AddEventHandler('villamos_aduty:setTag', function(enable)
     end
     
     TriggerClientEvent("villamos_aduty:sendData", -1, tags)
+    DebugPrint("Admin tag beállítása: " .. (enable and "bekapcsolva" or "kikapcsolva") .. " - " .. GetPlayerName(source))
 end)
 
 local activeAdminZones = {} 
@@ -247,11 +267,13 @@ RegisterNetEvent("villamos_aduty:Adminzone", function(state, coords)
             color = color
         }
         TriggerClientEvent("villamos_aduty:CreateAdminzone", -1, state, coords, color, zoneId)
+        DebugPrint("Admin zóna létrehozva: " .. GetPlayerName(source))
     else
         for zoneId, zoneData in pairs(activeAdminZones) do
             if zoneData.creator == source then
                 TriggerClientEvent("villamos_aduty:CreateAdminzone", -1, false, nil, nil, zoneId)
                 activeAdminZones[zoneId] = nil
+                DebugPrint("Admin zóna törölve: " .. GetPlayerName(source))
             end
         end
     end
@@ -283,10 +305,13 @@ RegisterNetEvent('villamos_aduty:setDutya', function(enable)
         dutyTimes[xPlayer.identifier] = (dutyTimes[xPlayer.identifier] or 0) + dutyMinutes
         SaveResourceFile(GetCurrentResourceName(), "data.json", json.encode(dutyTimes), -1)
         LogToDiscord(normalizedName, false, FormatMinutes(dutyTimes[xPlayer.identifier] or 0), FormatMinutes(dutyMinutes))
+        DebugPrint("Admin duty kikapcsolva: " .. normalizedName)
     else 
         local group = Config.DiscordTags and GetDiscordRole(xPlayer.source) or xPlayer.getGroup()
 
         if not group or not Config.Admins[group] then return Config.Notify(xPlayer.source, _U("cant_duty")) end 
+
+        adminLoggingStates[source] = Config.ChatLogs
 
         local normalizedName = NormalizePlayerName(GetPlayerName(xPlayer.source))
         inDuty[xPlayer.source] = {
@@ -298,7 +323,7 @@ RegisterNetEvent('villamos_aduty:setDutya', function(enable)
         TriggerClientEvent("villamos_aduty:setDuty", xPlayer.source, true, group)
         Config.Notify(-1, Config.Admins[group].tag .." ".._U("went_onduty", normalizedName))
         TriggerEvent("villamos_aduty:sendlog", Config.Admins[group].tag .." ".._U("went_onduty", normalizedName))
-
+        DebugPrint("Admin duty bekapcsolva: " .. normalizedName)
 
         tags[xPlayer.source] = inDuty[xPlayer.source].tag
         TriggerClientEvent("villamos_aduty:sendData", -1, tags)
@@ -321,6 +346,7 @@ AddEventHandler('playerDropped', function(reason)
     dutyTimes[xPlayer.identifier] = (dutyTimes[xPlayer.identifier] or 0) + dutyMinutes
     SaveResourceFile(GetCurrentResourceName(), "data.json", json.encode(dutyTimes), -1)
     LogToDiscord(normalizedName, false, FormatMinutes(dutyTimes[xPlayer.identifier] or 0), FormatMinutes(dutyMinutes))
+    DebugPrint("Játékos kilépett, admin duty kikapcsolva: " .. normalizedName)
 end)
 
 lib.callback.register("villamos_adutyv2:gettime", function(source)
@@ -333,12 +359,14 @@ lib.callback.register("villamos_adutyv2:gettime", function(source)
             time = FormatMinutes(v)
         end
     end
+    DebugPrint("Duty idő lekérdezve: " .. GetPlayerName(source))
     return time
 end)
 
 RegisterNetEvent('esx:playerLoaded')
 AddEventHandler('esx:playerLoaded', function(playerData)
     TriggerClientEvent("villamos_aduty:sendData", source, tags)
+    DebugPrint("Játékos betöltve: " .. GetPlayerName(source))
 end)
 
 function LogToDiscord(name, duty, alltime, time)
@@ -371,12 +399,13 @@ function LogToDiscord(name, duty, alltime, time)
         }
     }
     PerformHttpRequest(Config.Webhook, function(err, text, headers) end, 'POST', json.encode({embeds = connect}), { ['Content-Type'] = 'application/json' })
+    DebugPrint("Discord log elküldve: " .. name .. " - " .. (duty and "duty bekapcsolva" or "duty kikapcsolva"))
 end
 
 function FormatMinutes(m)
     local minutes = m % 60
-	local hours = math.floor((m - minutes) / 60)
-	return hours.." h "..minutes.." m"
+    local hours = math.floor((m - minutes) / 60)
+    return hours.." h "..minutes.." m"
 end
 
 function IsAdmin(group)
@@ -400,6 +429,7 @@ function GetPlayerDiscord(src)
 
     return nil
 end
+
 function GetDiscordRole(src)
     local api = Config.DiscordTimeOut
     local discordId = GetPlayerDiscord(src)
@@ -447,13 +477,15 @@ RegisterCommand('adlog', function(source)
         local group = Config.DiscordTags and GetDiscordRole(xPlayer.source) or xPlayer.getGroup()
         if not group or not Config.Admins[group] then return Config.Notify(xPlayer.source, _U("cant_duty")) end 
     
-        isAdminLoggingEnabled = not isAdminLoggingEnabled
-        Notify(xPlayer.source, isAdminLoggingEnabled and "Admin log bekapcsolva" or "Admin log kikapcsolva")
+        local currentState = IsAdminLoggingEnabled(source)
+        adminLoggingStates[source] = not currentState
+        
+        local statusMsg = adminLoggingStates[source] and "Admin log bekapcsolva" or "Admin log kikapcsolva"
+        Config.Notify(xPlayer.source, statusMsg)
+        DebugPrint("Admin log állapota megváltozott: " .. statusMsg .. " - " .. GetPlayerName(source))
     end
 end, false)
 
-
--- Spectate triggerek
 RegisterNetEvent('villamos_aduty:sendcoord')
 AddEventHandler('villamos_aduty:sendcoord', function(targetServerId)
     local xPlayer = ESX.GetPlayerFromId(source)
@@ -466,7 +498,19 @@ AddEventHandler('villamos_aduty:sendcoord', function(targetServerId)
         local targetPed = GetPlayerPed(xTarget.source)
         local coord = GetEntityCoords(targetPed)
         TriggerClientEvent('villamos_aduty:getcoords', source, coord)
+        DebugPrint("Koordináták elküldve: " .. GetPlayerName(source) .. " -> " .. GetPlayerName(targetServerId))
     else
+    end
+end)
+
+RegisterServerEvent("villamos_aduty:requestCoordUpdate")
+AddEventHandler("villamos_aduty:requestCoordUpdate", function(targetId)
+    local src = source
+    local targetPlayer = GetPlayerPed(targetId)
+    if targetPlayer then
+        local coords = GetEntityCoords(targetPlayer)
+        TriggerClientEvent("villamos_aduty:forceUpdateCoords", src, coords, targetId)
+        DebugPrint("Koordináta frissítés kérése: " .. GetPlayerName(src) .. " -> " .. GetPlayerName(targetId))
     end
 end)
 
@@ -474,6 +518,7 @@ lib.callback.register("villamos_aduty:kickPlayer", function(source, targetId)
     local xPlayer = ESX.GetPlayerFromId(source)
     if not IsAdmin(xPlayer.getGroup()) then return false end
     DropPlayer(targetId, _U("kicked_message"))
+    DebugPrint("Játékos kirúgva: " .. GetPlayerName(targetId) .. " by " .. GetPlayerName(source))
     return true
 end)
 
@@ -485,6 +530,7 @@ lib.callback.register("villamos_aduty:gotoPlayer", function(source, targetId)
     if not inDuty[xAdmin.source] then return false end
     if xTarget then 
         xAdmin.setCoords(xTarget.getCoords(true))
+        DebugPrint("Admin teleportált: " .. GetPlayerName(source) .. " -> " .. GetPlayerName(targetId))
         return true 
     end
     return false
@@ -492,7 +538,11 @@ end)
 
 lib.callback.register("villamos_aduty:getPlayerCoords", function(source, targetId)
     local xTarget = ESX.GetPlayerFromId(targetId)
-    return xTarget and true, xTarget.getCoords(true)
+    if xTarget then
+        DebugPrint("Játékos koordináták lekérdezve: " .. GetPlayerName(targetId) .. " by " .. GetPlayerName(source))
+        return true, xTarget.getCoords(true)
+    end
+    return false, nil
 end)
 
 lib.callback.register("villamos_aduty:bring", function(source, targetId)
@@ -504,5 +554,13 @@ lib.callback.register("villamos_aduty:bring", function(source, targetId)
     
     local adminCoords = xAdmin.getCoords(true)
     xTarget.setCoords(adminCoords)
+    DebugPrint("Játékos behozva: " .. GetPlayerName(targetId) .. " by " .. GetPlayerName(source))
     return true
+end)
+
+lib.callback.register("villamos_aduty:getadmintag", function(source, targetId)
+    local xPlayer = ESX.GetPlayerFromId(targetId)
+    if not xPlayer then return end
+    DebugPrint("Admin tag lekérdezve: " .. GetPlayerName(targetId) .. " by " .. GetPlayerName(source))
+    return Config.Admins[xPlayer.getGroup()].tag
 end)

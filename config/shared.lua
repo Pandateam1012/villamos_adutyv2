@@ -8,9 +8,11 @@ Config.ChatLogs = true -- true/false Chatre való logolás (Minden ami a panelhe
                         -- EZ CSAK AZT TUDJA HOGY ALAPBÓL KI/BE KAPCSOLJA A CHATRE LOGOLÁST
 Config.Notifye = "ox" -- esx, ox, okok, codem
 
+Config.debug = false -- Debug Prints
+
 Config.AdminZone = {
     blipSprite = 487,
-    radius = 50
+    radius = 50.0
 }
 
 Config.Admintext = {

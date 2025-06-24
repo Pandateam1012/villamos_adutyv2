@@ -1,6 +1,5 @@
 ---@diagnostic disable: missing-parameter
 
-
 local admins,nearadmins,playerJobs, gamertags = {}, {}, {}, {}
 local duty, group, tag ,ids, god, speed, invisible, adminzone, noragdoll, idsThread, Spectating, isInUi, adminthread, time = false, "user", false, false, false, false, false, false, false, nil, false, false, false, "0h 00m"
 local AdminZones, Adminthread, currentZoneColor
@@ -8,14 +7,26 @@ local playerBlips = false
 lastposition = nil
 -- LOG EVENT
 
+local function DebugPrint(msg)
+    if Config.debug then
+        print("[DEBUG] " .. msg)
+    end
+end
+
 local function sendlog(uzi)
+    DebugPrint("Log küldése: " .. uzi)
     TriggerServerEvent('villamos_aduty:sendlog', uzi)
 end
 
 RegisterCommand('admenu', function(s, a, r)
+    DebugPrint("Admin menü megnyitása kérelmezve")
     lib.callback("villamos_aduty:openPanel", false, function(allow, _group, players)
-        if not allow then return Config.Notify(_U("no_perm")) end 
-            
+        if not allow then 
+            DebugPrint("Nincs jogosultság az admin menü megnyitásához")
+            return Config.Notify(_U("no_perm")) 
+        end 
+        
+        DebugPrint("Admin menü megnyitva, csoport: " .. _group .. ", játékosok száma: " .. #players)
         SendNUIMessage({
             type = "setplayers",
             players = players
@@ -28,6 +39,7 @@ end)
 RegisterKeyMapping('admenu', _U("open_menu"), 'keyboard', 'o')
 
 function SetNuiState(state)
+    DebugPrint("NUI állapot váltása: " .. tostring(state))
     SetNuiFocus(state, state)
 	isInUi = state
 
@@ -38,34 +50,60 @@ function SetNuiState(state)
 end
 
 local coords = nil
+local spectateCoords = nil
+local targetServerId = nil
+
 RegisterNetEvent("villamos_aduty:getcoords")
 AddEventHandler("villamos_aduty:getcoords", function(coord)
+    DebugPrint("Koordináták megkapva: " .. tostring(coord))
     coords = coord
+    spectateCoords = coord
 end)
 
-function SpectatePlayer(targetServerId)
+RegisterNetEvent("villamos_aduty:forceUpdateCoords")
+AddEventHandler("villamos_aduty:forceUpdateCoords", function(coord, serverId)
+    DebugPrint("Kényszerített koordináta frissítés - ID: " .. serverId .. ", koordináták: " .. tostring(coord))
+    if serverId == targetServerId then
+        spectateCoords = coord
+        coords = coord
+        DebugPrint("Célpont koordinátái frissítve")
+    end
+end)
+
+function SpectatePlayer(targetId)
+    DebugPrint("Megfigyelés indítása - célpont ID: " .. targetId)
     local playerServerId = GetPlayerServerId(PlayerId())
+    targetServerId = targetId
     
     if not duty then 
+        DebugPrint("Nincs admin szolgálatban - megfigyelés megtagadva")
         Config.Notify(_U("no_perm"))
         return 
     end
-    
-     if tonumber(playerServerId) == tonumber(targetServerId) then 
-         Config.Notify(_U("cant_spectate_self"))
-         return 
-     end
 
     Spectating = not Spectating
+    DebugPrint("Megfigyelés állapot: " .. tostring(Spectating))
     
     if Spectating then
-        local success, coords = lib.callback.await("villamos_aduty:getPlayerCoords", false, targetServerId)
-        if not success then return Config.Notify(_U("spectate_failed")) end
+        DebugPrint("Megfigyelés indítása - kezdeti koordináták lekérése")
+        local success, initialCoords = lib.callback.await("villamos_aduty:getPlayerCoords", false, targetServerId)
+        if not success then 
+            DebugPrint("Nem sikerült lekérni a játékos koordinátáit")
+            Spectating = false
+            return Config.Notify(_U("spectate_failed")) 
+        end
+        
+        DebugPrint("Kezdeti koordináták sikeresen lekérve")
         local playerPed = PlayerPedId()
         lastposition = GetEntityCoords(playerPed)
+        DebugPrint("Utolsó pozíció mentve: " .. tostring(lastposition))
+        
+        ToggleTag(false, false)
+        ToggleInvisible(true, false)
+        DebugPrint("Tag és láthatóság beállítva")
         
         if lib.progressBar({
-            duration = 500,
+            duration = 1000,
             label = 'Betöltés...',
             useWhileDead = false,
             canCancel = true,
@@ -75,86 +113,372 @@ function SpectatePlayer(targetServerId)
                 combat = true
             },
         }) then
+            DebugPrint("Betöltési folyamat elkezdve")
             TriggerServerEvent("villamos_aduty:sendcoord", targetServerId)
+            local attempts = 0
+            local maxAttempts = 2
             
-            if not lib.waitFor(function()
-                return coords ~= nil
-            end, 5000) then
+            while attempts < maxAttempts and not spectateCoords do
+                DebugPrint("Koordináták várakozás - kísérlet: " .. attempts)
+                Wait(500)
+                attempts = attempts + 1
+                
+                if attempts % 3 == 0 then
+                    DebugPrint("Koordináták újra kérelmezése")
+                    TriggerServerEvent("villamos_aduty:sendcoord", targetServerId)
+                end
+            end
+            
+            if not spectateCoords then
+                DebugPrint("Spectate koordináták nem érkeztek meg, kezdeti koordináták használata")
+                spectateCoords = initialCoords
+                coords = initialCoords
+            end
+            
+            if not spectateCoords then
+                DebugPrint("Hiba: Nem sikerült koordinátákat lekérni")
                 Config.Notify('Nem sikerült lekérni a koordinátákat')
                 Spectating = false
                 return
             end
             
+            DebugPrint("Fókusz és kollízió beállítása")
+            SetFocusArea(spectateCoords.x, spectateCoords.y, spectateCoords.z, 0.0, 0.0, 0.0)
+            RequestCollisionAtCoord(spectateCoords.x, spectateCoords.y, spectateCoords.z)
+            
+            local streamingTimer = 0
+            while streamingTimer < 8000 do 
+                Wait(100)
+                streamingTimer = streamingTimer + 100
+                RequestCollisionAtCoord(spectateCoords.x, spectateCoords.y, spectateCoords.z)
+                
+                if HasCollisionLoadedAroundEntity(playerPed) then
+                    DebugPrint("Kollízió betöltve")
+                    break
+                end
+            end
+            
+            DebugPrint("Megfigyelési mód beállítások alkalmazása")
+            ToggleIds(true, false)
             FreezeEntityPosition(playerPed, true)
-            SetEntityCoords(playerPed, coords.x + math.random(-20, 20), coords.y + math.random(-40, -20), coords.z + math.random(-40, -20))
+            
+            DoScreenFadeOut(100)
             Wait(100)
             
-            local targetPlayer = GetPlayerFromServerId(targetServerId)
-            local targetPed = GetPlayerPed(targetPlayer)
-            NetworkSetInSpectatorMode(true, targetPed)
+            local offsetX = math.random(-15, 15)
+            local offsetY = math.random(-15, 15)
+            local offsetZ = math.random(-20, -5) 
             
-            coords = nil
+            DebugPrint("Játékos pozíció beállítása offset-tel: " .. offsetX .. ", " .. offsetY .. ", " .. offsetZ)
+            SetEntityCoordsNoOffset(playerPed, 
+                spectateCoords.x + offsetX, 
+                spectateCoords.y + offsetY, 
+                spectateCoords.z + offsetZ, 
+                false, false, false
+            )
+            
+            RequestCollisionAtCoord(spectateCoords.x, spectateCoords.y, spectateCoords.z)
+            
+            Wait(1000) 
+            
+            local targetPlayer = GetPlayerFromServerId(targetServerId)
+            
+            if targetPlayer == -1 or not DoesEntityExist(GetPlayerPed(targetPlayer)) then
+                DebugPrint("Célpont játékos nem található - kamera mód")
+                SetFocusPosAndVel(spectateCoords.x, spectateCoords.y, spectateCoords.z, 0.0, 0.0, 0.0)
+                NetworkConcealPlayer(PlayerId(), true, false)
+                
+                CreateSpectateCamera(spectateCoords)
+            else
+                DebugPrint("Célpont játékos megtalálva - spectator mód")
+                local targetPed = GetPlayerPed(targetPlayer)
+                NetworkSetInSpectatorMode(true, targetPed)
+            end
+            
+            DoScreenFadeIn(100)
+            DebugPrint("Megfigyelés teljesen beállítva")
+            
         else
+            DebugPrint("Betöltési folyamat megszakítva")
             Spectating = false
             return
         end
     end
-    
+
     CreateThread(function()
+        DebugPrint("Megfigyelési input kezelő thread indítva")
         while Spectating do
             Wait(0)
-            local playerId = GetPlayerFromServerId(targetServerId)
-            local playerPed = GetPlayerPed(playerId)
             
-            if DoesEntityExist(playerPed) then
-                local health = (GetEntityHealth(playerPed) - 100) / 100 * 100
-                local armour = GetPedArmour(playerPed)
-                
-                lib.showTextUI(string.format('HP: %d%% | Pajzs: %d%%', health, armour), {
-                    position = 'top-center',
-                    icon = 'eye',
-                    style = {
-                        borderRadius = 4,
-                        backgroundColor = '#141517',
-                        color = 'white'
-                    }
-                })
-            else
+            if IsControlJustPressed(0, 38) then
+                DebugPrint("Kilépés gomb megnyomva")
                 Unspectate()
-                Config.Notify('A megfigyelt játékos nem elérhető')
+                break
+            end
+
+            if targetServerId then
+                local playerId = GetPlayerFromServerId(targetServerId)
+                
+                if playerId ~= -1 and DoesEntityExist(GetPlayerPed(playerId)) then
+                    local playerPed = GetPlayerPed(playerId)
+                    local health = math.max(0, (GetEntityHealth(playerPed) - 100))
+                    local armour = GetPedArmour(playerPed)
+                    
+                    local displayText = ""
+                    local infoItems = {}
+                    
+                    if health > 0 then
+                        table.insert(infoItems, string.format("HP: %d%%", health))
+                    end
+                    
+                    if armour > 0 then
+                        table.insert(infoItems, string.format("Pajzs: %d%%", armour))
+                    end
+                    
+                    local adminRank = GetPlayerAdminRank(playerId) 
+                    if adminRank and adminRank ~= "" then
+                        table.insert(infoItems, string.format("Admin: %s", adminRank))
+                    end
+                    
+                    if #infoItems > 0 then
+                        displayText = table.concat(infoItems, " | ") .. " | [E] Kilépés"
+                    else
+                        displayText = "[E] Kilépés"
+                    end
+                    
+                    lib.showTextUI(displayText, {
+                        position = 'bottom-center',
+                        icon = 'eye',
+                        style = {
+                            borderRadius = 12,
+                            backgroundColor = '#16213e',
+                            color = '#f8f9fa',
+                            boxShadow = '0 4px 20px rgba(0, 0, 0, 0.3)',
+                            padding = '12px 24px',
+                            fontSize = '14px',
+                            fontWeight = '500',
+                            textShadow = '0 1px 1px rgba(0,0,0,0.2)',
+                            minWidth = '320px',
+                            maxWidth = '420px'
+                        }
+                    })
+                else
+                    if GetGameTimer() % 2000 < 10 then 
+                        DebugPrint("Koordináta frissítés kérése célponttól")
+                        TriggerServerEvent("villamos_aduty:requestCoordUpdate", targetServerId)
+                    end
+                    
+                    lib.showTextUI('Játékos betöltése... Kérlek várj | [E] Kilépés', {
+                        position = 'bottom-center',
+                        icon = 'eye',
+                        style = {
+                            borderRadius = 12,
+                            backgroundColor = '#16213e',
+                            color = '#f8f9fa',
+                            boxShadow = '0 4px 20px rgba(0, 0, 0, 0.3)',
+                            padding = '12px 24px',
+                            fontSize = '14px',
+                            fontWeight = '500',
+                            textShadow = '0 1px 1px rgba(0,0,0,0.2)',
+                            minWidth = '320px',
+                            maxWidth = '420px'
+                        }
+                    })
+                end
             end
             
-            Wait(200) 
+            Wait(100) 
         end
+        DebugPrint("Megfigyelési UI elrejtve")
         lib.hideTextUI()
+    end)
+    
+    CreateThread(function()
+        DebugPrint("Megfigyelési koordináta frissítő thread indítva")
+        while Spectating do
+            Wait(2 * 1000)
+            
+            if targetServerId then
+                local playerId = GetPlayerFromServerId(targetServerId)
+                
+                if playerId == -1 or not DoesEntityExist(GetPlayerPed(playerId)) then
+                    DebugPrint("Célpont nem létezik - koordináta frissítés szükséges")
+                    local success, newCoords = lib.callback.await("villamos_aduty:getPlayerCoords", false, targetServerId)
+                    if success and newCoords then
+                        local currentCoords = GetEntityCoords(PlayerPedId())
+                        local distance = #(currentCoords - vector3(newCoords.x, newCoords.y, newCoords.z))
+                        DebugPrint("Új koordináták lekérve - távolság: " .. distance)
+                        
+                        if distance > 500 then 
+                            DebugPrint("Nagy távolság - fade out és teleportálás")
+                            DoScreenFadeOut(300)
+                            Wait(300)
+                            
+                            SetFocusArea(newCoords.x, newCoords.y, newCoords.z, 0.0, 0.0, 0.0)
+                            RequestCollisionAtCoord(newCoords.x, newCoords.y, newCoords.z)
+                            
+                            local streamWait = 0
+                            while streamWait < 5000 do
+                                Wait(100)
+                                streamWait = streamWait + 100
+                                RequestCollisionAtCoord(newCoords.x, newCoords.y, newCoords.z)
+                            end
+                        end
+                        
+                        spectateCoords = newCoords
+                        local playerPed = PlayerPedId()
+                        
+                        DebugPrint("Spectator mód újrabeállítása")
+                        NetworkSetInSpectatorMode(false, playerPed)
+                        Wait(200)
+                        
+                        local offsetX = math.random(-15, 15)
+                        local offsetY = math.random(-15, 15)
+                        local offsetZ = math.random(5, 20)
+                        
+                        SetEntityCoordsNoOffset(playerPed, 
+                            spectateCoords.x + offsetX, 
+                            spectateCoords.y + offsetY, 
+                            spectateCoords.z + offsetZ, 
+                            false, false, false
+                        )
+                        
+                        Wait(800)
+                        
+                        SetFocusPosAndVel(spectateCoords.x, spectateCoords.y, spectateCoords.z, 0.0, 0.0, 0.0)
+                        NetworkConcealPlayer(PlayerId(), true, false)
+                        
+                        if distance > 500 then
+                            DoScreenFadeIn(300)
+                        end
+                        
+                        local newTargetPlayer = GetPlayerFromServerId(targetServerId)
+                        if newTargetPlayer ~= -1 and DoesEntityExist(GetPlayerPed(newTargetPlayer)) then
+                            DebugPrint("Új célpont megtalálva - spectator mód bekapcsolása")
+                            local targetPed = GetPlayerPed(newTargetPlayer)
+                            NetworkSetInSpectatorMode(true, targetPed)
+                        end
+                    end
+                else
+                    local targetPed = GetPlayerPed(playerId)
+                    if DoesEntityExist(targetPed) then
+                        local coords = GetEntityCoords(targetPed)
+                        spectateCoords = coords
+                        
+                        if not NetworkIsInSpectatorMode() then
+                            DebugPrint("Spectator mód újrakapcsolása")
+                            NetworkSetInSpectatorMode(true, targetPed)
+                        end
+                    end
+                end
+            end
+        end
+        DebugPrint("Koordináta frissítő thread leállítva")
+    end)
+end
+
+function GetPlayerAdminRank(playerId)
+    DebugPrint("Admin rang lekérése - játékos ID: " .. playerId)
+    local targetServerId = GetPlayerServerId(playerId)
+    if targetServerId then
+        local success, adminRank = lib.callback.await("villamos_aduty:getadmintag", false, targetServerId)
+        if success and adminRank then
+            DebugPrint("Admin rang sikeresen lekérve: " .. adminRank)
+            return adminRank
+        else
+            DebugPrint("Admin rang lekérése sikertelen")
+        end
+    end
+    return nil
+end
+
+function CreateSpectateCamera(coords)
+    DebugPrint("Megfigyelő kamera létrehozása")
+    local cam = CreateCam("DEFAULT_SCRIPTED_CAMERA", true)
+    SetCamCoord(cam, coords.x, coords.y, coords.z + 10.0)
+    PointCamAtCoord(cam, coords.x, coords.y, coords.z)
+    SetCamActive(cam, true)
+    RenderScriptCams(true, true, 1000, true, true)
+    
+    CreateThread(function()
+        DebugPrint("Kamera frissítő thread indítva")
+        while Spectating do
+            if spectateCoords then
+                SetCamCoord(cam, spectateCoords.x, spectateCoords.y, spectateCoords.z + 10.0)
+                PointCamAtCoord(cam, spectateCoords.x, spectateCoords.y, spectateCoords.z)
+            end
+            Wait(500)
+        end
+        
+        DebugPrint("Kamera megsemmisítése")
+        RenderScriptCams(false, true, 1000, true, true)
+        DestroyCam(cam, false)
     end)
 end
 
 function Unspectate()
-    if not Spectating then return end
-    if not lastposition then return end
+    if not Spectating then 
+        DebugPrint("Nem vagy megfigyelési módban")
+        return 
+    end
     
+    DebugPrint("Megfigyelés befejezése")
     local playerPed = PlayerPedId()
+    
     NetworkSetInSpectatorMode(false, playerPed)
     SetEntityVisible(playerPed, true, false)
-    FreezeEntityPosition(playerPed, false)
-    SetEntityCoords(playerPed, lastposition)
+    
+    if lastposition then
+        DebugPrint("Visszatérés utolsó pozícióhoz")
+        DoScreenFadeOut(300)
+        Wait(300)
+        
+        RequestCollisionAtCoord(lastposition.x, lastposition.y, lastposition.z)
+        
+        local timer = 0
+        while not HasCollisionLoadedAroundEntity(playerPed) and timer < 5000 do
+            RequestCollisionAtCoord(lastposition.x, lastposition.y, lastposition.z)
+            Wait(100)
+            timer = timer + 100
+        end
+        
+        FreezeEntityPosition(playerPed, false)
+        SetEntityCoordsNoOffset(playerPed, lastposition.x, lastposition.y, lastposition.z, false, false, false)
+        
+        Wait(500)
+        DoScreenFadeIn(300)
+    else
+        DebugPrint("Nincs mentett pozíció")
+        FreezeEntityPosition(playerPed, false)
+    end
+    
+    ClearFocus()
+    NetworkConcealPlayer(PlayerId(), false, false)
     
     lib.hideTextUI()
     Config.Notify('Megfigyelés vége')
-    
+    ToggleTag(true, false)
+    ToggleIds(false, false)
+    ToggleInvisible(false, false)
     Spectating = false
     lastposition = nil
+    spectateCoords = nil
+    coords = nil
+    targetServerId = nil
+    DebugPrint("Megfigyelés teljesen befejezve")
 end
 
 RegisterCommand("unspectate", function()
+    DebugPrint("Unspectate parancs végrehajtva")
     Unspectate()
 end)
 
 RegisterKeyMapping('unspectate', 'Unspectate', 'keyboard', 'e')
 
 RegisterNUICallback('spectate', function(data)
+    DebugPrint("NUI spectate callback - ID: " .. data.id)
     if not duty then 
+        DebugPrint("Nincs jogosultság a megfigyeléshez")
         Config.Notify(_U("no_perm"))
         return 
     end
@@ -163,9 +487,14 @@ RegisterNUICallback('spectate', function(data)
 end)
 
 RegisterNUICallback('update', function(data, cb)
+    DebugPrint("NUI update callback")
     lib.callback("villamos_aduty:openPanel", false, function(allow, _group, players)
-        if not allow then return SetNuiState(false) end 
-            
+        if not allow then 
+            DebugPrint("Frissítési jogosultság megtagadva")
+            return SetNuiState(false) 
+        end 
+        
+        DebugPrint("Játékos lista frissítve")
         SendNUIMessage({
             type = "setplayers",
             players = players
@@ -176,21 +505,31 @@ RegisterNUICallback('update', function(data, cb)
 end)
 
 RegisterNUICallback('exit', function(data, cb)
+    DebugPrint("NUI kilépés")
     SetNuiState(false)
     cb('ok')
 end)
 
 RegisterNUICallback('kick', function(data, cb)
+    DebugPrint("Játékos kirúgása - ID: " .. data.id)
     lib.callback("villamos_aduty:kickPlayer", false, function(success)
-        if success then cb('ok') end
+        if success then 
+            DebugPrint("Kirúgás sikeres")
+            cb('ok') 
+        else
+            DebugPrint("Kirúgás sikertelen")
+        end
     end, data.id)
 end)
 
 RegisterNUICallback('goto', function(data, cb)
+    DebugPrint("Goto parancs - ID: " .. data.id)
     lib.callback("villamos_aduty:gotoPlayer", false, function(success)
         if success then
+            DebugPrint("Goto sikeres")
             Config.Notify(_U("player_brought"))
         else
+            DebugPrint("Goto sikertelen")
             Config.Notify(_U("no_perm"))
         end
         cb('ok')
@@ -198,10 +537,13 @@ RegisterNUICallback('goto', function(data, cb)
 end)
 
 RegisterNUICallback('bring', function(data, cb)
+    DebugPrint("Bring parancs - ID: " .. data.id)
     lib.callback("villamos_aduty:bring", false, function(success)
         if success then
+            DebugPrint("Bring sikeres")
             Config.Notify(_U("player_brought"))
         else
+            DebugPrint("Bring sikertelen")
             Config.Notify(_U("no_perm"))
         end
         cb('ok')
@@ -209,52 +551,64 @@ RegisterNUICallback('bring', function(data, cb)
 end)
 
 RegisterNUICallback('locales', function(data, cb)
+    DebugPrint("Locale-k lekérése")
     local nuilocales = {}
-    if not Config.Locale or not Locales[Config.Locale] then return print("^1SCRIPT ERROR: Invilaid locales configuartion") end
+    if not Config.Locale or not Locales[Config.Locale] then 
+        DebugPrint("Hibás locale konfiguráció")
+        return print("^1SCRIPT ERROR: Invilaid locales configuartion") 
+    end
     for k, v in pairs(Locales[Config.Locale]) do 
         if string.find(k, "nui") then 
             nuilocales[k] = v
         end 
     end 
+    DebugPrint("Locale-k elküldve")
     cb(nuilocales)
 end)
 
 RegisterNUICallback('duty', function(data, cb)
+    DebugPrint("Szolgálat váltása: " .. tostring(data.enable))
     TriggerServerEvent('villamos_aduty:setDutya', data.enable)
     cb('ok')
 end)
 
 RegisterNUICallback('tag', function(data, cb)
+    DebugPrint("Tag váltása: " .. tostring(data.enable))
     ToggleTag(data.enable, true)
     sendlog(_U("taglog", data.enable and _U("enabledlog") or _U("disabledlog")))
     cb('ok')
 end)
 
 RegisterNUICallback('ids', function(data, cb)
+    DebugPrint("IDs váltása: " .. tostring(data.enable))
     ToggleIds(data.enable, true)
     sendlog(_U("idlog", data.enable and _U("enabledlog") or _U("disabledlog")))
     cb('ok')
 end)
 
 RegisterNUICallback('god', function(data, cb)
+    DebugPrint("God mód váltása: " .. tostring(data.enable))
     ToggleGod(data.enable, true)
     sendlog(_U("godmodelog", data.enable and _U("enabledlog") or _U("disabledlog")))
     cb('ok')
 end)
 
 RegisterNUICallback('speed', function(data, cb)
+    DebugPrint("Sebesség váltása: " .. tostring(data.enable))
     ToggleSpeed(data.enable, true)
     sendlog(_U("spedlog", data.enable and _U("enabledlog") or _U("disabledlog")))
     cb('ok')
 end)
 
 RegisterNUICallback('invisible', function(data, cb)
+    DebugPrint("Láthatatlanság váltása: " .. tostring(data.enable))
     ToggleInvisible(data.enable, true)
     sendlog(_U("invisiblelog", data.enable and _U("enabledlog") or _U("disabledlog")))
     cb('ok')
 end)
 
 RegisterNUICallback('adminzone', function(data, cb)
+    DebugPrint("Admin zóna váltása: " .. tostring(data.enable))
     Toggleadminzone(data.enable, true)
     sendlog(_U("adminzonelog", data.enable and _U("enabledlog") or _U("disabledlog")))
     cb('ok')
@@ -262,27 +616,32 @@ end)
 
 
 RegisterNUICallback('noragdoll', function(data, cb)
+    DebugPrint("No ragdoll váltása: " .. tostring(data.enable))
     ToggleNoragdoll(data.enable, true)
     sendlog(_U("no_ragdolllog", data.enable and _U("enabledlog") or _U("disabledlog")))
     cb('ok')
 end)
 
 RegisterNUICallback('coords', function(data, cb)
+    DebugPrint("Koordináták másolása")
     ActionCoords()
     cb('ok')
 end)
 
 RegisterNUICallback('heal', function(data, cb)
+    DebugPrint("Gyógyítás")
     ActionHeal()
     cb('ok')
 end)
 
 RegisterNUICallback('marker', function(data, cb)
+    DebugPrint("Marker teleportálás")
     ActionMarker()
     cb('ok')
 end)
 
 function UpdateNui()
+    DebugPrint("NUI frissítése")
     lib.callback("villamos_adutyv2:gettime", false, function(time)
         SendNUIMessage({
             type = "setstate",
@@ -300,51 +659,64 @@ function UpdateNui()
                 timeinduty = time or "0h 00m"
             }
         })
+        DebugPrint("NUI állapot frissítve")
     end)
 end 
 
 if Config.Commands then 
+    DebugPrint("Parancsok regisztrálása")
     RegisterCommand('adduty', function(s, a, r)
+        DebugPrint("Adduty parancs végrehajtva")
         TriggerServerEvent('villamos_aduty:setDutya', not duty)
     end)
 
     RegisterCommand('adtag', function(s, a, r)
+        DebugPrint("Adtag parancs végrehajtva")
         ToggleTag(not tag, true)
     end)
 
     RegisterCommand('adids', function(s, a, r)
+        DebugPrint("Adids parancs végrehajtva")
         ToggleIds(not ids, true)
     end)
 
     RegisterCommand('adgod', function(s, a, r)
+        DebugPrint("Adgod parancs végrehajtva")
         ToggleGod(not god, true)
     end)
 
     RegisterCommand('adspeed', function(s, a, r)
+        DebugPrint("Adspeed parancs végrehajtva")
         ToggleSpeed(not speed, true)
     end)
 
     RegisterCommand('adinvisible', function(s, a, r)
+        DebugPrint("Adinvisible parancs végrehajtva")
         ToggleInvisible(not invisible, true)
     end)
 
     RegisterCommand('adzone', function(s, a, r)
+        DebugPrint("Adzone parancs végrehajtva")
         Toggleadminzone(not adminzone, true)
     end)
 
     RegisterCommand('adnoragdoll', function(s, a, r)
+        DebugPrint("Adnoragdoll parancs végrehajtva")
         ToggleNoragdoll(not noragdoll, true)
     end)
 
     RegisterCommand('adcoords', function(s, a, r)
+        DebugPrint("Adcoords parancs végrehajtva - formátum: " .. (a[1] or "alapértelmezett"))
         ActionCoords(a[1])
     end)
 
     RegisterCommand('adheal', function(s, a, r)
+        DebugPrint("Adheal parancs végrehajtva")
         ActionHeal()
     end)
 
     RegisterCommand('admarker', function(s, a, r)
+        DebugPrint("Admarker parancs végrehajtva")
         ActionMarker()
     end)
 
@@ -352,6 +724,11 @@ if Config.Commands then
         { name="type", help="vec3, vec4, obj3, obj4, json3, json4" }
     })
 end 
+local function DebugPrint(uzenet)
+    if Config.debug then
+        print("[HIBAKERESO] " .. uzenet)
+    end
+end
 
 RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
     if not Config.Admins[group] then return end 
@@ -395,12 +772,12 @@ RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
                 SetPlayerModel(PlayerId(), Config.Admins[group].ped)
                 SetModelAsNoLongerNeeded(Config.Admins[group].ped)
             else 
-                print("^1WARNING: Invalid ped in config for group: "..group)
+                DebugPrint("Ervenytelen ped a configban a csoporthoz: "..group)
             end 
         elseif Config.Admins[group].cloth then 
             TriggerEvent('skinchanger:getSkin', function(skin)
                 if not skin then 
-                    print("^1ERROR: Failed to retrieve skin. Is the player fully loaded?")
+                    DebugPrint("Hiba: Nem sikerult betolteni a skint. A jatekos teljesen be van toltve?")
                     return 
                 end
             
@@ -408,7 +785,7 @@ RegisterNetEvent('villamos_aduty:setDuty', function(state, group)
                 if clothing then
                     TriggerEvent('skinchanger:loadClothes', skin, clothing)
                 else
-                    print("^1ERROR: No clothing config found for group: " .. group)
+                    DebugPrint("Hiba: Nem talalhato ruha config a csoporthoz: " .. group)
                 end
             end)
             
@@ -736,7 +1113,7 @@ CreateThread(function()
     
     local txd = CreateRuntimeTxd("duty")
     if not HasStreamedTextureDictLoaded("duty") then
-        return print("^1SCRIPT ERROR: Can't create texture dict 'duty'")
+        return DebugPrint("Nem sikerult letrehozni a 'duty' texture dictionary-t")
     end
     
     for i=1, #Config.Icons do
@@ -745,7 +1122,7 @@ CreateThread(function()
     
     for k, v in pairs(Config.Admins) do 
         if v.logo and not GetTextureResolution("duty", v.logo) then 
-            print("^1SCRIPT ERROR: A texture ("..v.logo..") is missing for group: "..k)
+            DebugPrint("Egy texture ("..v.logo..") hianzik a csoporthoz: "..k)
         end 
     end
     
@@ -851,11 +1228,6 @@ CreateThread(function()
     end
 end)
 
-
-
-
-
-
 RegisterNetEvent('villamos_aduty:sendData', function(data)
     admins = data
 end)
@@ -891,6 +1263,26 @@ RegisterNetEvent("villamos_aduty:CreateAdminzone", function(state, coords, color
         if zone.zone then zone.zone:remove() end
         AdminZones[zoneId] = nil
         currentZoneColors[zoneId] = nil
+        local playerPed = PlayerPedId()
+        local vehicle = GetVehiclePedIsIn(playerPed, false)
+        SetEveryoneIgnorePlayer(playerPed, false)
+        SetPoliceIgnorePlayer(playerPed, false)
+        SetLocalPlayerAsGhost(false)
+        NetworkSetPlayerIsPassive(false)
+        NetworkSetFriendlyFireOption(true)
+        SetEntityCanBeDamaged(playerPed, false)
+        SetPlayerCanDoDriveBy(PlayerId(), true)
+        SetPlayerInvincible(PlayerId(), false)
+        SetEntityProofs(playerPed, false, false, false, false, false, false, false, false)
+        SetEntityVisible(playerPed, true)
+        SetEntityAlpha(playerPed, 255, false)
+        SetPlayerInvincible(PlayerId(), false)
+        SetEntityCollision(playerPed, true, true)
+        SetEntityCanBeDamaged(vehicle, true)
+        SetEntityCollision(playerPed, true, true)
+        if DoesEntityExist(vehicle) then
+            SetEntityCollision(vehicle, true, true)
+        end
     end
 
     if state then
